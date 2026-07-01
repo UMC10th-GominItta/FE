@@ -1,18 +1,20 @@
-# Gominitta Android
+# 고민이따
 
 팀 공용 안드로이드 레포 기반(scaffold) — Kotlin + Jetpack Compose.
 
-## 기술 스택 한눈에 보기
+## 기술 스택
 
-| 레이어 | 선택 | 고정 이유 |
-|---|---|---|
-| 언어 | Kotlin 2.2.10 | 안드로이드 공식 1급 언어 |
-| UI | Jetpack Compose (Material 3) | XML/View 시스템 미사용 |
-| DI | Hilt 2.59.2 | Dagger 기반 공식 Jetpack DI |
-| 네비게이션 | Navigation-Compose 2.9.0 | Compose 네이티브; Routes 상수 뒤에 캡슐화 |
-| 빌드 | AGP 9.1.1 + Gradle 9.4.1 | 안정 버전, KSP 호환. Android Studio Panda 2·4 동시 지원 상한(AGP ≤ 9.1)에 맞춤 — 9.1을 넘기면 Panda 2에서 Sync 불가 |
-| 애노테이션 처리 | KSP 2.2.10-2.0.2 | KAPT 대체; 증분 빌드가 빠름 |
-| SDK | compileSdk/targetSdk 37, minSdk 26 | Android 17 타깃; Android 8.0+ 기기 지원 |
+| 레이어 | 선택 |
+|---|---|
+| 언어 | Kotlin 2.2.10 |
+| UI | Jetpack Compose (Material 3) |
+| DI | Hilt 2.59.2 |
+| 네비게이션 | Navigation-Compose 2.9.0 |
+| 빌드 | AGP 9.1.1 + Gradle 9.4.1 |
+| 애노테이션 처리 | KSP 2.2.10-2.0.2 |
+| SDK | compileSdk/targetSdk 37, minSdk 26 |
+
+> ⚠️ AGP 는 **9.1.x 를 넘기지 마세요.** Android Studio Panda 2 의 상한이 AGP 9.1 이라, 넘기면 Panda 2 에서 Sync 가 안 됩니다(Panda 4 는 9.2 까지 가능).
 
 ---
 
