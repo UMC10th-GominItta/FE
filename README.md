@@ -20,30 +20,40 @@
 
 ## 폴더 구조
 
+경량 **클린 아키텍처**(단일 `:app` 모듈, 패키지 기반). 의존 방향: **presentation → domain ← data**.
+
 ```
 app/src/main/java/com/gominitta/android/
 ├── GominittaApplication.kt    # @HiltAndroidApp — Hilt 진입점
 ├── MainActivity.kt             # @AndroidEntryPoint — 단일 액티비티 셸; GominittaTheme + AppNavHost 호스팅
-├── di/                         # Hilt 모듈 (AppModule.kt 가 인터페이스 → 구현체 바인딩)
+│
+│  # ── 레이어: presentation → domain ← data ──
+├── domain/                     # 순수 Kotlin (Android/데이터 의존성 X) — 앱의 핵심
+│   ├── model/                  #   도메인 모델 (Greeting.kt)
+│   ├── repository/             #   Repository 인터페이스 (SampleRepository.kt) — 계약은 domain 이 소유
+│   └── usecase/                #   UseCase (GetGreetingUseCase.kt) — 애플리케이션 로직 1단위
 ├── data/
-│   └── repository/             # Repository 인터페이스 + Fake/Mock 구현
+│   └── repository/             #   Repository 구현 (FakeSampleRepository.kt) — domain 인터페이스 구현
+│                               #   (추후: remote/·local/ 데이터소스, mapper/ DTO↔모델)
+├── presentation/               # UI + 상태 (화면 하나당 패키지)
+│   ├── home/
+│   │   ├── HomeScreen.kt        #   Composable
+│   │   └── HomeViewModel.kt     #   @HiltViewModel — UseCase 주입
+│   └── detail/
+│       └── DetailScreen.kt
+│
+├── di/                         # Hilt 모듈 (AppModule.kt: domain 인터페이스 → data 구현 바인딩)
 ├── navigation/
 │   ├── Routes.kt               # 모든 라우트 문자열이 여기에 모임 (얇은 라우트 API)
 │   └── AppNavHost.kt           # NavHost — NavController 를 소유하는 유일한 파일
-├── ui/
-│   ├── theme/
-│   │   ├── Color.kt            # 디자인 토큰: 색상 (Figma 값 반영됨)
-│   │   ├── Type.kt             # 디자인 토큰: 타이포그래피 스케일
-│   │   ├── Spacing.kt          # 디자인 토큰: 4dp 그리드 스페이싱 스케일
-│   │   ├── Shape.kt            # 디자인 토큰: 코너 라운드 스케일
-│   │   └── Theme.kt            # GominittaTheme — 모든 토큰을 MaterialTheme 에 연결
-│   └── components/             # 공용 Composable 컴포넌트 (Gominitta* 래퍼)
-└── feature/
-    ├── home/                   # 화면 하나당 패키지 하나
-    │   ├── HomeScreen.kt
-    │   └── HomeViewModel.kt
-    └── detail/
-        └── DetailScreen.kt
+└── ui/                         # 디자인 시스템 (레이어 공통)
+    ├── theme/
+    │   ├── Color.kt            # 디자인 토큰: 색상 (Figma 값 반영됨)
+    │   ├── Type.kt             # 디자인 토큰: 타이포그래피 (Pretendard)
+    │   ├── Spacing.kt          # 디자인 토큰: 4dp 그리드 스페이싱
+    │   ├── Shape.kt            # 디자인 토큰: 코너 라운드
+    │   └── Theme.kt            # GominittaTheme — 모든 토큰을 MaterialTheme 에 연결
+    └── components/             # 공용 Composable 컴포넌트 (Gominitta* 래퍼)
 ```
 
 ---
@@ -57,16 +67,21 @@ GominittaApplication (@HiltAndroidApp)
   └── MainActivity (@AndroidEntryPoint)
         └── GominittaTheme            ← 모든 하위 composable 에 디자인 토큰 적용
               └── AppNavHost           ← NavController 소유; Routes.* → 화면 매핑
-                    ├── HomeScreen     ← onNavigateToDetail: () -> Unit 람다 전달받음
+                    ├── HomeScreen (presentation)      ← onNavigateToDetail: () -> Unit 람다
                     │     └── HomeViewModel (@HiltViewModel)
-                    │           └── SampleRepository (인터페이스)
-                    │                 └── FakeSampleRepository  ← AppModule 의 @Binds
-                    └── DetailScreen   ← onNavigateBack: () -> Unit 람다 전달받음
+                    │           └── GetGreetingUseCase (domain)
+                    │                 └── SampleRepository (domain 인터페이스)
+                    │                       └── FakeSampleRepository (data)  ← AppModule 의 @Binds
+                    └── DetailScreen (presentation)     ← onNavigateBack: () -> Unit 람다
 ```
 
+의존성 역전에 주목: `presentation` 과 `data` 는 둘 다 `domain` 을 향하고, `domain` 은 어느 쪽도 모릅니다.
+
 지켜야 할 핵심 불변식:
+- **의존 방향은 `presentation → domain ← data`** — `domain` 은 순수 Kotlin, **Android/데이터 레이어 import 금지**.
+- **ViewModel 은 UseCase(도메인)를 주입받는다** — Repository나 구현체를 직접 참조하지 않음.
+- **Repository 인터페이스는 `domain` 이 소유**하고 `data` 가 구현한다 (실제 구현 교체 시 domain·presentation 무변경).
 - **`AppNavHost.kt` 만 `NavController` 참조를 가진다** — 화면은 절대 import 하지 않음.
-- **ViewModel 은 인터페이스를 주입받는다**, 구체 클래스가 아니라.
 - **모든 composable 은 시각 속성을 `MaterialTheme.*` 로 접근한다** — 하드코딩 금지.
 
 ---

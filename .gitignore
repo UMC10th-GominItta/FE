@@ -36,4 +36,5 @@ app/src/main/java/com/gominitta/android/navigation/generated/
 
 # Playwright MCP browser session artifacts (temporary)
 .playwright-mcp/
-figma-*.png
+# Stray screenshots dumped to repo root (Playwright captures). App images live in res/.
+/*.png

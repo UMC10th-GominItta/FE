@@ -1,4 +1,4 @@
-package com.gominitta.android.feature.home
+package com.gominitta.android.presentation.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

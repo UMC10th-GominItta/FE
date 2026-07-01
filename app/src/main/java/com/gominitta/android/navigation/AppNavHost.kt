@@ -6,8 +6,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.gominitta.android.feature.detail.DetailScreen
-import com.gominitta.android.feature.home.HomeScreen
+import com.gominitta.android.presentation.detail.DetailScreen
+import com.gominitta.android.presentation.home.HomeScreen
 
 /**
  * Root navigation graph.

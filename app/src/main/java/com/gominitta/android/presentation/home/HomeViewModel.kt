@@ -1,8 +1,8 @@
-package com.gominitta.android.feature.home
+package com.gominitta.android.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gominitta.android.data.repository.SampleRepository
+import com.gominitta.android.domain.usecase.GetGreetingUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,13 +13,12 @@ import javax.inject.Inject
 /**
  * ViewModel for [HomeScreen].
  *
- * Injected by Hilt via [@HiltViewModel]. Depends on [SampleRepository]
- * through the interface, NOT on any concrete implementation — swapping
- * [FakeSampleRepository] for a real implementation requires zero changes here.
+ * Depends on the [GetGreetingUseCase] domain use case, NOT on a repository
+ * or any data implementation — the presentation layer only knows the domain.
  */
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: SampleRepository,
+    private val getGreeting: GetGreetingUseCase,
 ) : ViewModel() {
 
     private val _greeting = MutableStateFlow("")
@@ -31,7 +30,7 @@ class HomeViewModel @Inject constructor(
 
     private fun loadGreeting() {
         viewModelScope.launch {
-            _greeting.value = repository.getGreeting()
+            _greeting.value = getGreeting().message
         }
     }
 }
