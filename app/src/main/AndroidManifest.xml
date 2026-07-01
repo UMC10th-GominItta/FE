@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:name=".GominittaApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.GominittaAndroid">
+
+        <!--
+            Disable the androidx.startup InitializationProvider.
+            AGP 9.x does not include library R-class stubs in debug DEX, so
+            startup-runtime:1.1.1's reference to R.string.startup_logcat_level
+            causes a NoClassDefFoundError at launch. This scaffold does not use
+            any startup initializers (no WorkManager, no ProcessLifecycle
+            observers beyond what Activity provides), so the provider is safe
+            to remove. If a future library that uses startup is added, either
+            re-enable this provider or register that specific initializer
+            directly via tools:node="merge".
+        -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove"
+            tools:ignore="MissingClass" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.GominittaAndroid">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>

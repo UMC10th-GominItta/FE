@@ -1,0 +1,40 @@
+## Android — generated, local, and build artefacts that must not be committed.
+
+# Gradle build output
+.gradle/
+build/
+app/build/
+
+# Kotlin compiler daemon cache / error logs
+.kotlin/
+
+# Local properties (SDK path, signing configs)
+local.properties
+
+# IntelliJ / Android Studio IDE files
+*.iml
+.idea/
+*.iws
+*.ipr
+
+# macOS Finder
+.DS_Store
+
+# Windows Explorer
+Thumbs.db
+
+# Keystore files — never commit signing keys
+*.jks
+*.keystore
+
+# Navigation SafeArgs generated code (if added later)
+app/src/main/java/com/gominitta/android/navigation/generated/
+
+# Ouroboros scaffolding-workflow artifacts (internal, not part of the repo)
+.ouroboros/
+.ouroboros_eval_artifact.md
+
+# Playwright MCP browser session artifacts (temporary)
+.playwright-mcp/
+# Stray screenshots dumped to repo root (Playwright captures). App images live in res/.
+/*.png
