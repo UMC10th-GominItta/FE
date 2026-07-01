@@ -35,12 +35,14 @@ app/src/main/java/com/gominitta/android/
 ├── data/
 │   └── repository/             #   Repository 구현 (FakeSampleRepository.kt) — domain 인터페이스 구현
 │                               #   (추후: remote/·local/ 데이터소스, mapper/ DTO↔모델)
-├── presentation/               # UI + 상태 (화면 하나당 패키지)
-│   ├── home/
-│   │   ├── HomeScreen.kt        #   Composable
-│   │   └── HomeViewModel.kt     #   @HiltViewModel — UseCase 주입
-│   └── detail/
-│       └── DetailScreen.kt
+├── presentation/               # UI + 상태 (기능별 패키지, 화면 17개 스텁)
+│   ├── onboarding/             #   Splash · Onboarding · Login
+│   ├── home/                   #   HomeScreen + HomeViewModel(@HiltViewModel, UseCase 주입)
+│   ├── worry/                  #   걱정 예약 5단계 (Input→Intensity→Schedule→Memo→Saved)
+│   ├── session/                #   마음 세션 (List·Detail·Active·Complete·Rating)
+│   ├── recipe/                 #   마음 레시피
+│   ├── report/                 #   리포트
+│   └── mypage/                 #   마이페이지 · 설정
 │
 ├── di/                         # Hilt 모듈 (AppModule.kt: domain 인터페이스 → data 구현 바인딩)
 ├── navigation/
@@ -66,14 +68,15 @@ app/src/main/java/com/gominitta/android/
 GominittaApplication (@HiltAndroidApp)
   └── MainActivity (@AndroidEntryPoint)
         └── GominittaTheme            ← 모든 하위 composable 에 디자인 토큰 적용
-              └── AppNavHost           ← NavController 소유; Routes.* → 화면 매핑
-                    ├── HomeScreen (presentation)      ← onNavigateToDetail: () -> Unit 람다
-                    │     └── HomeViewModel (@HiltViewModel)
-                    │           └── GetGreetingUseCase (domain)
-                    │                 └── SampleRepository (domain 인터페이스)
-                    │                       └── FakeSampleRepository (data)  ← AppModule 의 @Binds
-                    └── DetailScreen (presentation)     ← onNavigateBack: () -> Unit 람다
+              └── AppNavHost           ← NavController 소유; Routes.* → 17개 화면 매핑
+                    └── HomeScreen (presentation)  ← 화면은 () -> Unit 네비 콜백만 받음
+                          └── HomeViewModel (@HiltViewModel)
+                                └── GetGreetingUseCase (domain)
+                                      └── SampleRepository (domain 인터페이스)
+                                            └── FakeSampleRepository (data)  ← AppModule 의 @Binds
 ```
+
+나머지 화면도 동일 패턴 — 데이터가 필요한 화면은 `<Screen>ViewModel` + UseCase 를 추가하고, 단순 화면은 콜백만 받는 Composable 로 둡니다.
 
 의존성 역전에 주목: `presentation` 과 `data` 는 둘 다 `domain` 을 향하고, `domain` 은 어느 쪽도 모릅니다.
 
@@ -89,9 +92,10 @@ GominittaApplication (@HiltAndroidApp)
 ## 화면 목록 & 네비게이션 플로우
 
 Figma("고민이따", `Design 1차 작업` 페이지 기준, `Design 최종(작업중)` 교차 확인)에서 도출한 화면 목록입니다.
+아래 17개 화면은 현재 `presentation/` 에 **스텁 + `Routes` 상수 + `AppNavHost` 배선까지 생성**되어 있습니다(클릭하면 화면 이동이 동작하는 뼈대, UI 속은 미구현) — 각 화면 파일의 내용만 채우면 됩니다.
 **앱 컨셉:** 지금 든 걱정을 적고 강도를 정해 **나중 시간에 처리하도록 "예약"** → 그 시간에 **마음 세션**으로 걱정을 다시 마주하고 감정을 기록. 고양이 마스코트가 안내. ("고민 있다 → 고민 이따(가)")
 
-> 스캐폴드 반영 규칙: 각 화면은 `feature/<name>/<ScreenId>.kt`, 라우트는 `Routes.kt` 상수(`const val HOME = "home"` 식)로 둡니다. 아래 **스크린 ID**를 그대로 composable/라우트 이름에 쓰면 됩니다. `담당자` 열은 팀에서 화면별로 덧붙이세요.
+> 구조 규칙: 각 화면은 `presentation/<feature>/<ScreenId>.kt`, 라우트는 `Routes.kt` 상수(`const val HOME = "home"` 식), 화면 간 이동은 `AppNavHost.kt` 에서 배선. `담당자` 열은 팀에서 화면별로 덧붙이세요.
 
 ### 온보딩 · 인증
 
@@ -320,6 +324,6 @@ cd gominitta-android
 | 로컬 DB (Room / DataStore) | `SampleRepository` 인터페이스 |
 | 정밀 타이포·셰이프·스페이싱 수치 | `Type.kt`, `Shape.kt`, `Spacing.kt` |
 | 멀티 모듈 분리 | 단일 `:app` + feature 패키지 |
-| 레퍼런스 기능 화면 | `feature/home/HomeScreen.kt` 플레이스홀더 |
+| 실제 화면 UI 구현 | `presentation/**/*Screen.kt` (현재 스텁) |
 
 기존 Seam 뒤에 구현만 끼워 넣으면 되고, 호출부는 바뀌지 않습니다.
