@@ -115,9 +115,10 @@ GominittaApplication (@HiltAndroidApp)
 Material 시맨틱 역할을 그 램프에서 파생합니다. 따뜻한 크림/베이지 라이트 테마이며,
 디자인에 다크 모드가 없어 **라이트 전용**입니다(다크 스킴은 파생 편의용).
 
-타이포그래피·셰이프·스페이싱 값은 Figma 시안과 부합하는 Material 스케일을 그대로
-유지합니다(뷰어 전용 추출이라 정밀 수치는 근사). 폰트는 **Pretendard** 가 타깃이며,
-폰트 파일 번들링은 아직 미적용입니다(`Type.kt` 참고).
+폰트는 **Pretendard** 를 번들링해 적용했습니다(`res/font/`, Regular/Medium/SemiBold/Bold,
+OFL 라이선스는 `licenses/Pretendard-OFL.txt`). `Type.kt` 의 모든 스타일이 이 패밀리를 사용합니다.
+타이포그래피·셰이프·스페이싱의 *수치*는 Figma 시안과 부합하는 Material 스케일을 그대로
+유지합니다(뷰어 전용 추출이라 정밀 수치는 근사).
 
 ### 토큰 파일
 
@@ -208,7 +209,6 @@ cd gominitta-android
 |---|---|
 | 네트워킹 (Retrofit / Ktor) | `SampleRepository` 인터페이스 |
 | 로컬 DB (Room / DataStore) | `SampleRepository` 인터페이스 |
-| Pretendard 폰트 번들링 | `res/font/` + `Type.kt` |
 | 정밀 타이포·셰이프·스페이싱 수치 | `Type.kt`, `Shape.kt`, `Spacing.kt` |
 | 멀티 모듈 분리 | 단일 `:app` + feature 패키지 |
 | 레퍼런스 기능 화면 | `feature/home/HomeScreen.kt` 플레이스홀더 |
