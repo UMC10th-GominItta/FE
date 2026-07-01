@@ -16,8 +16,8 @@ import androidx.compose.ui.platform.LocalContext
 // =============================================================================
 // Theme — wires design tokens into MaterialTheme
 // =============================================================================
-// ColorScheme values are PLACEHOLDER. Replace with brand values from Color.kt
-// once Figma extraction is complete.
+// ColorScheme is wired from the Figma-extracted tokens in Color.kt (light
+// theme; the design is light-only, dark scheme is a derived convenience).
 // =============================================================================
 
 private val LightColorScheme: ColorScheme = lightColorScheme(
@@ -25,6 +25,10 @@ private val LightColorScheme: ColorScheme = lightColorScheme(
     onPrimary        = OnPrimary,
     primaryContainer = PrimaryContainer,
     onPrimaryContainer = OnPrimaryContainer,
+    tertiary         = TertiaryDefault,
+    onTertiary       = OnTertiary,
+    tertiaryContainer = TertiaryContainer,
+    onTertiaryContainer = OnTertiaryContainer,
     secondary        = SecondaryDefault,
     onSecondary      = OnSecondary,
     secondaryContainer = SecondaryContainer,
@@ -48,6 +52,10 @@ private val DarkColorScheme: ColorScheme = darkColorScheme(
     onPrimary        = OnPrimaryContainer,
     primaryContainer = PrimaryDefault,
     onPrimaryContainer = OnPrimary,
+    tertiary         = TertiaryContainer,
+    onTertiary       = OnTertiaryContainer,
+    tertiaryContainer = TertiaryDefault,
+    onTertiaryContainer = OnTertiary,
     secondary        = SecondaryContainer,
     onSecondary      = OnSecondaryContainer,
     secondaryContainer = SecondaryDefault,

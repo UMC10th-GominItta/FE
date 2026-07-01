@@ -10,9 +10,10 @@ import androidx.compose.ui.unit.sp
 // Design Tokens — Typography
 // =============================================================================
 // PLACEHOLDER font definitions.
-// Replace FontFamily.Default with the actual brand typeface once fonts are
-// added to res/font/. Token scale (Display / Headline / Body / Label) follows
-// Material 3 naming exactly.
+// Target typeface is Pretendard (add to res/font/ and swap FontFamily.Default).
+// Sizes follow the Material 3 scale, consistent with the Figma hi-fi screens
+// (heading ~18-20 / title ~15-16 / body ~13-14 / caption ~11-12). Token scale
+// (Display / Headline / Body / Label) follows Material 3 naming exactly.
 // =============================================================================
 
 val GominittaTypography = Typography(

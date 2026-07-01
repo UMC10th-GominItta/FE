@@ -33,3 +33,7 @@ app/src/main/java/com/gominitta/android/navigation/generated/
 # Ouroboros scaffolding-workflow artifacts (internal, not part of the repo)
 .ouroboros/
 .ouroboros_eval_artifact.md
+
+# Playwright MCP browser session artifacts (temporary)
+.playwright-mcp/
+figma-*.png

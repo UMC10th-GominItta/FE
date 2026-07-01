@@ -8,8 +8,8 @@ import androidx.compose.ui.unit.dp
 // =============================================================================
 // Design Tokens — Spacing
 // =============================================================================
-// PLACEHOLDER spacing scale. Values follow an 4dp base grid.
-// Replace with real Figma spacing tokens during design-system extraction.
+// Spacing scale on a 4dp base grid; matches the Figma 8px rhythm (screen/card
+// padding 16, inter-card gap 12-16).
 // Access via MaterialTheme.spacing.* inside composables (see Theme.kt).
 // =============================================================================
 
