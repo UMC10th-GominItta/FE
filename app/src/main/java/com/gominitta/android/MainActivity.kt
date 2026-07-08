@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            GominittaTheme {
+            GominittaTheme(darkTheme = false) {   // 라이트 크림 단일 디자인 — 다크 스킴 미사용
                 GominittaBackground {
                     AppNavHost()
                 }

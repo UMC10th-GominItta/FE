@@ -3,6 +3,7 @@ package com.gominitta.android.presentation.main
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -37,6 +38,7 @@ fun MainScreen(
         modifier = modifier,
         bottomBar = { GominittaBottomBar(tabNavController) },
         containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onBackground,
     ) { innerPadding ->
         NavHost(
             navController = tabNavController,

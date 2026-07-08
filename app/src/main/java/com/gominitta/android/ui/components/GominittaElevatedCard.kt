@@ -24,7 +24,7 @@ import com.gominitta.android.ui.theme.Heading1_24sb
 
 /**
  * 그림자 카드 — 홈 화면의 큰 콘텐츠 카드(히어로·섹션)용. 테두리 없이 부드러운
- * **피치 그림자(#FBEACB)**, 큰 라운드(24dp)의 순수 컨테이너. 내용은 [content] 슬롯으로 받는다.
+ * **피치 그림자(#FBEACB)**, 큰 라운드(16dp)의 순수 컨테이너. 내용은 [content] 슬롯으로 받는다.
  *
  * 테두리형 카드는 [GominittaCard] 참고.
  */

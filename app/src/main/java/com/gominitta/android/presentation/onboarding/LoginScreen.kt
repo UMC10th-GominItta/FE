@@ -25,7 +25,11 @@ fun LoginScreen(
     onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Scaffold(modifier = modifier.fillMaxSize(), containerColor = Color.Transparent) { innerPadding ->
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onBackground,
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
