@@ -1,6 +1,7 @@
 package com.gominitta.android.presentation.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,7 +12,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -25,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -96,7 +100,19 @@ fun HomeScreen(
         Spacer(Modifier.height(4.dp))
 
         // ② 히어로 카드 — 걱정 예약
-        GominittaElevatedCard(contentPadding = PaddingValues(24.dp)) {
+        GominittaElevatedCard(
+            contentPadding = PaddingValues(24.dp),
+            decoration = {
+                Image(
+                    painter = painterResource(R.drawable.home_hero_leaf),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 2.dp, y = 14.dp)
+                        .requiredSize(width = 159.dp, height = 147.dp),
+                )
+            },
+        ) {
             Text(
                 text = "걱정은 잠시 접어두고\n이따가 마주해요.",
                 style = Title1_20sb,
@@ -127,7 +143,20 @@ fun HomeScreen(
             color = Primary800,
             modifier = Modifier.padding(start = 4.dp),
         )
-        GominittaElevatedCard {
+        GominittaElevatedCard(
+            decoration = {
+                Image(
+                    painter = painterResource(R.drawable.home_quote_leaf),
+                    contentDescription = null,
+                    alpha = 0.5f,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .offset(x = (-28).dp, y = 14.dp)
+                        .requiredSize(width = 151.89.dp, height = 227.83.dp)
+                        .rotate(38.18f),
+                )
+            },
+        ) {
             Text(
                 text = "Q. 내가 지금 걱정하는 일은 사실일까요,\n가능성일까요?",
                 style = Body1_16m,
@@ -150,7 +179,19 @@ fun HomeScreen(
                 textDecoration = TextDecoration.Underline,
             )
         }
-        GominittaElevatedCard {
+        GominittaElevatedCard(
+            decoration = {
+                Image(
+                    painter = painterResource(R.drawable.home_session_leaf),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 38.dp, y = (-34).dp)
+                        .requiredSize(128.4.dp)
+                        .rotate(-148.91f),
+                )
+            },
+        ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier

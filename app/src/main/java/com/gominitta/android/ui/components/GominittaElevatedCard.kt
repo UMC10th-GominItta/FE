@@ -1,5 +1,7 @@
 package com.gominitta.android.ui.components
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,6 +33,7 @@ fun GominittaElevatedCard(
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(16.dp),
     contentPadding: PaddingValues = PaddingValues(20.dp),
+    decoration: @Composable (BoxScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Surface(
@@ -45,7 +48,13 @@ fun GominittaElevatedCard(
         shape = shape,
         color = MaterialTheme.colorScheme.surface,   // White800
     ) {
-        Column(modifier = Modifier.padding(contentPadding), content = content)
+        Box {
+            // 장식(잎 일러스트 등)은 카드 크기에 영향 없이 뒤에 깔고, Surface 라운드로 클립됨.
+            if (decoration != null) {
+                Box(Modifier.matchParentSize()) { decoration() }
+            }
+            Column(modifier = Modifier.padding(contentPadding), content = content)
+        }
     }
 }
 
