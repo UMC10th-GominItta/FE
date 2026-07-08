@@ -231,11 +231,12 @@ flowchart TD
 
 ## 디자인 시스템
 
-**색상 토큰은 Figma("고민이따" 파일, "디자인 1차 작업" 페이지의 컬러 가이드)에서
-추출한 실제 값이 반영되어 있습니다.** 5개 네임드 램프(`Primary_IB`/`BR`,
-`Secondary_YW`/`OG`, `Text_Gray`)를 `Color.kt` 에 정확한 hex 상수로 두고,
-Material 시맨틱 역할을 그 램프에서 파생합니다. 따뜻한 크림/베이지 라이트 테마이며,
-디자인에 다크 모드가 없어 **라이트 전용**입니다(다크 스킴은 파생 편의용).
+**색상 토큰은 Figma "Color Styles"(최종 화면 기준)를 그대로 반영합니다.** `Color.kt` 의
+Layer 1 토큰 이름은 Figma 스타일과 1:1로 맞췄어요 — `Primary/800·400·300·200`(웜 토프),
+`Gray/800·600·400·200`(뉴트럴), `White/800`(#FEFEFB), `Accent·Cream/300·100`(피치). 그 위에
+Material 시맨틱 역할을 매핑합니다(예: `primary`=AccentCream300 피치 CTA, `background`=White800,
+`onSurface`=Gray800, `secondary`/`outline`=Primary400). 따뜻한 크림/토프 **라이트 전용** 테마이며,
+의미상 error/success 색은 디자인에 없어 Material 기본값을 씁니다.
 
 폰트는 **Pretendard** 를 번들링해 적용했습니다(`res/font/`, Regular/Medium/SemiBold/Bold,
 OFL 라이선스는 `licenses/Pretendard-OFL.txt`). `Type.kt` 의 모든 스타일이 이 패밀리를 사용합니다.

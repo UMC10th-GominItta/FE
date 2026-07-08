@@ -21,19 +21,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.gominitta.android.ui.theme.spacing
 
 /**
- * 홈 — 하단 4탭 중 첫 탭. 인사말 + "오늘의 고민 보관하러 가기" · "다음 마음 세션" 진입.
- * 진입: 로그인 후 / 하단탭: 홈.
+ * 홈 — 하단 4탭 중 첫 탭. 탭 전환은 바텀바가 담당하고, 여기선 전체화면 플로우 진입만 한다.
  *
  * ViewModel(+UseCase) 연동 예시가 그대로 남아있음 — 새 화면 작성 시 이 패턴 참고.
- * TODO: 실제 홈 UI + 하단 탭 바(BottomNavigationBar) 구현 (현재는 스텁).
+ * TODO: 실제 홈 UI 구현 (현재는 스텁).
  */
 @Composable
 fun HomeScreen(
     onNavigateToWorryInput: () -> Unit = {},
     onNavigateToSessionDetail: () -> Unit = {},
-    onNavigateToSessionList: () -> Unit = {},
-    onNavigateToRecipe: () -> Unit = {},
-    onNavigateToReport: () -> Unit = {},
     onNavigateToMyPage: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
@@ -66,9 +62,6 @@ fun HomeScreen(
             Spacer(Modifier.height(MaterialTheme.spacing.sm))
             Button(onClick = onNavigateToSessionDetail) { Text("다음 마음 세션") }
             Spacer(Modifier.height(MaterialTheme.spacing.md))
-            TextButton(onClick = onNavigateToSessionList) { Text("마음 세션") }
-            TextButton(onClick = onNavigateToRecipe) { Text("마음 레시피") }
-            TextButton(onClick = onNavigateToReport) { Text("리포트") }
             TextButton(onClick = onNavigateToMyPage) { Text("마이페이지") }
         }
     }
