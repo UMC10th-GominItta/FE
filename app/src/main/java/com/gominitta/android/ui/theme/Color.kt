@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 // --- Figma Color Styles: Primary (warm taupe) ---
 val Primary800 = Color(0xFF534B42)   // dark warm — primary/heading text, selected nav, on-accent
 val Primary400 = Color(0xFFD0C1AB)   // taupe — unselected nav, outlines, illustration line
-val Primary300 = Color(0xFFFBEACB)   // soft peach-cream
+val Primary300 = Color(0xFFECDFCE)   // light warm tan (e.g. card border)
 val Primary200 = Color(0xFFF3F0EB)   // pale — chips, input fills, nav bar
 
 // --- Figma Color Styles: Gray (neutral) ---
@@ -31,12 +31,12 @@ val White800 = Color(0xFFFEFEFB)     // warm near-white — app canvas, cards
 
 // --- Figma Color Styles: Accent / Cream (peach) ---
 val AccentCream300 = Color(0xFFF9E0BA)   // primary CTA fill
-val AccentCream200 = Color(0xFFFBEACB)   // (same hex as Primary300)
+val AccentCream200 = Color(0xFFFBEACB)   // soft peach-cream (also ElevatedCard shadow)
 val AccentCream100 = Color(0xFFFDF1D6)   // slider track, soft accent
 
 // --- Semantic: Primary = peach CTA ---
 val PrimaryDefault      = AccentCream300   // #F9E0BA
-val PrimaryContainer    = Primary300       // #FBEACB
+val PrimaryContainer    = AccentCream200   // #FBEACB (kept; Primary300 redefined to #ECDFCE)
 val OnPrimary           = Primary800       // #534B42
 val OnPrimaryContainer  = Primary800       // #534B42
 
