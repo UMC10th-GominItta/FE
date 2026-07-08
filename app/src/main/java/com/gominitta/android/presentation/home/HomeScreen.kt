@@ -138,7 +138,7 @@ fun HomeScreen(
 
         // ④ 다음 마음 세션
         Row(
-            modifier = Modifier.fillMaxWidth().padding(start = 4.dp),
+            modifier = Modifier.fillMaxWidth().padding(start = 4.dp, end = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {

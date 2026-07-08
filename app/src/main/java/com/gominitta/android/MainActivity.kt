@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.gominitta.android.navigation.AppNavHost
+import com.gominitta.android.ui.components.GominittaBackground
 import com.gominitta.android.ui.theme.GominittaTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,7 +22,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             GominittaTheme {
-                AppNavHost()
+                GominittaBackground {
+                    AppNavHost()
+                }
             }
         }
     }
