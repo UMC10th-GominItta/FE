@@ -5,17 +5,22 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.gominitta.android.R
 
 // =============================================================================
 // Design Tokens — Typography
 // =============================================================================
-// PLACEHOLDER font definitions.
-// Uses the bundled Pretendard family from res/font/ (weights: Regular/Medium/SemiBold/Bold).
-// Sizes follow the Material 3 scale, consistent with the Figma hi-fi screens
-// (heading ~18-20 / title ~15-16 / body ~13-14 / caption ~11-12). Token scale
-// (Display / Headline / Body / Label) follows Material 3 naming exactly.
+// Sourced from the "고민이따" Figma text styles (page "Design 컴포넌트, 스타일,
+// 텍스트"), 2026-07-08. 11 named styles — names mirror Figma 1:1 so hand-off maps
+// directly. Every style: Pretendard, lineHeight 140% (1.4em), letterSpacing -2%
+// (-0.02em). Name suffix: sb = SemiBold(600), m = Medium(500), r = Regular(400).
+//
+// Layer 1 = the Pretendard family + the named Figma styles — use these directly
+// in Composables, e.g. `Text(..., style = Body2_15r)`.
+// Layer 2 = GominittaTypography maps them onto the Material 3 type scale so
+// `MaterialTheme.typography.*` and default components stay on-brand.
 // =============================================================================
 
 val Pretendard = FontFamily(
@@ -25,29 +30,49 @@ val Pretendard = FontFamily(
     Font(R.font.pretendard_bold,     FontWeight.Bold),
 )
 
+// --- Named Figma text styles (source of truth) ---
+// All share Pretendard / lineHeight 140% / letterSpacing -2%; only size & weight vary.
+private fun pretendardStyle(sizeSp: Int, weight: FontWeight) = TextStyle(
+    fontFamily = Pretendard,
+    fontWeight = weight,
+    fontSize = sizeSp.sp,
+    lineHeight = 1.4.em,          // 140%
+    letterSpacing = (-0.02).em,   // -2%
+)
+
+val Heading1_24sb = pretendardStyle(24, FontWeight.SemiBold)
+val Title1_20sb   = pretendardStyle(20, FontWeight.SemiBold)
+val Heading2_20m  = pretendardStyle(20, FontWeight.Medium)
+val Title2_18sb   = pretendardStyle(18, FontWeight.SemiBold)
+val Heading3_18m  = pretendardStyle(18, FontWeight.Medium)
+val Body1_16m     = pretendardStyle(16, FontWeight.Medium)
+val Body2_15r     = pretendardStyle(15, FontWeight.Normal)
+val Heading4_15m  = pretendardStyle(15, FontWeight.Medium)
+val Button1_15m   = pretendardStyle(15, FontWeight.Medium)
+val Body3_14r     = pretendardStyle(14, FontWeight.Normal)
+val Caption1_12r  = pretendardStyle(12, FontWeight.Normal)
+
+// --- Material 3 type scale (maps the named Figma styles onto Material slots) ---
+// Notable defaults: default Text() = bodyLarge = Body2_15r; Material Button text =
+// labelLarge = Button1_15m; NavigationBar label = labelMedium = Caption1_12r.
 val GominittaTypography = Typography(
-    // Display
-    displayLarge  = TextStyle(fontFamily = Pretendard, fontWeight = FontWeight.Normal, fontSize = 57.sp, lineHeight = 64.sp, letterSpacing = (-0.25).sp),
-    displayMedium = TextStyle(fontFamily = Pretendard, fontWeight = FontWeight.Normal, fontSize = 45.sp, lineHeight = 52.sp, letterSpacing = 0.sp),
-    displaySmall  = TextStyle(fontFamily = Pretendard, fontWeight = FontWeight.Normal, fontSize = 36.sp, lineHeight = 44.sp, letterSpacing = 0.sp),
+    displayLarge   = Heading1_24sb,
+    displayMedium  = Heading1_24sb,
+    displaySmall   = Heading1_24sb,
 
-    // Headline
-    headlineLarge  = TextStyle(fontFamily = Pretendard, fontWeight = FontWeight.Normal, fontSize = 32.sp, lineHeight = 40.sp, letterSpacing = 0.sp),
-    headlineMedium = TextStyle(fontFamily = Pretendard, fontWeight = FontWeight.Normal, fontSize = 28.sp, lineHeight = 36.sp, letterSpacing = 0.sp),
-    headlineSmall  = TextStyle(fontFamily = Pretendard, fontWeight = FontWeight.Normal, fontSize = 24.sp, lineHeight = 32.sp, letterSpacing = 0.sp),
+    headlineLarge  = Heading1_24sb,
+    headlineMedium = Title1_20sb,
+    headlineSmall  = Title2_18sb,
 
-    // Title
-    titleLarge  = TextStyle(fontFamily = Pretendard, fontWeight = FontWeight.Normal, fontSize = 22.sp, lineHeight = 28.sp, letterSpacing = 0.sp),
-    titleMedium = TextStyle(fontFamily = Pretendard, fontWeight = FontWeight.Medium, fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.15.sp),
-    titleSmall  = TextStyle(fontFamily = Pretendard, fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 20.sp, letterSpacing = 0.1.sp),
+    titleLarge     = Title1_20sb,
+    titleMedium    = Body1_16m,
+    titleSmall     = Heading4_15m,
 
-    // Body
-    bodyLarge   = TextStyle(fontFamily = Pretendard, fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.5.sp),
-    bodyMedium  = TextStyle(fontFamily = Pretendard, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 20.sp, letterSpacing = 0.25.sp),
-    bodySmall   = TextStyle(fontFamily = Pretendard, fontWeight = FontWeight.Normal, fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.4.sp),
+    bodyLarge      = Body2_15r,
+    bodyMedium     = Body3_14r,
+    bodySmall      = Caption1_12r,
 
-    // Label
-    labelLarge  = TextStyle(fontFamily = Pretendard, fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 20.sp, letterSpacing = 0.1.sp),
-    labelMedium = TextStyle(fontFamily = Pretendard, fontWeight = FontWeight.Medium, fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.5.sp),
-    labelSmall  = TextStyle(fontFamily = Pretendard, fontWeight = FontWeight.Medium, fontSize = 11.sp, lineHeight = 16.sp, letterSpacing = 0.5.sp),
+    labelLarge     = Button1_15m,
+    labelMedium    = Caption1_12r,
+    labelSmall     = Caption1_12r,
 )

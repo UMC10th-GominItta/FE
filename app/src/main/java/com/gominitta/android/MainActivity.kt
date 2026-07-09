@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.gominitta.android.navigation.AppNavHost
+import com.gominitta.android.ui.components.GominittaBackground
 import com.gominitta.android.ui.theme.GominittaTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,8 +21,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            GominittaTheme {
-                AppNavHost()
+            GominittaTheme(darkTheme = false) {   // 라이트 크림 단일 디자인 — 다크 스킴 미사용
+                GominittaBackground {
+                    AppNavHost()
+                }
             }
         }
     }

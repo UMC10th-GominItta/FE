@@ -1,22 +1,21 @@
 package com.gominitta.android.navigation
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.gominitta.android.presentation.home.HomeScreen
+import com.gominitta.android.presentation.main.MainScreen
 import com.gominitta.android.presentation.mypage.MyPageScreen
 import com.gominitta.android.presentation.onboarding.LoginScreen
 import com.gominitta.android.presentation.onboarding.OnboardingScreen
 import com.gominitta.android.presentation.onboarding.SplashScreen
-import com.gominitta.android.presentation.recipe.RecipeScreen
-import com.gominitta.android.presentation.report.ReportScreen
 import com.gominitta.android.presentation.session.SessionActiveScreen
 import com.gominitta.android.presentation.session.SessionCompleteScreen
 import com.gominitta.android.presentation.session.SessionDetailScreen
-import com.gominitta.android.presentation.session.SessionListScreen
 import com.gominitta.android.presentation.session.SessionRatingScreen
 import com.gominitta.android.presentation.worry.WorryInputScreen
 import com.gominitta.android.presentation.worry.WorryIntensityScreen
@@ -25,12 +24,9 @@ import com.gominitta.android.presentation.worry.WorryScheduleScreen
 import com.gominitta.android.presentation.worry.WorrySavedScreen
 
 /**
- * Root navigation graph — the ONLY place holding a [NavHostController].
- * Screens receive plain lambda callbacks; route strings come from [Routes].
- *
- * NOTE: The 4 bottom-tab destinations (HOME / SESSION_LIST / RECIPE / REPORT)
- * are registered as flat destinations for now. A real BottomNavigationBar with
- * a nested graph should host them later — this is a click-through stub.
+ * Root navigation graph — the ONLY place holding the top-level [NavHostController].
+ * Full-screen flows live here; the 4 bottom-tab screens live in a nested NavHost
+ * inside [MainScreen] (route [Routes.MAIN]).
  */
 @Composable
 fun AppNavHost(
@@ -42,6 +38,10 @@ fun AppNavHost(
         navController = navController,
         startDestination = startDestination,
         modifier = modifier,
+        enterTransition = { EnterTransition.None },
+        exitTransition = { ExitTransition.None },
+        popEnterTransition = { EnterTransition.None },
+        popExitTransition = { ExitTransition.None },
     ) {
         // ── 온보딩 · 인증 ──
         composable(Routes.SPLASH) {
@@ -52,40 +52,25 @@ fun AppNavHost(
         }
         composable(Routes.LOGIN) {
             LoginScreen(onNavigateToHome = {
-                navController.navigate(Routes.HOME) {
+                navController.navigate(Routes.MAIN) {
                     popUpTo(Routes.SPLASH) { inclusive = true }
                 }
             })
         }
 
-        // ── 메인 (하단 4탭 + 마이페이지) ──
-        composable(Routes.HOME) {
-            HomeScreen(
-                onNavigateToWorryInput    = { navController.navigate(Routes.WORRY_INPUT) },
+        // ── 메인 (하단 4탭 컨테이너) ──
+        composable(Routes.MAIN) {
+            MainScreen(
+                onNavigateToWorryInput = { navController.navigate(Routes.WORRY_INPUT) },
                 onNavigateToSessionDetail = { navController.navigate(Routes.SESSION_DETAIL) },
-                onNavigateToSessionList   = { navController.navigate(Routes.SESSION_LIST) },
-                onNavigateToRecipe        = { navController.navigate(Routes.RECIPE) },
-                onNavigateToReport        = { navController.navigate(Routes.REPORT) },
-                onNavigateToMyPage        = { navController.navigate(Routes.MY_PAGE) },
+                onNavigateToMyPage = { navController.navigate(Routes.MY_PAGE) },
             )
-        }
-        composable(Routes.SESSION_LIST) {
-            SessionListScreen(
-                onNavigateToSessionDetail = { navController.navigate(Routes.SESSION_DETAIL) },
-                onNavigateBack = { navController.popBackStack() },
-            )
-        }
-        composable(Routes.RECIPE) {
-            RecipeScreen(onNavigateBack = { navController.popBackStack() })
-        }
-        composable(Routes.REPORT) {
-            ReportScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(Routes.MY_PAGE) {
             MyPageScreen(onNavigateBack = { navController.popBackStack() })
         }
 
-        // ── 걱정 예약 플로우 ──
+        // ── 걱정 예약 플로우 (전체화면, 바텀바 없음) ──
         composable(Routes.WORRY_INPUT) {
             WorryInputScreen(
                 onNavigateNext = { navController.navigate(Routes.WORRY_INTENSITY) },
@@ -112,15 +97,15 @@ fun AppNavHost(
         }
         composable(Routes.WORRY_SAVED) {
             WorrySavedScreen(
-                onNavigateToHome = { navController.popBackStack(Routes.HOME, inclusive = false) },
+                onNavigateToHome = { navController.popBackStack(Routes.MAIN, inclusive = false) },
             )
         }
 
-        // ── 마음 세션 플로우 ──
+        // ── 마음 세션 플로우 (전체화면, 바텀바 없음) ──
         composable(Routes.SESSION_DETAIL) {
             SessionDetailScreen(
                 onStartSession = { navController.navigate(Routes.SESSION_ACTIVE) },
-                onSkip = { navController.popBackStack(Routes.HOME, inclusive = false) },
+                onSkip = { navController.popBackStack(Routes.MAIN, inclusive = false) },
             )
         }
         composable(Routes.SESSION_ACTIVE) {
@@ -136,7 +121,7 @@ fun AppNavHost(
         }
         composable(Routes.SESSION_RATING) {
             SessionRatingScreen(
-                onSave = { navController.popBackStack(Routes.HOME, inclusive = false) },
+                onSave = { navController.popBackStack(Routes.MAIN, inclusive = false) },
             )
         }
     }

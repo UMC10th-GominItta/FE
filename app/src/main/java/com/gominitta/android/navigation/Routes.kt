@@ -15,6 +15,7 @@ object Routes {
     const val LOGIN      = "login"
 
     // 메인 (하단 4탭 + 마이페이지)
+    const val MAIN         = "main"
     const val HOME         = "home"
     const val SESSION_LIST = "session_list"
     const val RECIPE       = "recipe"
