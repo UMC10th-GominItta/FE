@@ -29,17 +29,17 @@ import com.gominitta.android.ui.theme.Body1_16m
 import com.gominitta.android.ui.theme.Body2_15r
 import com.gominitta.android.ui.theme.Gray600
 import com.gominitta.android.ui.theme.Heading1_24sb
-import com.gominitta.android.ui.theme.Heading3_18m
+import com.gominitta.android.ui.theme.Heading4_18m
 import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.Title1_20sb
 
 /**
  * 로그인 화면 — 카카오 로그인 진입. 온보딩 후 진입.
- * 실제 카카오 SDK 연동은 미구현(버튼 클릭 시 홈 이동).
+ * 실제 카카오 SDK 연동은 미구현(버튼 클릭 시 로그인 완료 화면으로).
  */
 @Composable
 fun LoginScreen(
-    onNavigateToHome: () -> Unit,
+    onLoginComplete: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -69,7 +69,7 @@ fun LoginScreen(
                         append(" 마주할 수 있도록,\n지금 당신의 일상을 지켜드릴게요.")
                     }
                 },
-                style = Heading3_18m,
+                style = Heading4_18m,
                 textAlign = TextAlign.Center,
             )
 
@@ -89,14 +89,14 @@ fun LoginScreen(
 
             Text(
                 text = "걱정은 잠시 접어두고 이따가 마주해요.",
-                style = Heading3_18m,
+                style = Heading4_18m,
                 color = Gray600,
                 textAlign = TextAlign.Center,
             )
 
             Spacer(Modifier.weight(1.3f))
 
-            KakaoLoginButton(onClick = onNavigateToHome, modifier = Modifier.fillMaxWidth())
+            KakaoLoginButton(onClick = onLoginComplete, modifier = Modifier.fillMaxWidth())
 
             Spacer(Modifier.height(16.dp))
         }

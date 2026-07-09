@@ -42,7 +42,7 @@ import com.gominitta.android.ui.theme.Body2_15r
 import com.gominitta.android.ui.theme.Body3_14r
 import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.Heading1_24sb
-import com.gominitta.android.ui.theme.Heading3_18m
+import com.gominitta.android.ui.theme.Heading4_18m
 import com.gominitta.android.ui.theme.Primary300
 import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.Title1_20sb
@@ -139,7 +139,7 @@ fun HomeScreen(
         // ③ 오늘의 한 마디
         Text(
             "오늘의 한 마디",
-            style = Heading3_18m,
+            style = Heading4_18m,
             color = Primary800,
             modifier = Modifier.padding(start = 4.dp),
         )
@@ -171,7 +171,7 @@ fun HomeScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("다음 마음 세션", style = Heading3_18m, color = Primary800)
+            Text("다음 마음 세션", style = Heading4_18m, color = Primary800)
             Text(
                 "전체 보기",
                 style = Body3_14r,

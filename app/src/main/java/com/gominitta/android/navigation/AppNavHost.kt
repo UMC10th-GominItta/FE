@@ -2,6 +2,9 @@ package com.gominitta.android.navigation
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -10,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.gominitta.android.presentation.main.MainScreen
 import com.gominitta.android.presentation.mypage.MyPageScreen
+import com.gominitta.android.presentation.onboarding.LoginCompleteScreen
 import com.gominitta.android.presentation.onboarding.LoginScreen
 import com.gominitta.android.presentation.onboarding.OnboardingScreen
 import com.gominitta.android.presentation.onboarding.SplashScreen
@@ -51,7 +55,13 @@ fun AppNavHost(
             OnboardingScreen(onNavigateToLogin = { navController.navigate(Routes.LOGIN) })
         }
         composable(Routes.LOGIN) {
-            LoginScreen(onNavigateToHome = {
+            LoginScreen(onLoginComplete = { navController.navigate(Routes.LOGIN_COMPLETE) })
+        }
+        composable(
+            Routes.LOGIN_COMPLETE,
+            exitTransition = { fadeOut(animationSpec = tween(800)) },
+        ) {
+            LoginCompleteScreen(onNavigateToHome = {
                 navController.navigate(Routes.MAIN) {
                     popUpTo(Routes.SPLASH) { inclusive = true }
                 }
@@ -59,7 +69,10 @@ fun AppNavHost(
         }
 
         // ── 메인 (하단 4탭 컨테이너) ──
-        composable(Routes.MAIN) {
+        composable(
+            Routes.MAIN,
+            enterTransition = { fadeIn(animationSpec = tween(800)) },
+        ) {
             MainScreen(
                 onNavigateToWorryInput = { navController.navigate(Routes.WORRY_INPUT) },
                 onNavigateToSessionDetail = { navController.navigate(Routes.SESSION_DETAIL) },
