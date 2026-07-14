@@ -10,11 +10,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.gominitta.android.ui.theme.AccentCream200
 import com.gominitta.android.ui.theme.AccentCream300
@@ -50,6 +55,9 @@ fun GominittaButton(
     leadingIcon: (@Composable () -> Unit)? = null,
     enabled: Boolean = true,
     contentPadding: PaddingValues = GominittaButtonDefaults.ContentPadding,
+    shadowElevation: Dp = 0.dp,
+    disabledContainerColor: Color = Color.Unspecified,
+    disabledContentColor: Color = Color.Unspecified,
 ) {
     val shape: Shape = RoundedCornerShape(12.dp)
     val container = when (variant) {
@@ -65,12 +73,20 @@ fun GominittaButton(
 
     Button(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.then(
+            if (shadowElevation > 0.dp) Modifier.shadow(shadowElevation, shape, clip = false) else Modifier
+        ),
         enabled = enabled,
         shape = shape,
         colors = ButtonDefaults.buttonColors(
             containerColor = container,
             contentColor = Primary800,   // #534B42
+            disabledContainerColor = disabledContainerColor.takeOrElse {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+            },
+            disabledContentColor = disabledContentColor.takeOrElse {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+            },
         ),
         border = border,
         elevation = null,                // flat (no shadow)

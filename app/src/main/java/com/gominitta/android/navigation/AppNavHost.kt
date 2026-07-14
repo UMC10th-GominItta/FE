@@ -75,6 +75,8 @@ fun AppNavHost(
         composable(
             Routes.MAIN,
             enterTransition = { fadeIn(animationSpec = tween(800)) },
+            // 로그인→홈 진입 시에만 페이드. 걱정예약/세션 플로우에서 뒤로가기로 돌아올 땐 즉시 전환.
+            popEnterTransition = { EnterTransition.None },
         ) {
             MainScreen(
                 onNavigateToWorryInput = { navController.navigate(Routes.WORRY_INPUT) },
