@@ -56,6 +56,7 @@ fun GominittaButton(
     enabled: Boolean = true,
     contentPadding: PaddingValues = GominittaButtonDefaults.ContentPadding,
     shadowElevation: Dp = 0.dp,
+    shadowColor: Color = Color.Unspecified,
     disabledContainerColor: Color = Color.Unspecified,
     disabledContentColor: Color = Color.Unspecified,
 ) {
@@ -74,7 +75,18 @@ fun GominittaButton(
     Button(
         onClick = onClick,
         modifier = modifier.then(
-            if (shadowElevation > 0.dp) Modifier.shadow(shadowElevation, shape, clip = false) else Modifier
+            when {
+                shadowElevation <= 0.dp -> Modifier
+                shadowColor == Color.Unspecified ->
+                    Modifier.shadow(shadowElevation, shape, clip = false)
+                else -> Modifier.shadow(
+                    elevation = shadowElevation,
+                    shape = shape,
+                    clip = false,
+                    ambientColor = shadowColor,
+                    spotColor = shadowColor,
+                )
+            }
         ),
         enabled = enabled,
         shape = shape,

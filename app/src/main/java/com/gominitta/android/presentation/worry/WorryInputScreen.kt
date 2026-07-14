@@ -33,11 +33,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gominitta.android.presentation.worry.components.WorryNoteField
+import com.gominitta.android.presentation.worry.components.WorryPrimaryButton
 import com.gominitta.android.presentation.worry.components.WorryTopBar
 import com.gominitta.android.ui.components.GominittaBackground
-import com.gominitta.android.ui.components.GominittaButton
-import com.gominitta.android.ui.components.GominittaButtonVariant
-import com.gominitta.android.ui.theme.Gray200
 import com.gominitta.android.ui.theme.Gray600
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.GominittaTheme
@@ -105,19 +103,16 @@ fun WorryInputScreen(
                 }
             }
 
-            GominittaButton(
+            WorryPrimaryButton(
                 text = "다음",
                 onClick = onNavigateNext,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.ime.exclude(WindowInsets.navigationBars))
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
-                variant = GominittaButtonVariant.Primary,
+                    .padding(horizontal = 20.dp)
+                    .padding(top = 16.dp, bottom = 28.dp),
                 enabled = noteTitle.isNotBlank() && noteContent.isNotBlank(),
-                shadowElevation = 8.dp,
-                disabledContainerColor = Gray200,
-                disabledContentColor = Gray600,
             )
         }
     }
