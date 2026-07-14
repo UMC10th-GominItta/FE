@@ -16,7 +16,6 @@ import com.gominitta.android.presentation.mypage.MyPageScreen
 import com.gominitta.android.presentation.onboarding.LoginCompleteScreen
 import com.gominitta.android.presentation.onboarding.LoginScreen
 import com.gominitta.android.presentation.onboarding.OnboardingScreen
-import com.gominitta.android.presentation.onboarding.SplashScreen
 import com.gominitta.android.presentation.session.SessionActiveScreen
 import com.gominitta.android.presentation.session.SessionCompleteScreen
 import com.gominitta.android.presentation.session.SessionDetailScreen
@@ -36,7 +35,7 @@ import com.gominitta.android.presentation.worry.WorrySavedScreen
 fun AppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Routes.SPLASH,
+    startDestination: String = Routes.ONBOARDING,
 ) {
     NavHost(
         navController = navController,
@@ -48,9 +47,6 @@ fun AppNavHost(
         popExitTransition = { ExitTransition.None },
     ) {
         // ── 온보딩 · 인증 ──
-        composable(Routes.SPLASH) {
-            SplashScreen(onNavigateToOnboarding = { navController.navigate(Routes.ONBOARDING) })
-        }
         composable(Routes.ONBOARDING) {
             OnboardingScreen(onNavigateToLogin = { navController.navigate(Routes.LOGIN) })
         }
@@ -63,7 +59,7 @@ fun AppNavHost(
         ) {
             LoginCompleteScreen(onNavigateToHome = {
                 navController.navigate(Routes.MAIN) {
-                    popUpTo(Routes.SPLASH) { inclusive = true }
+                    popUpTo(Routes.ONBOARDING) { inclusive = true }
                 }
             })
         }

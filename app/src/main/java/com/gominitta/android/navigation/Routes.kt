@@ -10,7 +10,6 @@ package com.gominitta.android.navigation
  */
 object Routes {
     // 온보딩 · 인증
-    const val SPLASH     = "splash"
     const val ONBOARDING = "onboarding"
     const val LOGIN      = "login"
     const val LOGIN_COMPLETE = "login_complete"
