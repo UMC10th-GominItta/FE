@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.gominitta.android.R
 import com.gominitta.android.ui.components.GominittaButton
+import com.gominitta.android.ui.components.GominittaButtonDefaults
 import com.gominitta.android.ui.components.GominittaButtonVariant
 import com.gominitta.android.ui.components.GominittaElevatedCard
 import com.gominitta.android.ui.theme.AccentCream100
@@ -132,6 +133,7 @@ fun HomeScreen(
                 leadingIcon = {
                     Icon(painterResource(R.drawable.ic_plus), null, Modifier.size(20.dp))
                 },
+                contentPadding = GominittaButtonDefaults.CompactContentPadding,
             )
         }
         Spacer(Modifier.height(4.dp))
@@ -230,6 +232,7 @@ fun HomeScreen(
                     leadingIcon = {
                         Icon(painterResource(R.drawable.ic_chat), null, Modifier.size(18.dp))
                     },
+                    contentPadding = GominittaButtonDefaults.CompactContentPadding,
                 )
                 GominittaButton(
                     text = "세션 시작",
@@ -238,6 +241,7 @@ fun HomeScreen(
                     leadingIcon = {
                         Icon(painterResource(R.drawable.ic_play), null, Modifier.size(18.dp))
                     },
+                    contentPadding = GominittaButtonDefaults.CompactContentPadding,
                 )
             }
         }
