@@ -35,13 +35,10 @@ import com.gominitta.android.ui.theme.Body2_15r
 import com.gominitta.android.ui.theme.Body3_14r
 import com.gominitta.android.ui.theme.Gray200
 import com.gominitta.android.ui.theme.Gray400
-import com.gominitta.android.ui.theme.Gray600
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.Heading4_18m
 import com.gominitta.android.ui.theme.Primary200
-import com.gominitta.android.ui.theme.Primary400
 import com.gominitta.android.ui.theme.Primary800
-import com.gominitta.android.ui.theme.Title1_20sb
 import kotlinx.coroutines.launch
 
 private data class OnboardingPage(val title: String, val subtitle: String)

@@ -24,13 +24,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.gominitta.android.R
 import com.gominitta.android.ui.components.KakaoLoginButton
-import com.gominitta.android.ui.theme.Body1_16m
-import com.gominitta.android.ui.theme.Body2_15r
 import com.gominitta.android.ui.theme.Gray600
 import com.gominitta.android.ui.theme.Heading1_24sb
 import com.gominitta.android.ui.theme.Heading4_18m
 import com.gominitta.android.ui.theme.Primary800
-import com.gominitta.android.ui.theme.Title1_20sb
 
 /**
  * 로그인 화면 — 카카오 로그인 진입. 온보딩 후 진입.

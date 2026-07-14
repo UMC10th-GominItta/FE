@@ -51,7 +51,14 @@ fun AppNavHost(
             OnboardingScreen(onNavigateToLogin = { navController.navigate(Routes.LOGIN) })
         }
         composable(Routes.LOGIN) {
-            LoginScreen(onLoginComplete = { navController.navigate(Routes.LOGIN_COMPLETE) })
+            LoginScreen(onLoginComplete = {
+                // 완료 화면 진입 시 로그인/온보딩 스택을 즉시 비운다 —
+                // 자동 이동 대기(1.5s) 중 뒤로가기로 로그인에 갇히는 것 방지 + 더블탭 중복 방지.
+                navController.navigate(Routes.LOGIN_COMPLETE) {
+                    popUpTo(Routes.ONBOARDING) { inclusive = true }
+                    launchSingleTop = true
+                }
+            })
         }
         composable(
             Routes.LOGIN_COMPLETE,
@@ -59,7 +66,7 @@ fun AppNavHost(
         ) {
             LoginCompleteScreen(onNavigateToHome = {
                 navController.navigate(Routes.MAIN) {
-                    popUpTo(Routes.ONBOARDING) { inclusive = true }
+                    popUpTo(Routes.LOGIN_COMPLETE) { inclusive = true }
                 }
             })
         }
