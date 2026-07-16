@@ -389,31 +389,35 @@ fun RecipeRecommendChip(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    selected: Boolean = false
+    selected: Boolean = false,
 ) {
     Surface(
         modifier = modifier
+            .height(42.dp)
             .clip(CircleShape)
             .clickable(onClick = onClick),
         shape = CircleShape,
-        color = if (selected) {
-            MaterialTheme.colorScheme.primaryContainer
-        } else {
-            MaterialTheme.colorScheme.surfaceVariant
-        }
+        color = if (selected) Color(0xFFFBEACB) else Color(0xFFFEFFFB),
+        border = androidx.compose.foundation.BorderStroke(
+            width = 1.dp,
+            color = if (selected) Color(0xFFE8D29D) else Color(0xFFE2D8C8),
+        ),
     ) {
-        Text(
-            text = text,
-            modifier = Modifier.padding(
-                horizontal = 16.dp,
-                vertical = 10.dp
-            ),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        Box(
+            modifier = Modifier.padding(horizontal = 18.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = text,
+                fontSize = 16.sp,
+                lineHeight = 22.sp,
+                fontWeight = FontWeight.Medium,
+                letterSpacing = (-0.32).sp,
+                color = Color(0xFF534B42),
+            )
+        }
     }
 }
-
 /**
  * D101 우측 하단 새 레시피 추가 버튼.
  *
