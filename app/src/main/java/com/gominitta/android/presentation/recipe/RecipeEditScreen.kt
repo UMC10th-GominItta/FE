@@ -86,7 +86,6 @@ fun RecipeEditScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .imePadding()
                 .padding(horizontal = 24.dp),
         ) {
             Column(
@@ -95,7 +94,7 @@ fun RecipeEditScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(
                         top = 22.dp,
-                        bottom = 96.dp,
+                        bottom = 72.dp,
                     ),
                 verticalArrangement = Arrangement.spacedBy(22.dp),
             ) {

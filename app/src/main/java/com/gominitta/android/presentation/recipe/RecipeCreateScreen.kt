@@ -70,12 +70,9 @@ fun RecipeCreateScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .imePadding()
                 .verticalScroll(rememberScrollState())
-                .padding(
-                    horizontal = 24.dp,
-                    vertical = 16.dp,
-                ),
+                .padding(horizontal = 24.dp)
+                .padding(top = 16.dp),
         ) {
             Text(
                 text = "이런 레시피는 어때요?",
