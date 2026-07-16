@@ -40,53 +40,11 @@ import com.gominitta.android.R
 import com.gominitta.android.presentation.recipe.RecipeItem
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 
-/**
- * 레시피 화면 상단 앱바.
- *
- * D101, D102, D103, D104에서 공통으로 사용한다.
- * 뒤로가기 아이콘은 drawable/ic_recipe_upback 리소스를 사용한다.
- */
-@Composable
-fun RecipeTopBar(
-    title: String,
-    onBackClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(56.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(
-            onClick = onBackClick,
-            modifier = Modifier.size(48.dp),
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_recipe_upback),
-                contentDescription = "뒤로가기",
-                modifier = Modifier.size(24.dp),
-            )
-        }
-
-        Text(
-            text = title,
-            modifier = Modifier.weight(1f),
-            textAlign = TextAlign.Center,
-            fontSize = 20.sp,
-            lineHeight = 28.sp,
-            fontWeight = FontWeight.Medium,
-            letterSpacing = (-0.4).sp,
-            color = Color(0xFF404040),
-        )
-
-        Spacer(modifier = Modifier.size(48.dp))
-    }
-}
 /**
  * 레시피 화면에서 사용하는 기본 CTA 버튼.
  *
@@ -438,53 +396,6 @@ fun RecipeAddFloatingButton(
             contentDescription = "새 레시피 추가",
             modifier = Modifier.size(28.dp)
         )
-    }
-}
-@Composable
-fun RecipeEditTopBar(
-    title: String,
-    onBackClick: () -> Unit,
-    onDeleteClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(56.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(
-            onClick = onBackClick,
-            modifier = Modifier.size(48.dp),
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_recipe_upback),
-                contentDescription = "뒤로가기",
-                modifier = Modifier.size(24.dp),
-            )
-        }
-
-        Text(
-            text = title,
-            modifier = Modifier.weight(1f),
-            textAlign = TextAlign.Center,
-            fontSize = 20.sp,
-            lineHeight = 28.sp,
-            fontWeight = FontWeight.Medium,
-            letterSpacing = (-0.4).sp,
-            color = Color(0xFF404040),
-        )
-
-        IconButton(
-            onClick = onDeleteClick,
-            modifier = Modifier.size(48.dp),
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_recipe_trash),
-                contentDescription = "레시피 삭제",
-                modifier = Modifier.size(28.dp),
-            )
-        }
     }
 }
 

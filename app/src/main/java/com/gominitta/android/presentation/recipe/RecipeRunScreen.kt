@@ -1,12 +1,10 @@
 package com.gominitta.android.presentation.recipe
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,9 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,33 +31,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.gominitta.android.R
+import com.gominitta.android.presentation.recipe.components.RecipeScreenScaffold
 import kotlinx.coroutines.delay
 
-/**
- * D102 레시피 실행 화면
- *
- * Figma상 D102 / D102-1 / D102-2를
- * 실제 구현에서는 하나의 화면에서 상태만 바꿔 처리한다.
- *
- * Ready
- * - 시작 전
- * - 타이머 안에 전체 시간 표시
- * - 시작하기 버튼 활성화
- *
- * Running
- * - 타이머 진행
- * - 완료하기 버튼 비활성화(회색)
- *
- * Completed
- * - 타이머 안에 "완료"
- * - 완료하기 버튼 활성화
- */
 @Composable
 fun RecipeRunScreen(
     onNavigateBack: () -> Unit,
@@ -93,24 +68,19 @@ fun RecipeRunScreen(
         }
     }
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        containerColor = Color.Transparent,
-        contentColor = MaterialTheme.colorScheme.onBackground,
+    RecipeScreenScaffold(
+        title = "레시피 실행",
+        onNavigateBack = onNavigateBack,
+        modifier = modifier,
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 20.dp, vertical = 12.dp),
+                .padding(horizontal = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            RecipeRunTopBar(
-                title = "레시피 실행",
-                onBackClick = onNavigateBack,
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             RecipeRunInfoCard(
                 recipe = recipe,
@@ -149,54 +119,6 @@ fun RecipeRunScreen(
     }
 }
 
-/**
- * 상단 뒤로가기 + 타이틀 바
- */
-@Composable
-private fun RecipeRunTopBar(
-    title: String,
-    onBackClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(52.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(
-            onClick = onBackClick,
-            modifier = Modifier.size(40.dp),
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_recipe_upback),
-                contentDescription = "뒤로가기",
-                modifier = Modifier.size(24.dp),
-            )
-        }
-
-        Text(
-            text = title,
-            modifier = Modifier.weight(1f),
-            fontSize = 20.sp,
-            lineHeight = 28.sp,
-            fontWeight = FontWeight.Medium,
-            letterSpacing = (-0.4).sp,
-            textAlign = TextAlign.Center,
-            color = Color(0xFF404040),
-        )
-
-        Spacer(modifier = Modifier.size(40.dp))
-    }
-}
-
-/**
- * 상단 레시피 정보 카드
- * - 소요시간
- * - 레시피명
- * - 점선
- * - 설명
- */
 @Composable
 private fun RecipeRunInfoCard(
     recipe: RecipeItem,
@@ -211,11 +133,16 @@ private fun RecipeRunInfoCard(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 36.dp),
+                .padding(
+                    horizontal = 24.dp,
+                    vertical = 36.dp,
+                ),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-            RecipeDurationBadge(text = "${recipe.durationMinutes}분 소요")
+            RecipeDurationBadge(
+                text = "${recipe.durationMinutes}분 소요",
+            )
 
             Text(
                 text = recipe.title,
@@ -244,11 +171,6 @@ private fun RecipeRunInfoCard(
     }
 }
 
-/**
- * 상단 "5분 소요" 배지
- * 텍스트: 15px Pretendard Regular
- * 색상: #534B42
- */
 @Composable
 private fun RecipeDurationBadge(
     text: String,
@@ -258,7 +180,10 @@ private fun RecipeDurationBadge(
         modifier = modifier
             .clip(RoundedCornerShape(999.dp))
             .background(Color(0xFFFBEACB))
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(
+                horizontal = 16.dp,
+                vertical = 8.dp,
+            ),
         contentAlignment = Alignment.Center,
     ) {
         Text(
@@ -273,11 +198,6 @@ private fun RecipeDurationBadge(
     }
 }
 
-/**
- * Figma처럼 더 촘촘한 점선
- * - 굵기 0.5
- * - dash 2, gap 2 정도로 처리
- */
 @Composable
 private fun DenseDashedDivider(
     modifier: Modifier = Modifier,
@@ -289,20 +209,26 @@ private fun DenseDashedDivider(
     ) {
         drawLine(
             color = Color(0xFFA3A3A3),
-            start = Offset(0f, 0f),
-            end = Offset(size.width, 0f),
+            start = Offset(
+                x = 0f,
+                y = 0f,
+            ),
+            end = Offset(
+                x = size.width,
+                y = 0f,
+            ),
             strokeWidth = 0.5.dp.toPx(),
             pathEffect = PathEffect.dashPathEffect(
-                intervals = floatArrayOf(2.dp.toPx(), 2.dp.toPx()),
+                intervals = floatArrayOf(
+                    2.dp.toPx(),
+                    2.dp.toPx(),
+                ),
                 phase = 0f,
             ),
         )
     }
 }
 
-/**
- * 시작 전
- */
 @Composable
 private fun RecipeReadyContent(
     totalSeconds: Int,
@@ -327,21 +253,18 @@ private fun RecipeReadyContent(
     }
 }
 
-/**
- * 실행 중
- * - 완료하기 버튼은 비활성화
- * - 타이머가 0초가 되면 Completed 상태로 전환
- */
 @Composable
 private fun RecipeRunningContent(
     remainingSeconds: Int,
     totalSeconds: Int,
 ) {
-    val progress = if (totalSeconds == 0) {
-        1f
-    } else {
-        (totalSeconds - remainingSeconds).toFloat() / totalSeconds.toFloat()
-    }
+    val progress =
+        if (totalSeconds == 0) {
+            1f
+        } else {
+            (totalSeconds - remainingSeconds).toFloat() /
+                    totalSeconds.toFloat()
+        }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -362,10 +285,6 @@ private fun RecipeRunningContent(
     }
 }
 
-/**
- * 완료 상태
- * - 완료하기 버튼 활성화
- */
 @Composable
 private fun RecipeCompletedContent(
     onFinishClick: () -> Unit,
@@ -389,15 +308,6 @@ private fun RecipeCompletedContent(
     }
 }
 
-/**
- * 원형 타이머
- *
- * 배경 트랙: #ECDFCE
- * 진행색: #D0C1AB
- *
- * 타이머 숫자: 44px Pretendard Regular
- * 준비되면 시작해요: 15px Pretendard Regular, #404040
- */
 @Composable
 private fun RecipeRunTimerCircle(
     mainText: String,
@@ -410,7 +320,10 @@ private fun RecipeRunTimerCircle(
         contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(
-            progress = progress.coerceIn(0f, 1f),
+            progress = progress.coerceIn(
+                minimumValue = 0f,
+                maximumValue = 1f,
+            ),
             modifier = Modifier.fillMaxSize(),
             color = Color(0xFFD0C1AB),
             trackColor = Color(0xFFECDFCE),
@@ -422,7 +335,12 @@ private fun RecipeRunTimerCircle(
         ) {
             Text(
                 text = mainText,
-                fontSize = if (mainText == "완료") 42.sp else 44.sp,
+                fontSize =
+                    if (mainText == "완료") {
+                        42.sp
+                    } else {
+                        44.sp
+                    },
                 lineHeight = 62.sp,
                 fontWeight = FontWeight.Normal,
                 letterSpacing = (-0.88).sp,
@@ -447,13 +365,6 @@ private fun RecipeRunTimerCircle(
     }
 }
 
-/**
- * 하단 버튼
- *
- * 시작하기 / 완료하기
- * - 텍스트: 16px Pretendard Medium
- * - 색상: #404040
- */
 @Composable
 private fun RecipeRunPrimaryButton(
     text: String,
@@ -481,16 +392,24 @@ private fun RecipeRunPrimaryButton(
             lineHeight = 22.sp,
             fontWeight = FontWeight.Medium,
             letterSpacing = (-0.32).sp,
-            color = Color(0xFF404040),
+            color =
+                if (enabled) {
+                    Color(0xFF404040)
+                } else {
+                    Color(0xFFA6A6A6)
+                },
         )
     }
 }
 
-/**
- * 초 -> m:ss 형식
- */
-private fun formatSeconds(seconds: Int): String {
+private fun formatSeconds(
+    seconds: Int,
+): String {
     val minutes = seconds / 60
-    val remainSeconds = seconds % 60
-    return "%d:%02d".format(minutes, remainSeconds)
+    val remainingSeconds = seconds % 60
+
+    return "%d:%02d".format(
+        minutes,
+        remainingSeconds,
+    )
 }

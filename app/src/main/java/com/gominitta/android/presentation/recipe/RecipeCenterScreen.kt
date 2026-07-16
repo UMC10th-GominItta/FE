@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gominitta.android.presentation.recipe.components.RecipeAddFloatingButton
 import com.gominitta.android.presentation.recipe.components.RecipeCard
-import com.gominitta.android.presentation.recipe.components.RecipeTopBar
+import com.gominitta.android.presentation.recipe.components.RecipeScreenScaffold
 
 @Composable
 fun RecipeCenterScreen(
@@ -35,10 +33,10 @@ fun RecipeCenterScreen(
     onDeleteClick: (Long) -> Unit = {},
     onCreateClick: () -> Unit = {},
 ) {
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        containerColor = Color.Transparent,
-        contentColor = MaterialTheme.colorScheme.onBackground,
+    RecipeScreenScaffold(
+        title = "마음 레시피 센터",
+        onNavigateBack = onNavigateBack,
+        modifier = modifier,
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -50,31 +48,24 @@ fun RecipeCenterScreen(
                 contentPadding = PaddingValues(
                     start = 20.dp,
                     end = 20.dp,
-                    top = 12.dp,
+                    top = 26.dp,
                     bottom = 112.dp,
                 ),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 item {
-                    RecipeTopBar(
-                        title = "마음 레시피 센터",
-                        onBackClick = onNavigateBack,
-                    )
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(22.dp))
-
                     Text(
                         text = "지금 나에게 맞는 레시피를 선택해 보세요.",
-                        fontSize = 20.sp,
-                        lineHeight = 28.sp,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        fontSize = 18.sp,
+                        lineHeight = 25.2.sp,
                         fontWeight = FontWeight.Medium,
-                        letterSpacing = (-0.4).sp,
+                        letterSpacing = (-0.36).sp,
                         color = Color(0xFF404040),
                     )
 
-                    Spacer(modifier = Modifier.height(18.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
 
                 if (recipes.isEmpty()) {
@@ -88,7 +79,9 @@ fun RecipeCenterScreen(
                 } else {
                     items(
                         items = recipes,
-                        key = { recipe -> recipe.id },
+                        key = { recipe ->
+                            recipe.id
+                        },
                     ) { recipe ->
                         RecipeCard(
                             title = recipe.title,
@@ -111,7 +104,10 @@ fun RecipeCenterScreen(
                 onClick = onCreateClick,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(end = 24.dp, bottom = 32.dp),
+                    .padding(
+                        end = 24.dp,
+                        bottom = 32.dp,
+                    ),
             )
         }
     }
