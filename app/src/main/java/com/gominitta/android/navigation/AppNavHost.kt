@@ -2,6 +2,9 @@ package com.gominitta.android.navigation
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -10,9 +13,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.gominitta.android.presentation.main.MainScreen
 import com.gominitta.android.presentation.mypage.MyPageScreen
+import com.gominitta.android.presentation.onboarding.LoginCompleteScreen
 import com.gominitta.android.presentation.onboarding.LoginScreen
 import com.gominitta.android.presentation.onboarding.OnboardingScreen
-import com.gominitta.android.presentation.onboarding.SplashScreen
 import com.gominitta.android.presentation.session.SessionActiveScreen
 import com.gominitta.android.presentation.session.SessionCompleteScreen
 import com.gominitta.android.presentation.session.SessionDetailScreen
@@ -32,7 +35,7 @@ import com.gominitta.android.presentation.worry.WorrySavedScreen
 fun AppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = Routes.SPLASH,
+    startDestination: String = Routes.ONBOARDING,
 ) {
     NavHost(
         navController = navController,
@@ -44,22 +47,35 @@ fun AppNavHost(
         popExitTransition = { ExitTransition.None },
     ) {
         // ── 온보딩 · 인증 ──
-        composable(Routes.SPLASH) {
-            SplashScreen(onNavigateToOnboarding = { navController.navigate(Routes.ONBOARDING) })
-        }
         composable(Routes.ONBOARDING) {
             OnboardingScreen(onNavigateToLogin = { navController.navigate(Routes.LOGIN) })
         }
         composable(Routes.LOGIN) {
-            LoginScreen(onNavigateToHome = {
+            LoginScreen(onLoginComplete = {
+                // 완료 화면 진입 시 로그인/온보딩 스택을 즉시 비운다 —
+                // 자동 이동 대기(1.5s) 중 뒤로가기로 로그인에 갇히는 것 방지 + 더블탭 중복 방지.
+                navController.navigate(Routes.LOGIN_COMPLETE) {
+                    popUpTo(Routes.ONBOARDING) { inclusive = true }
+                    launchSingleTop = true
+                }
+            })
+        }
+        composable(
+            Routes.LOGIN_COMPLETE,
+            exitTransition = { fadeOut(animationSpec = tween(800)) },
+        ) {
+            LoginCompleteScreen(onNavigateToHome = {
                 navController.navigate(Routes.MAIN) {
-                    popUpTo(Routes.SPLASH) { inclusive = true }
+                    popUpTo(Routes.LOGIN_COMPLETE) { inclusive = true }
                 }
             })
         }
 
         // ── 메인 (하단 4탭 컨테이너) ──
-        composable(Routes.MAIN) {
+        composable(
+            Routes.MAIN,
+            enterTransition = { fadeIn(animationSpec = tween(800)) },
+        ) {
             MainScreen(
                 onNavigateToWorryInput = { navController.navigate(Routes.WORRY_INPUT) },
                 onNavigateToSessionDetail = { navController.navigate(Routes.SESSION_DETAIL) },

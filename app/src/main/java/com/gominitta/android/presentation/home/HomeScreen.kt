@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.gominitta.android.R
 import com.gominitta.android.ui.components.GominittaButton
+import com.gominitta.android.ui.components.GominittaButtonDefaults
 import com.gominitta.android.ui.components.GominittaButtonVariant
 import com.gominitta.android.ui.components.GominittaElevatedCard
 import com.gominitta.android.ui.theme.AccentCream100
@@ -42,7 +43,7 @@ import com.gominitta.android.ui.theme.Body2_15r
 import com.gominitta.android.ui.theme.Body3_14r
 import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.Heading1_24sb
-import com.gominitta.android.ui.theme.Heading3_18m
+import com.gominitta.android.ui.theme.Heading4_18m
 import com.gominitta.android.ui.theme.Primary300
 import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.Title1_20sb
@@ -132,6 +133,7 @@ fun HomeScreen(
                 leadingIcon = {
                     Icon(painterResource(R.drawable.ic_plus), null, Modifier.size(20.dp))
                 },
+                contentPadding = GominittaButtonDefaults.CompactContentPadding,
             )
         }
         Spacer(Modifier.height(4.dp))
@@ -139,7 +141,7 @@ fun HomeScreen(
         // ③ 오늘의 한 마디
         Text(
             "오늘의 한 마디",
-            style = Heading3_18m,
+            style = Heading4_18m,
             color = Primary800,
             modifier = Modifier.padding(start = 4.dp),
         )
@@ -171,7 +173,7 @@ fun HomeScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("다음 마음 세션", style = Heading3_18m, color = Primary800)
+            Text("다음 마음 세션", style = Heading4_18m, color = Primary800)
             Text(
                 "전체 보기",
                 style = Body3_14r,
@@ -230,6 +232,7 @@ fun HomeScreen(
                     leadingIcon = {
                         Icon(painterResource(R.drawable.ic_chat), null, Modifier.size(18.dp))
                     },
+                    contentPadding = GominittaButtonDefaults.CompactContentPadding,
                 )
                 GominittaButton(
                     text = "세션 시작",
@@ -238,6 +241,7 @@ fun HomeScreen(
                     leadingIcon = {
                         Icon(painterResource(R.drawable.ic_play), null, Modifier.size(18.dp))
                     },
+                    contentPadding = GominittaButtonDefaults.CompactContentPadding,
                 )
             }
         }
