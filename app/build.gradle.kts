@@ -65,8 +65,9 @@ dependencies {
     ksp(libs.hilt.android.compiler)
     implementation(libs.hilt.navigation.compose)
 
-    // Lifecycle ViewModel (required for @HiltViewModel in Compose)
+    // Lifecycle ViewModel/Runtime (required for @HiltViewModel + collectAsStateWithLifecycle in Compose)
     implementation(libs.lifecycle.viewmodel.compose)
+    implementation(libs.lifecycle.runtime.compose)
 
     // Debug tools
     debugImplementation(libs.androidx.compose.ui.tooling)
