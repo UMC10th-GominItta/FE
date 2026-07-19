@@ -52,7 +52,7 @@ import com.gominitta.android.ui.theme.Body3_14r
 import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.Gray600
 import com.gominitta.android.ui.theme.GominittaTheme
-import com.gominitta.android.ui.theme.Heading3_18m
+import com.gominitta.android.ui.theme.Heading4_18m
 import com.gominitta.android.ui.theme.Primary400
 import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.Title1_20sb
@@ -149,7 +149,7 @@ private fun SessionActiveContent(
         }
         Spacer(Modifier.height(20.dp))
 
-        Text(text = "예약된 걱정", style = Heading3_18m, color = Primary800)
+        Text(text = "예약된 걱정", style = Heading4_18m, color = Primary800)
         Spacer(Modifier.height(8.dp))
         GominittaElevatedCard(modifier = Modifier.height(170.dp)) {
             Text(text = worryTitle, style = Body1_16m, color = Primary800)

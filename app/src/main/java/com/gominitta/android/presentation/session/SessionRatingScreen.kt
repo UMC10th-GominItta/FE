@@ -38,7 +38,7 @@ import com.gominitta.android.ui.theme.Body3_14r
 import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.Heading1_24sb
-import com.gominitta.android.ui.theme.Heading2_20m
+import com.gominitta.android.ui.theme.Heading3_20m
 import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.Title1_20sb
@@ -78,7 +78,7 @@ fun SessionRatingScreen(
             Spacer(Modifier.height(24.dp))
             Text(
                 text = "걱정을 마주한 후, 지금의 기분은 어떤가요?",
-                style = Heading2_20m,
+                style = Heading3_20m,
                 color = Primary800,
                 textAlign = TextAlign.Start,
                 modifier = Modifier.fillMaxWidth(),

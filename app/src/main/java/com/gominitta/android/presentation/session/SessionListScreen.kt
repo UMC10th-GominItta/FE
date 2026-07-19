@@ -48,7 +48,7 @@ import com.gominitta.android.ui.theme.Body3_14r
 import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.Gray600
 import com.gominitta.android.ui.theme.GominittaTheme
-import com.gominitta.android.ui.theme.Heading3_18m
+import com.gominitta.android.ui.theme.Heading4_18m
 import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.Title1_20sb
 import java.time.LocalDateTime
@@ -140,7 +140,7 @@ private fun SessionListContent(
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
         )
 
-        Text(text = "예정된 세션", style = Heading3_18m, color = Primary800)
+        Text(text = "예정된 세션", style = Heading4_18m, color = Primary800)
         if (scheduled.isEmpty()) {
             EmptyScheduledCard(onNavigateToWorryInput)
         } else {
@@ -153,7 +153,7 @@ private fun SessionListContent(
             }
         }
 
-        Text(text = "미완료 세션", style = Heading3_18m, color = Primary800)
+        Text(text = "미완료 세션", style = Heading4_18m, color = Primary800)
         if (incomplete.isEmpty()) {
             Text(
                 text = "미완료된 세션이 없어요.",
