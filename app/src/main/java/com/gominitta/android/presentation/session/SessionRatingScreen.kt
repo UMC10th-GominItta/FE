@@ -42,6 +42,7 @@ import com.gominitta.android.ui.theme.Heading3_20m
 import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.Title1_20sb
+import kotlin.math.roundToInt
 
 /**
  * 마음 세션 평가 (C104-2) — 세션 완료 → 저장. 0~10 감정 점수를 슬라이더로 입력한다
@@ -83,13 +84,13 @@ fun SessionRatingScreen(
                 textAlign = TextAlign.Start,
                 modifier = Modifier.fillMaxWidth(),
             )
-            Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.weight(1f))
 
             PlaceholderMoodIllustration()
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(32.dp))
             Text(text = emotionScore.toMoodLabel(), style = Heading1_24sb, color = Primary800, textAlign = TextAlign.Center)
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(24.dp))
             MoodSlider(
                 value = emotionScore,
                 onValueChange = { emotionScore = it },
@@ -117,9 +118,10 @@ private fun MoodSlider(
         value = value,
         onValueChange = onValueChange,
         valueRange = 0f..10f,
+        steps = 9,
         modifier = modifier.fillMaxWidth(),
         track = { MoodSliderTrack(fraction = (value / 10f).coerceIn(0f, 1f)) },
-        thumb = { MoodSliderThumb(label = value.toShortMoodLabel()) },
+        thumb = { MoodSliderThumb(label = value.roundToInt().toString()) },
     )
 }
 
@@ -161,7 +163,7 @@ private fun MoodSliderThumb(label: String, modifier: Modifier = Modifier) {
 private fun PlaceholderMoodIllustration() {
     Box(
         modifier = Modifier
-            .size(160.dp)
+            .size(180.dp)
             .clip(RoundedCornerShape(24.dp))
             .background(Primary200),
         contentAlignment = Alignment.Center,
@@ -175,23 +177,22 @@ private fun PlaceholderMoodIllustration() {
     }
 }
 
-/** 0~10 (emotionScoreAfter 스케일)을 5단계 기분 라벨로 매핑. */
-private fun Float.toMoodLabel(): String = when {
-    this <= 2f -> "많이 불안해요."
-    this <= 4f -> "불안해요."
-    this <= 6f -> "적당해요."
-    this <= 8f -> "덜 불안해요."
-    else -> "편안해요."
-}
+/** 0~10 (emotionScoreAfter 스케일) 정수 단계별 기분 멘트. */
+private val MoodLabels = listOf(
+    "완전히 평온해졌어요.",       // 0
+    "마음이 잔잔하고 편안해요.",   // 1
+    "이제 가볍게 넘길 수 있어요.", // 2
+    "마음이 조금 진정됐어요.",     // 3
+    "아직 잔상이 조금 남아있어요.", // 4
+    "여전히 미미한 불안이 있어요.", // 5
+    "여전히 조금 강한 불안이 느껴져요.", // 6
+    "여전히 많이 불안해요.",       // 7
+    "아직 불안해서 집중이 안 돼요.", // 8
+    "여전히 너무 불안하고 초조해요.", // 9
+    "여전히 터질 듯이 불안해요.",   // 10
+)
 
-/** 슬라이더 썸 위 말풍선용 짧은 라벨. */
-private fun Float.toShortMoodLabel(): String = when {
-    this <= 2f -> "불안"
-    this <= 4f -> "약간 불안"
-    this <= 6f -> "적당"
-    this <= 8f -> "덜 불안"
-    else -> "편안"
-}
+private fun Float.toMoodLabel(): String = MoodLabels[roundToInt().coerceIn(0, 10)]
 
 // ---- Preview ---------------------------------------------------------------
 

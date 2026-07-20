@@ -122,16 +122,16 @@ fun AppNavHost(
         }
 
         // ── 마음 세션 플로우 (전체화면, 바텀바 없음) ──
-        composable(Routes.SESSION_DETAIL) {
-            SessionDetailScreen(
-                onStartSession = { navController.navigate(Routes.SESSION_ACTIVE) },
-                onSkip = { navController.popBackStack(Routes.MAIN, inclusive = false) },
-            )
-        }
         composable(Routes.SESSION_ACTIVE) {
             SessionActiveScreen(
-                onNavigateNext = { navController.navigate(Routes.SESSION_COMPLETE) },
+                onNavigateNext = { navController.navigate(Routes.SESSION_DETAIL) },
                 onNavigateBack = { navController.popBackStack() },
+            )
+        }
+        composable(Routes.SESSION_DETAIL) {
+            SessionDetailScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onSave = { navController.navigate(Routes.SESSION_COMPLETE) },
             )
         }
         composable(Routes.SESSION_COMPLETE) {
