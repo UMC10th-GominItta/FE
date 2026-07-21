@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,6 +29,154 @@ import com.gominitta.android.ui.theme.Primary400
 import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.White800
 
+/** WorryMap의 1번 원과 동일한 128dp 강조 버블입니다. */
+@Composable
+fun WorryMapLargeBubble(
+    title: String,
+    percentage: String,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .size(128.dp)
+            .background(
+                color = Primary800,
+                shape = RoundedCornerShape(88.dp),
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            modifier = Modifier.size(width = 42.dp, height = 59.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Box(
+                modifier = Modifier.size(width = 42.dp, height = 34.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = title,
+                    color = White800,
+                    style = Heading1_24sb,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                )
+            }
+
+            Box(
+                modifier = Modifier.size(width = 42.dp, height = 25.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = percentage,
+                    color = White800,
+                    style = Heading4_18m,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                )
+            }
+        }
+    }
+}
+
+/** WorryMap의 2·3·4번 원과 동일한 92dp 중간 버블입니다. */
+@Composable
+fun WorryMapMediumBubble(
+    title: String,
+    percentage: String,
+    backgroundColor: Color,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .size(92.dp)
+            .background(
+                color = backgroundColor,
+                shape = RoundedCornerShape(88.dp),
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            modifier = Modifier.size(width = 42.dp, height = 49.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Box(
+                modifier = Modifier.size(width = 42.dp, height = 28.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = title,
+                    color = Primary800,
+                    style = Heading3_20m,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                )
+            }
+
+            Box(
+                modifier = Modifier.size(width = 42.dp, height = 21.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = percentage,
+                    color = Primary800,
+                    style = Heading5_15m,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                )
+            }
+        }
+    }
+}
+
+/** WorryMap의 5번 원과 동일한 64dp 작은 버블입니다. */
+@Composable
+fun WorryMapSmallBubble(
+    title: String,
+    percentage: String,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .size(64.dp)
+            .background(
+                color = Primary200,
+                shape = RoundedCornerShape(88.dp),
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            modifier = Modifier.size(width = 42.dp, height = 45.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Box(
+                modifier = Modifier.size(width = 42.dp, height = 25.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = title,
+                    color = Primary800,
+                    style = Heading4_18m,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                )
+            }
+
+            Box(
+                modifier = Modifier.size(width = 42.dp, height = 20.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = percentage,
+                    color = Primary800,
+                    style = Body3_14r,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                )
+            }
+        }
+    }
+}
+
 @Composable
 fun WorryMap(
     modifier: Modifier = Modifier,
@@ -38,47 +187,11 @@ fun WorryMap(
             .height(168.dp),
     ) {
         // 첫 번째 원: 진로 70% (128dp)
-        Box(
-            modifier = Modifier
-                .offset(x = 20.dp, y = 20.dp)
-                .size(128.dp)
-                .background(
-                    color = Primary800,
-                    shape = RoundedCornerShape(88.dp),
-                ),
-            contentAlignment = Alignment.Center,
-        ) {
-            Column(
-                modifier = Modifier.size(width = 42.dp, height = 59.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Box(
-                    modifier = Modifier.size(width = 42.dp, height = 34.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = "진로",
-                        color = White800,
-                        style = Heading1_24sb,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1,
-                    )
-                }
-
-                Box(
-                    modifier = Modifier.size(width = 42.dp, height = 25.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = "70%",
-                        color = White800,
-                        style = Heading4_18m,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1,
-                    )
-                }
-            }
-        }
+        WorryMapLargeBubble(
+            title = "진로",
+            percentage = "70%",
+            modifier = Modifier.offset(x = 20.dp, y = 20.dp),
+        )
 
         // 두 번째 원: 학업 40% / Primary400 (92dp)
         Box(
