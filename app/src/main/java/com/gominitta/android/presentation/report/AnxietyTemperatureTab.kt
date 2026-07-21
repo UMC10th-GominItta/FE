@@ -1,6 +1,7 @@
 package com.gominitta.android.presentation.report
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,12 +34,18 @@ import com.gominitta.android.ui.components.HeartReportTab
 import com.gominitta.android.ui.components.ReportCard
 import com.gominitta.android.ui.theme.Body2_15r
 import com.gominitta.android.ui.theme.Body3_14r
+import com.gominitta.android.ui.theme.Body1_16m
+import com.gominitta.android.ui.theme.AccentCream100
 import com.gominitta.android.ui.theme.Button1_15m
 import com.gominitta.android.ui.theme.Gray600
 import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.Heading2_22m
+import com.gominitta.android.ui.theme.Heading1_24sb
+import com.gominitta.android.ui.theme.Primary200
+import com.gominitta.android.ui.theme.Primary300
+import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.spacing
 import androidx.compose.material3.MaterialTheme
 
@@ -64,6 +72,9 @@ internal fun AnxietyTemperatureTab(
     ) {
         cardIndices.forEach { cardIndex ->
             ReportCard(height = 479.dp) {
+                val isSecondCard = cardIndex == 1
+                val isThirdCard = cardIndex == 2
+
         // 임시 공통 상단 제목 및 설명 영역
         Column(
             modifier = Modifier
@@ -106,6 +117,195 @@ internal fun AnxietyTemperatureTab(
                     modifier = Modifier.offset(x = 223.dp, y = 16.dp),
                     initiallyExpanded = false,
                 )
+
+                Row(
+                        modifier = Modifier
+                            .offset(x = 16.dp, y = 85.dp)
+                            .size(width = 303.dp, height = 86.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .size(width = 150.dp, height = 86.dp)
+                                .background(
+                                    color = when {
+                                        isThirdCard -> AccentCream100
+                                        isSecondCard -> Primary200
+                                        else -> Primary300
+                                    },
+                                    shape = RoundedCornerShape(16.dp),
+                                )
+                                .padding(start = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .background(Primary800),
+                            )
+
+                            Column(
+                                modifier = Modifier.size(width = 46.dp, height = 54.dp),
+                            ) {
+                                Text(
+                                    text = "예약 시",
+                                    modifier = Modifier.size(width = 46.dp, height = 20.dp),
+                                    color = Gray800,
+                                    style = Body3_14r,
+                                    maxLines = 1,
+                                )
+
+                                Row(
+                                    modifier = Modifier.size(width = 46.dp, height = 34.dp),
+                                ) {
+                                    Text(
+                                        text = when {
+                                            isThirdCard -> "6"
+                                            isSecondCard -> "4"
+                                            else -> "8"
+                                        },
+                                        modifier = Modifier.size(width = 16.dp, height = 34.dp),
+                                        color = Gray800,
+                                        style = Heading1_24sb,
+                                        maxLines = 1,
+                                    )
+                                    Text(
+                                        text = "/ 10",
+                                        modifier = Modifier
+                                            .offset(y = 6.dp)
+                                            .size(width = 30.dp, height = 22.dp),
+                                        color = Gray800,
+                                        style = Body1_16m,
+                                        maxLines = 1,
+                                    )
+                                }
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .size(width = 150.dp, height = 86.dp)
+                                .background(
+                                    color = when {
+                                        isThirdCard -> AccentCream100
+                                        isSecondCard -> Primary300
+                                        else -> Primary200
+                                    },
+                                    shape = RoundedCornerShape(16.dp),
+                                )
+                                .padding(start = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .background(Primary800),
+                            )
+
+                            Column(
+                                modifier = Modifier.size(width = 46.dp, height = 54.dp),
+                            ) {
+                                Text(
+                                    text = "세션 후",
+                                    modifier = Modifier.size(width = 46.dp, height = 20.dp),
+                                    color = Gray800,
+                                    style = Body3_14r,
+                                    maxLines = 1,
+                                )
+
+                                Row(
+                                    modifier = Modifier.size(width = 46.dp, height = 34.dp),
+                                ) {
+                                    Text(
+                                        text = when {
+                                            isThirdCard -> "6"
+                                            isSecondCard -> "8"
+                                            else -> "4"
+                                        },
+                                        modifier = Modifier.size(width = 16.dp, height = 34.dp),
+                                        color = Gray800,
+                                        style = Heading1_24sb,
+                                        maxLines = 1,
+                                    )
+                                    Text(
+                                        text = "/ 10",
+                                        modifier = Modifier
+                                            .offset(y = 6.dp)
+                                            .size(width = 30.dp, height = 22.dp),
+                                        color = Gray800,
+                                        style = Body1_16m,
+                                        maxLines = 1,
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .offset(x = 20.dp, y = 191.dp)
+                            .size(width = 15.dp, height = 160.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        listOf("10", "8", "6", "4", "2", "0").forEach { value ->
+                            Text(
+                                text = value,
+                                modifier = Modifier.size(width = 15.dp, height = 20.dp),
+                                color = Gray800,
+                                style = Body3_14r,
+                                textAlign = TextAlign.Center,
+                                maxLines = 1,
+                            )
+                        }
+                    }
+
+                    Canvas(
+                        modifier = Modifier
+                            .offset(
+                                x = if (isThirdCard) 65.28.dp else 69.dp,
+                                y = if (isThirdCard) 254.dp else 226.dp,
+                            )
+                            .size(
+                                width = if (isThirdCard) 220.44.dp else 213.dp,
+                                height = if (isThirdCard) 6.dp else 62.dp,
+                            ),
+                    ) {
+                        val startPoint = Offset(
+                            x = 3.dp.toPx(),
+                            y = when {
+                                isThirdCard -> 3.dp.toPx()
+                                isSecondCard -> 59.dp.toPx()
+                                else -> 3.dp.toPx()
+                            },
+                        )
+                        val endPoint = Offset(
+                            x = if (isThirdCard) 217.44.dp.toPx() else 210.dp.toPx(),
+                            y = when {
+                                isThirdCard -> 3.dp.toPx()
+                                isSecondCard -> 3.dp.toPx()
+                                else -> 59.dp.toPx()
+                            },
+                        )
+
+                        drawLine(
+                            color = Gray800,
+                            start = startPoint,
+                            end = endPoint,
+                            strokeWidth = 1.dp.toPx(),
+                        )
+                        drawCircle(
+                            color = Gray800,
+                            radius = 3.dp.toPx(),
+                            center = startPoint,
+                        )
+                        drawCircle(
+                            color = Gray800,
+                            radius = 3.dp.toPx(),
+                            center = endPoint,
+                        )
+                    }
 
                 // 세 카드가 공통으로 사용하는 하단 점선 구분선
                 Canvas(
