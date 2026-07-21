@@ -15,12 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,15 +29,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.gominitta.android.presentation.worry.components.WorryExitDialog
 import com.gominitta.android.presentation.worry.components.WorryNoteField
 import com.gominitta.android.presentation.worry.components.WorryPrimaryButton
 import com.gominitta.android.presentation.worry.components.WorryTopBar
 import com.gominitta.android.ui.components.GominittaBackground
-import com.gominitta.android.ui.theme.Gray600
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.Heading4_18m
-import com.gominitta.android.ui.theme.Primary800
 
 /**
  * 걱정 입력 (B101) — 홈 → 걱정 예약하기. 제목·내용을 메모지 형태로 입력받는다.
@@ -118,25 +114,12 @@ fun WorryInputScreen(
     }
 
     if (showExitDialog) {
-        AlertDialog(
-            onDismissRequest = { showExitDialog = false },
-            title = { Text("작성을 취소하시겠습니까?") },
-            text = { Text("작성 중인 내용은 저장되지 않아요.") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showExitDialog = false
-                        onNavigateBack()
-                    },
-                    colors = ButtonDefaults.textButtonColors(contentColor = Primary800),
-                ) { Text("확인") }
+        WorryExitDialog(
+            onConfirm = {
+                showExitDialog = false
+                onNavigateBack()
             },
-            dismissButton = {
-                TextButton(
-                    onClick = { showExitDialog = false },
-                    colors = ButtonDefaults.textButtonColors(contentColor = Gray600),
-                ) { Text("취소") }
-            },
+            onDismiss = { showExitDialog = false },
         )
     }
 }
