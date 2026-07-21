@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -38,6 +40,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gominitta.android.R
+import com.gominitta.android.presentation.worry.components.WorryFavoriteTime
+import com.gominitta.android.presentation.worry.components.WorryFavoriteTimeCard
 import com.gominitta.android.presentation.worry.components.WorryPrimaryButton
 import com.gominitta.android.presentation.worry.components.WorryTimeCard
 import com.gominitta.android.presentation.worry.components.WorryTimeCardState
@@ -61,6 +65,13 @@ import kotlinx.coroutines.launch
 private val ScrimColor = Color(0xFFFEFDF8)
 private val SheetHandleColor = Color(0xFF121211)
 
+private val SampleFavoriteTimes = listOf(
+    WorryFavoriteTime("자기 전 생각 타임", 23 * 60, 24 * 60),
+    WorryFavoriteTime("저녁 먹고 고민하기", 20 * 60, 21 * 60),
+    WorryFavoriteTime("쉬는 시간에 잠깐", 11 * 60 + 30, 12 * 60),
+    WorryFavoriteTime("쉬는 시간에 잠깐", 11 * 60 + 30, 12 * 60),
+)
+
 /** 시간을 편집 중인 카드 — 시작/종료. */
 private enum class WorryTimeSlot { START, END }
 
@@ -81,6 +92,7 @@ fun WorryScheduleScreen(
     var startTime by remember { mutableStateOf<LocalDateTime?>(null) }
     var endTime by remember { mutableStateOf<LocalDateTime?>(null) }
     var activeSlot by remember { mutableStateOf<WorryTimeSlot?>(null) }
+    var selectedFavoriteIndex by remember { mutableStateOf<Int?>(null) }
 
     val displayStartTime = startTime ?: defaultStartTime
     val displayEndTime = endTime ?: defaultEndTime
@@ -111,6 +123,7 @@ fun WorryScheduleScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
+                        .verticalScroll(rememberScrollState())
                         .padding(horizontal = 20.dp),
                 ) {
                     Spacer(Modifier.height(36.dp))
@@ -166,15 +179,34 @@ fun WorryScheduleScreen(
                         Text(text = "즐겨찾는 시간", style = Body1_16m, color = Gray800)
                     }
 
-                    Spacer(Modifier.height(28.dp))
+                    if (SampleFavoriteTimes.isEmpty()) {
+                        Spacer(Modifier.height(28.dp))
 
-                    Text(
-                        text = "즐겨찾는 시간이 없습니다.",
-                        style = Body2_15r,
-                        color = Gray400,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center,
-                    )
+                        Text(
+                            text = "즐겨찾는 시간이 없습니다.",
+                            style = Body2_15r,
+                            color = Gray400,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center,
+                        )
+                    } else {
+                        Spacer(Modifier.height(16.dp))
+
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            SampleFavoriteTimes.forEachIndexed { index, favorite ->
+                                WorryFavoriteTimeCard(
+                                    favorite = favorite,
+                                    selected = selectedFavoriteIndex == index,
+                                    onClick = {
+                                        selectedFavoriteIndex = index
+                                        val base = LocalDate.now().atStartOfDay()
+                                        startTime = base.plusMinutes(favorite.startMinutes.toLong())
+                                        endTime = base.plusMinutes(favorite.endMinutes.toLong())
+                                    },
+                                )
+                            }
+                        }
+                    }
                 }
 
                 WorryPrimaryButton(
@@ -255,6 +287,7 @@ fun WorryScheduleScreen(
                         val safeDay = pickerDay.coerceAtMost(YearMonth.of(year, pickerMonth).lengthOfMonth())
                         val result = LocalDateTime.of(year, pickerMonth, safeDay, hour24, pickerMinute)
                         if (slot == WorryTimeSlot.START) startTime = result else endTime = result
+                        selectedFavoriteIndex = null
 
                         coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
                             if (!sheetState.isVisible) activeSlot = null
