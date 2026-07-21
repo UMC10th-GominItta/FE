@@ -13,11 +13,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -45,14 +48,13 @@ import com.gominitta.android.ui.components.GominittaButtonVariant
 import com.gominitta.android.ui.components.GominittaCard
 import com.gominitta.android.ui.components.GominittaElevatedCard
 import com.gominitta.android.ui.theme.AccentCream100
-import com.gominitta.android.ui.theme.AccentCream200
 import com.gominitta.android.ui.theme.Body1_16m
 import com.gominitta.android.ui.theme.Body2_15r
 import com.gominitta.android.ui.theme.Body3_14r
 import com.gominitta.android.ui.theme.Gray400
-import com.gominitta.android.ui.theme.Gray600
 import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.Heading4_18m
+import com.gominitta.android.ui.theme.Primary300
 import com.gominitta.android.ui.theme.Primary400
 import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.Title1_20sb
@@ -126,6 +128,7 @@ private fun SessionActiveContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding)
+            .imePadding()
             .padding(horizontal = 20.dp)
             .padding(top = 12.dp, bottom = 24.dp),
     ) {
@@ -149,44 +152,50 @@ private fun SessionActiveContent(
         }
         Spacer(Modifier.height(20.dp))
 
-        Text(text = "예약된 걱정", style = Heading4_18m, color = Primary800)
-        Spacer(Modifier.height(8.dp))
-        GominittaElevatedCard(modifier = Modifier.height(170.dp)) {
-            Text(text = worryTitle, style = Body1_16m, color = Primary800)
-            Spacer(Modifier.height(4.dp))
-            Text(text = worryMemo, style = Body3_14r, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        Spacer(Modifier.height(20.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState()),
         ) {
-            RecordTab.entries.forEach { tab ->
-                RecordTypeTabButton(
-                    tab = tab,
-                    selected = tab == selectedTab,
-                    onClick = { onTabSelected(tab) },
-                    modifier = Modifier.weight(1f),
+            Text(text = "예약된 걱정", style = Heading4_18m, color = Primary800)
+            Spacer(Modifier.height(8.dp))
+            GominittaElevatedCard(modifier = Modifier.height(170.dp)) {
+                Text(text = worryTitle, style = Body1_16m, color = Primary800)
+                Spacer(Modifier.height(4.dp))
+                Text(text = worryMemo, style = Body3_14r, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Spacer(Modifier.height(20.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                RecordTab.entries.forEach { tab ->
+                    RecordTypeTabButton(
+                        tab = tab,
+                        selected = tab == selectedTab,
+                        onClick = { onTabSelected(tab) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+            Spacer(Modifier.height(37.dp))
+
+            when (selectedTab) {
+                RecordTab.Text -> TextRecordArea(value = noteText, onValueChange = onNoteTextChange)
+                RecordTab.Voice -> PlaceholderRecordArea(
+                    guide = "지금 드는 생각을 자유롭게 털어놔보세요. 중간중간 마이크를 눌러 멈춰도 돼요. " +
+                        "다 끝나면 세션 완료하기를 누르세요.",
+                    icon = R.drawable.ic_mic,
+                )
+                RecordTab.Camera -> PlaceholderRecordArea(
+                    guide = "노트나 일기장에 적어둔 내용이 있다면 카메라로 스캔해보세요.",
+                    icon = R.drawable.ic_camera,
                 )
             }
         }
         Spacer(Modifier.height(20.dp))
 
-        when (selectedTab) {
-            RecordTab.Text -> TextRecordArea(value = noteText, onValueChange = onNoteTextChange)
-            RecordTab.Voice -> PlaceholderRecordArea(
-                guide = "지금 드는 생각을 자유롭게 털어놔보세요. 중간중간 마이크를 눌러 멈춰도 돼요. " +
-                    "다 끝나면 세션 완료하기를 누르세요.",
-                icon = R.drawable.ic_mic,
-            )
-            RecordTab.Camera -> PlaceholderRecordArea(
-                guide = "노트나 일기장에 적어둔 내용이 있다면 카메라로 스캔해보세요.",
-                icon = R.drawable.ic_camera,
-            )
-        }
-
-        Spacer(Modifier.weight(1f))
         GominittaButton(
             text = "세션 완료하기",
             onClick = onCompleteSession,
@@ -227,19 +236,15 @@ private fun RecordTypeTabButton(
     }
 }
 
-private val TapeSize = DpSize(96.dp, 28.dp)
+val TapeSize = DpSize(96.dp, 28.dp)
 
-/** 카드 위쪽 가장자리에 걸쳐 붙인 마스킹테이프 장식 (텍스트 기록 카드 전용, Figma C103). */
+
 @Composable
-private fun WashiTapeDecoration(modifier: Modifier = Modifier) {
-
+fun WashiTapeDecoration(modifier: Modifier = Modifier, color: Color = Primary300) {
     Box(
-
-
         modifier = modifier
             .size(TapeSize.width, TapeSize.height)
-            .clip(RoundedCornerShape(6.dp))
-            .background(AccentCream200),
+            .background(color),
     )
 }
 
@@ -256,7 +261,7 @@ private fun TextRecordArea(value: String, onValueChange: (String) -> Unit, modif
                     if (value.isEmpty()) {
                         Text(
                             text = "지금 드는 생각을 그대로 적어보세요.\n기록하지 않고 완료해도 괜찮아요.",
-                            style = Body3_14r,
+                            style = Body2_15r,
                             color = Gray400,
                         )
                     }
@@ -264,7 +269,7 @@ private fun TextRecordArea(value: String, onValueChange: (String) -> Unit, modif
                 },
             )
         }
-        // 테이프 세로 중심을 카드 위쪽 가장자리에 맞춰 절반만 겹치게 offset.
+
         WashiTapeDecoration(
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -276,7 +281,7 @@ private fun TextRecordArea(value: String, onValueChange: (String) -> Unit, modif
 @Composable
 private fun PlaceholderRecordArea(guide: String, icon: Int, modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth()) {
-        Text(text = guide, style = Body3_14r, color = Gray600)
+        Text(text = guide, style = Body2_15r, color = Gray400)
         Spacer(Modifier.height(48.dp))
         Box(
             modifier = Modifier.fillMaxWidth().height(140.dp),
