@@ -54,11 +54,12 @@ import com.gominitta.android.ui.theme.White800
  * 하단 탭 바는 MainScreen 이 제공하므로 여기선 스크롤 콘텐츠만 그린다.
  *
  * 현재 표시 데이터(이름/문구/세션)는 플레이스홀더 — 추후 HomeViewModel + UseCase 로 연결.
- * 장식용 잎 일러스트는 생략. "한 줄 보태기"·"전체 보기"는 아직 미연결(동작 없음).
+ * 장식용 잎 일러스트는 생략. "전체 보기"는 아직 미연결(동작 없음).
  */
 @Composable
 fun HomeScreen(
     onNavigateToWorryInput: () -> Unit = {},
+    onNavigateToWorryMemo: () -> Unit = {},
     onNavigateToSessionDetail: () -> Unit = {},
     onNavigateToMyPage: () -> Unit = {},
     modifier: Modifier = Modifier,
@@ -226,7 +227,7 @@ fun HomeScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 GominittaButton(
                     text = "한 줄 보태기",
-                    onClick = {},
+                    onClick = onNavigateToWorryMemo,
                     modifier = Modifier.weight(1f),
                     variant = GominittaButtonVariant.Outlined,
                     leadingIcon = {

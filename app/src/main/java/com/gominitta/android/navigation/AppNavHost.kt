@@ -80,6 +80,7 @@ fun AppNavHost(
         ) {
             MainScreen(
                 onNavigateToWorryInput = { navController.navigate(Routes.WORRY_INPUT) },
+                onNavigateToWorryMemo = { navController.navigate(Routes.WORRY_MEMO) },
                 onNavigateToSessionDetail = { navController.navigate(Routes.SESSION_DETAIL) },
                 onNavigateToMyPage = { navController.navigate(Routes.MY_PAGE) },
             )
@@ -103,7 +104,7 @@ fun AppNavHost(
         }
         composable(Routes.WORRY_SCHEDULE) {
             WorryScheduleScreen(
-                onNavigateNext = { navController.navigate(Routes.WORRY_MEMO) },
+                onNavigateNext = { navController.navigate(Routes.WORRY_SAVED) },
                 onNavigateBack = { navController.popBackStack() },
             )
         }

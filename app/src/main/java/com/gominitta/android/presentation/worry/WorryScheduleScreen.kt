@@ -163,7 +163,7 @@ fun WorryScheduleScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(28.dp)
+                                .size(24.dp)
                                 .clip(CircleShape)
                                 .background(AccentCream200),
                             contentAlignment = Alignment.Center,
