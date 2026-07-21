@@ -1,5 +1,6 @@
 package com.gominitta.android.presentation.worry.components
 
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,7 +25,7 @@ fun WorryPrimaryButton(
     GominittaButton(
         text = text,
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.heightIn(min = 56.dp),
         variant = GominittaButtonVariant.Primary,
         enabled = enabled,
         shadowElevation = 8.dp,

@@ -2,12 +2,15 @@ package com.gominitta.android.presentation.worry.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -32,9 +35,10 @@ import com.gominitta.android.ui.theme.Title2_18sb
 import com.gominitta.android.ui.theme.White800
 import kotlin.math.abs
 
-private val WheelRowHeight = 44.dp
+private val WheelRowHeight = 40.dp
 private const val WheelVisibleRows = 3
 private val WheelHeight = WheelRowHeight * WheelVisibleRows
+private val WheelHighlightHeight = 44.dp
 
 /**
  * 걱정 시간 선택 휠 피커 — 월/일/시/분/오전·오후 5개 열을 스냅 스크롤로 고른다.
@@ -66,42 +70,46 @@ fun WorryWheelTimePicker(
             modifier = Modifier
                 .align(Alignment.Center)
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-                .height(WheelRowHeight)
+                .padding(horizontal = 12.dp)
+                .height(WheelHighlightHeight)
                 .clip(RoundedCornerShape(12.dp))
                 .background(White800.copy(alpha = 0.5f)),
         )
 
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+        ) {
             WorryWheelColumn(
                 items = (1..12).map { "${it}월" },
                 initialIndex = month - 1,
                 onSettle = { month = it + 1 },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.width(54.dp),
             )
             WorryWheelColumn(
                 items = (1..31).map { "${it}일" },
                 initialIndex = day - 1,
                 onSettle = { day = it + 1 },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.width(54.dp),
             )
+            Spacer(Modifier.width(28.dp))
             WorryWheelColumn(
                 items = (1..12).map { "$it" },
                 initialIndex = hour - 1,
                 onSettle = { hour = it + 1 },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.width(36.dp),
             )
             WorryWheelColumn(
                 items = (0..59).map { "%02d".format(it) },
                 initialIndex = minute,
                 onSettle = { minute = it },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.width(40.dp),
             )
             WorryWheelColumn(
                 items = listOf("AM", "PM"),
                 initialIndex = if (isPm) 1 else 0,
                 onSettle = { isPm = it == 1 },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.width(48.dp),
             )
         }
     }

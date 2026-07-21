@@ -51,13 +51,15 @@ import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.Heading4_18m
+import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Primary800
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.YearMonth
 import kotlinx.coroutines.launch
 
-private val SheetBackgroundColor = Color(0xFFFEFDF8)
+private val ScrimColor = Color(0xFFFEFDF8)
+private val SheetHandleColor = Color(0xFF121211)
 
 /** 시간을 편집 중인 카드 — 시작/종료. */
 private enum class WorryTimeSlot { START, END }
@@ -164,7 +166,7 @@ fun WorryScheduleScreen(
                         Text(text = "즐겨찾는 시간", style = Body1_16m, color = Gray800)
                     }
 
-                    Spacer(Modifier.height(32.dp))
+                    Spacer(Modifier.height(28.dp))
 
                     Text(
                         text = "즐겨찾는 시간이 없습니다.",
@@ -193,7 +195,7 @@ fun WorryScheduleScreen(
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
-                            listOf(SheetBackgroundColor.copy(alpha = 0.3f), SheetBackgroundColor),
+                            listOf(ScrimColor.copy(alpha = 0.3f), ScrimColor),
                         ),
                     ),
             )
@@ -207,7 +209,7 @@ fun WorryScheduleScreen(
         ModalBottomSheet(
             onDismissRequest = { activeSlot = null },
             sheetState = sheetState,
-            containerColor = SheetBackgroundColor,
+            containerColor = Primary200,
             scrimColor = Color.Transparent,
             shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
             dragHandle = null,
@@ -219,15 +221,15 @@ fun WorryScheduleScreen(
             var pickerIsPm by remember { mutableStateOf(current.hour >= 12) }
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(14.dp))
                 Box(
                     modifier = Modifier
-                        .size(width = 40.dp, height = 4.dp)
+                        .size(width = 48.dp, height = 3.dp)
                         .clip(RoundedCornerShape(50))
-                        .background(Gray400),
+                        .background(SheetHandleColor),
                 )
 
-                Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.height(36.dp))
 
                 WorryWheelTimePicker(
                     initialMonth = pickerMonth,
@@ -244,7 +246,7 @@ fun WorryScheduleScreen(
                     },
                 )
 
-                Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.height(56.dp))
 
                 WorryPrimaryButton(
                     text = "설정하기",
