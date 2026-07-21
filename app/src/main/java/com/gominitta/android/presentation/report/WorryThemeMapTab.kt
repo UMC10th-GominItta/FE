@@ -46,6 +46,10 @@ import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.Heading2_22m
 import com.gominitta.android.ui.theme.Primary400
 
+// =============================================================================
+// 탭 진입점: 데이터 유무에 따라 표시할 카드를 선택
+// =============================================================================
+
 @Composable
 internal fun WorryThemeMapTab(
     hasData: Boolean = false,
@@ -69,6 +73,10 @@ internal fun WorryThemeMapTab(
         )
     }
 }
+
+// =============================================================================
+// 데이터 없음 카드: 453dp / 펼친 기간 메뉴 / 중앙 안내 문구
+// =============================================================================
 
 @Composable
 private fun WorryThemeMapEmptyCard(
@@ -99,6 +107,10 @@ private fun WorryThemeMapEmptyCard(
         )
     }
 }
+
+// =============================================================================
+// 데이터 있음 카드: 488dp / 닫힌 기간 메뉴 / 버블 지도 / 분석 결과
+// =============================================================================
 
 @Composable
 private fun WorryThemeMapDataCard(
@@ -215,6 +227,10 @@ private fun WorryThemeMapDataCard(
     }
 }
 
+// =============================================================================
+// 데이터 카드 하단 분석 문장의 강조 Span
+// =============================================================================
+
 private fun buildWorrySummaryText(): AnnotatedString = buildAnnotatedString {
     append("최근에는 ")
     pushStyle(
@@ -228,6 +244,10 @@ private fun buildWorrySummaryText(): AnnotatedString = buildAnnotatedString {
     pop()
     append(" 관련된 걱정이 가장 많았어요.")
 }
+
+// =============================================================================
+// 두 카드가 공통으로 사용하는 제목·설명·기간 선택 메뉴
+// =============================================================================
 
 @Composable
 private fun BoxScope.WorryThemeMapCardHeader(
@@ -278,6 +298,10 @@ private fun BoxScope.WorryThemeMapCardHeader(
         initiallyExpanded = initiallyExpanded,
     )
 }
+
+// =============================================================================
+// 상태별 전체 화면 Preview
+// =============================================================================
 
 @Preview(
     name = "Worry theme map - empty",

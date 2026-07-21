@@ -34,9 +34,10 @@ import com.gominitta.android.ui.theme.Heading3_20m
 fun ReportScreen(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
+    initialTab: HeartReportTab = HeartReportTab.WORRY_THEME_MAP,
     content: @Composable ColumnScope.(HeartReportTab) -> Unit = {},
 ) {
-    var selectedTab by remember { mutableStateOf(HeartReportTab.WORRY_THEME_MAP) }
+    var selectedTab by remember { mutableStateOf(initialTab) }
 
     Column(
         modifier = modifier
