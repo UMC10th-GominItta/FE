@@ -19,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -53,7 +52,7 @@ fun HeartReportButton(
 ) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         HeartReportTab.entries.forEach { tab ->
             HeartReportTabButton(
@@ -81,11 +80,6 @@ private fun HeartReportTabButton(
         modifier = Modifier
             .width(tab.width)
             .height(37.dp)
-            .shadow(
-                elevation = 4.dp,
-                shape = shape,
-                clip = false,
-            )
             .clickable(
                 enabled = enabled,
                 role = Role.Tab,
