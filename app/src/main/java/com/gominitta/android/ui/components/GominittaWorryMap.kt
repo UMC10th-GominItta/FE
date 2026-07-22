@@ -7,8 +7,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,43 +17,34 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.gominitta.android.ui.theme.AccentCream100
-import com.gominitta.android.ui.theme.AccentCream300
-import com.gominitta.android.ui.theme.Body3_14r
 import com.gominitta.android.ui.theme.GominittaTheme
-import com.gominitta.android.ui.theme.Heading1_24sb
-import com.gominitta.android.ui.theme.Heading3_20m
-import com.gominitta.android.ui.theme.Heading4_18m
-import com.gominitta.android.ui.theme.Heading5_15m
-import com.gominitta.android.ui.theme.Primary200
-import com.gominitta.android.ui.theme.Primary400
-import com.gominitta.android.ui.theme.Primary800
-import com.gominitta.android.ui.theme.White800
+import com.gominitta.android.ui.theme.heading3Token
+import com.gominitta.android.ui.theme.heading4Token
 
 /**
  * 데이터 값에 따라 디자인 가이드의 대/중/소 버블을 선택합니다.
  * 실제 API의 구간 정책이 확정되면 이 함수의 기준값만 교체하면 됩니다.
  */
 @Composable
-fun WorryMapBubble(
+fun GominittaWorryMapBubble(
     title: String,
     value: Int,
     modifier: Modifier = Modifier,
-    mediumBackgroundColor: Color = Primary400,
+    mediumBackgroundColor: Color? = null,
 ) {
     when {
-        value >= 50 -> WorryMapLargeBubble(
+        value >= 50 -> GominittaWorryMapLargeBubble(
             title = title,
             percentage = "$value%",
             modifier = modifier,
         )
-        value >= 25 -> WorryMapMediumBubble(
+        value >= 25 -> GominittaWorryMapMediumBubble(
             title = title,
             percentage = "$value%",
-            backgroundColor = mediumBackgroundColor,
+            backgroundColor = mediumBackgroundColor ?: MaterialTheme.colorScheme.outline,
             modifier = modifier,
         )
-        else -> WorryMapSmallBubble(
+        else -> GominittaWorryMapSmallBubble(
             title = title,
             percentage = "$value%",
             modifier = modifier,
@@ -62,7 +54,7 @@ fun WorryMapBubble(
 
 /** WorryMap의 1번 원과 동일한 128dp 강조 버블입니다. */
 @Composable
-fun WorryMapLargeBubble(
+fun GominittaWorryMapLargeBubble(
     title: String,
     percentage: String,
     modifier: Modifier = Modifier,
@@ -71,8 +63,8 @@ fun WorryMapLargeBubble(
         modifier = modifier
             .size(128.dp)
             .background(
-                color = Primary800,
-                shape = RoundedCornerShape(88.dp),
+                color = MaterialTheme.colorScheme.onSecondary,
+                shape = CircleShape,
             ),
         contentAlignment = Alignment.Center,
     ) {
@@ -86,8 +78,8 @@ fun WorryMapLargeBubble(
             ) {
                 Text(
                     text = title,
-                    color = White800,
-                    style = Heading1_24sb,
+                    color = MaterialTheme.colorScheme.surface,
+                    style = MaterialTheme.typography.headlineLarge,
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                 )
@@ -99,8 +91,8 @@ fun WorryMapLargeBubble(
             ) {
                 Text(
                     text = percentage,
-                    color = White800,
-                    style = Heading4_18m,
+                    color = MaterialTheme.colorScheme.surface,
+                    style = MaterialTheme.typography.heading4Token,
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                 )
@@ -111,7 +103,7 @@ fun WorryMapLargeBubble(
 
 /** WorryMap의 2·3·4번 원과 동일한 92dp 중간 버블입니다. */
 @Composable
-fun WorryMapMediumBubble(
+fun GominittaWorryMapMediumBubble(
     title: String,
     percentage: String,
     backgroundColor: Color,
@@ -122,7 +114,7 @@ fun WorryMapMediumBubble(
             .size(92.dp)
             .background(
                 color = backgroundColor,
-                shape = RoundedCornerShape(88.dp),
+                shape = CircleShape,
             ),
         contentAlignment = Alignment.Center,
     ) {
@@ -136,8 +128,8 @@ fun WorryMapMediumBubble(
             ) {
                 Text(
                     text = title,
-                    color = Primary800,
-                    style = Heading3_20m,
+                    color = MaterialTheme.colorScheme.onSecondary,
+                    style = MaterialTheme.typography.heading3Token,
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                 )
@@ -149,8 +141,8 @@ fun WorryMapMediumBubble(
             ) {
                 Text(
                     text = percentage,
-                    color = Primary800,
-                    style = Heading5_15m,
+                    color = MaterialTheme.colorScheme.onSecondary,
+                    style = MaterialTheme.typography.titleSmall,
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                 )
@@ -161,7 +153,7 @@ fun WorryMapMediumBubble(
 
 /** WorryMap의 5번 원과 동일한 64dp 작은 버블입니다. */
 @Composable
-fun WorryMapSmallBubble(
+fun GominittaWorryMapSmallBubble(
     title: String,
     percentage: String,
     modifier: Modifier = Modifier,
@@ -170,8 +162,8 @@ fun WorryMapSmallBubble(
         modifier = modifier
             .size(64.dp)
             .background(
-                color = Primary200,
-                shape = RoundedCornerShape(88.dp),
+                color = MaterialTheme.colorScheme.secondaryContainer,
+                shape = CircleShape,
             ),
         contentAlignment = Alignment.Center,
     ) {
@@ -185,8 +177,8 @@ fun WorryMapSmallBubble(
             ) {
                 Text(
                     text = title,
-                    color = Primary800,
-                    style = Heading4_18m,
+                    color = MaterialTheme.colorScheme.onSecondary,
+                    style = MaterialTheme.typography.heading4Token,
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                 )
@@ -198,8 +190,8 @@ fun WorryMapSmallBubble(
             ) {
                 Text(
                     text = percentage,
-                    color = Primary800,
-                    style = Body3_14r,
+                    color = MaterialTheme.colorScheme.onSecondary,
+                    style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                 )
@@ -209,7 +201,7 @@ fun WorryMapSmallBubble(
 }
 
 @Composable
-fun WorryMap(
+fun GominittaWorryMap(
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -218,7 +210,7 @@ fun WorryMap(
             .height(168.dp),
     ) {
         // 첫 번째 원: 진로 70% (128dp)
-        WorryMapLargeBubble(
+        GominittaWorryMapLargeBubble(
             title = "진로",
             percentage = "70%",
             modifier = Modifier.offset(x = 20.dp, y = 20.dp),
@@ -230,8 +222,8 @@ fun WorryMap(
                 .offset(x = 162.dp, y = 38.dp)
                 .size(92.dp)
                 .background(
-                    color = Primary400,
-                    shape = RoundedCornerShape(88.dp),
+                    color = MaterialTheme.colorScheme.outline,
+                    shape = CircleShape,
                 ),
             contentAlignment = Alignment.Center,
         ) {
@@ -245,8 +237,8 @@ fun WorryMap(
                 ) {
                     Text(
                         text = "학업",
-                        color = Primary800,
-                        style = Heading3_20m,
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        style = MaterialTheme.typography.heading3Token,
                         textAlign = TextAlign.Center,
                         maxLines = 1,
                     )
@@ -258,8 +250,8 @@ fun WorryMap(
                 ) {
                     Text(
                         text = "40%",
-                        color = Primary800,
-                        style = Heading5_15m,
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        style = MaterialTheme.typography.titleSmall,
                         textAlign = TextAlign.Center,
                         maxLines = 1,
                     )
@@ -273,8 +265,8 @@ fun WorryMap(
                 .offset(x = 268.dp, y = 38.dp)
                 .size(92.dp)
                 .background(
-                    color = AccentCream300,
-                    shape = RoundedCornerShape(88.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = CircleShape,
                 ),
             contentAlignment = Alignment.Center,
         ) {
@@ -288,8 +280,8 @@ fun WorryMap(
                 ) {
                     Text(
                         text = "학업",
-                        color = Primary800,
-                        style = Heading3_20m,
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        style = MaterialTheme.typography.heading3Token,
                         textAlign = TextAlign.Center,
                         maxLines = 1,
                     )
@@ -301,8 +293,8 @@ fun WorryMap(
                 ) {
                     Text(
                         text = "40%",
-                        color = Primary800,
-                        style = Heading5_15m,
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        style = MaterialTheme.typography.titleSmall,
                         textAlign = TextAlign.Center,
                         maxLines = 1,
                     )
@@ -316,8 +308,8 @@ fun WorryMap(
                 .offset(x = 374.dp, y = 38.dp)
                 .size(92.dp)
                 .background(
-                    color = AccentCream100,
-                    shape = RoundedCornerShape(88.dp),
+                    color = MaterialTheme.colorScheme.tertiary,
+                    shape = CircleShape,
                 ),
             contentAlignment = Alignment.Center,
         ) {
@@ -331,8 +323,8 @@ fun WorryMap(
                 ) {
                     Text(
                         text = "취업",
-                        color = Primary800,
-                        style = Heading3_20m,
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        style = MaterialTheme.typography.heading3Token,
                         textAlign = TextAlign.Center,
                         maxLines = 1,
                     )
@@ -344,8 +336,8 @@ fun WorryMap(
                 ) {
                     Text(
                         text = "40%",
-                        color = Primary800,
-                        style = Heading5_15m,
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        style = MaterialTheme.typography.titleSmall,
                         textAlign = TextAlign.Center,
                         maxLines = 1,
                     )
@@ -359,8 +351,8 @@ fun WorryMap(
                 .offset(x = 480.dp, y = 52.dp)
                 .size(64.dp)
                 .background(
-                    color = Primary200,
-                    shape = RoundedCornerShape(88.dp),
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    shape = CircleShape,
                 ),
             contentAlignment = Alignment.Center,
         ) {
@@ -374,8 +366,8 @@ fun WorryMap(
                 ) {
                     Text(
                         text = "가족",
-                        color = Primary800,
-                        style = Heading4_18m,
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        style = MaterialTheme.typography.heading4Token,
                         textAlign = TextAlign.Center,
                         maxLines = 1,
                     )
@@ -387,8 +379,8 @@ fun WorryMap(
                 ) {
                     Text(
                         text = "10%",
-                        color = Primary800,
-                        style = Body3_14r,
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
                         maxLines = 1,
                     )
@@ -408,6 +400,6 @@ fun WorryMap(
 @Composable
 private fun WorryMapPreview() {
     GominittaTheme {
-        WorryMap()
+        GominittaWorryMap()
     }
 }

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,23 +26,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gominitta.android.ui.components.DateRangeOption
-import com.gominitta.android.ui.components.DateSelectMenu
+import com.gominitta.android.ui.components.GominittaDateSelectMenu
 import com.gominitta.android.ui.components.HeartReportTab
-import com.gominitta.android.ui.components.ReportCard
-import com.gominitta.android.ui.theme.Body2_15r
-import com.gominitta.android.ui.theme.Body3_14r
-import com.gominitta.android.ui.theme.Body1_16m
-import com.gominitta.android.ui.theme.AccentCream100
-import com.gominitta.android.ui.theme.Button1_15m
-import com.gominitta.android.ui.theme.Gray600
-import com.gominitta.android.ui.theme.Gray400
-import com.gominitta.android.ui.theme.Gray800
+import com.gominitta.android.ui.components.GominittaReportCard
 import com.gominitta.android.ui.theme.GominittaTheme
-import com.gominitta.android.ui.theme.Heading2_22m
-import com.gominitta.android.ui.theme.Heading1_24sb
-import com.gominitta.android.ui.theme.Primary200
-import com.gominitta.android.ui.theme.Primary300
-import com.gominitta.android.ui.theme.Primary800
+import com.gominitta.android.ui.theme.gray400Token
+import com.gominitta.android.ui.theme.heading2Token
+import com.gominitta.android.ui.theme.primary300Token
 import com.gominitta.android.ui.theme.spacing
 import androidx.compose.material3.MaterialTheme
 
@@ -74,11 +63,13 @@ internal fun AnxietyTemperatureTab(
                 mutableStateOf(DateRangeOption.LAST_30_DAYS)
             }
 
-            ReportCard(height = 479.dp) {
+            GominittaReportCard(height = 479.dp) {
                 // 선택 기간과 카드 상태에 대응하는 점수·피드백을 한 객체에서 읽습니다.
                 val reportData = anxietyDummyData(selectedDateRange, cardIndex)
                 val isRising = reportData.afterScore > reportData.beforeScore
                 val isFlat = reportData.afterScore == reportData.beforeScore
+                val graphColor = MaterialTheme.colorScheme.onSurface
+                val dividerColor = MaterialTheme.colorScheme.gray400Token
 
         // 임시 공통 상단 제목 및 설명 영역
         Column(
@@ -97,8 +88,8 @@ internal fun AnxietyTemperatureTab(
                     modifier = Modifier
                         .width(115.dp)
                         .height(31.dp),
-                    color = Gray800,
-                    style = Heading2_22m,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.heading2Token,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                 )
@@ -109,14 +100,14 @@ internal fun AnxietyTemperatureTab(
                 modifier = Modifier
                     .width(303.dp)
                     .height(21.dp),
-                color = Gray600,
-                style = Body2_15r,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyLarge,
                 maxLines = 1,
             )
         }
 
         // 카드 우측 상단 기간 선택 메뉴
-                DateSelectMenu(
+                GominittaDateSelectMenu(
                     selectedOption = selectedDateRange,
                     onOptionSelected = { selectedDateRange = it },
                     modifier = Modifier.offset(x = 223.dp, y = 16.dp),
@@ -134,11 +125,11 @@ internal fun AnxietyTemperatureTab(
                                 .size(width = 150.dp, height = 86.dp)
                                 .background(
                                     color = when {
-                                        isFlat -> AccentCream100
-                                        isRising -> Primary200
-                                        else -> Primary300
+                                        isFlat -> MaterialTheme.colorScheme.tertiary
+                                        isRising -> MaterialTheme.colorScheme.secondaryContainer
+                                        else -> MaterialTheme.colorScheme.primary300Token
                                     },
-                                    shape = RoundedCornerShape(16.dp),
+                                    shape = MaterialTheme.shapes.large,
                                 )
                                 .padding(start = 16.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -147,7 +138,7 @@ internal fun AnxietyTemperatureTab(
                             Box(
                                 modifier = Modifier
                                     .size(48.dp)
-                                    .background(Primary800),
+                                    .background(MaterialTheme.colorScheme.onSecondary),
                             )
 
                             Column(
@@ -156,8 +147,8 @@ internal fun AnxietyTemperatureTab(
                                 Text(
                                     text = "예약 시",
                                     modifier = Modifier.size(width = 46.dp, height = 20.dp),
-                                    color = Gray800,
-                                    style = Body3_14r,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     maxLines = 1,
                                 )
 
@@ -167,8 +158,8 @@ internal fun AnxietyTemperatureTab(
                                     Text(
                                         text = reportData.beforeScore.toString(),
                                         modifier = Modifier.size(width = 16.dp, height = 34.dp),
-                                        color = Gray800,
-                                        style = Heading1_24sb,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.headlineLarge,
                                         maxLines = 1,
                                     )
                                     Text(
@@ -176,8 +167,8 @@ internal fun AnxietyTemperatureTab(
                                         modifier = Modifier
                                             .offset(y = 6.dp)
                                             .size(width = 30.dp, height = 22.dp),
-                                        color = Gray800,
-                                        style = Body1_16m,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.titleMedium,
                                         maxLines = 1,
                                     )
                                 }
@@ -189,11 +180,11 @@ internal fun AnxietyTemperatureTab(
                                 .size(width = 150.dp, height = 86.dp)
                                 .background(
                                     color = when {
-                                        isFlat -> AccentCream100
-                                        isRising -> Primary300
-                                        else -> Primary200
+                                        isFlat -> MaterialTheme.colorScheme.tertiary
+                                        isRising -> MaterialTheme.colorScheme.primary300Token
+                                        else -> MaterialTheme.colorScheme.secondaryContainer
                                     },
-                                    shape = RoundedCornerShape(16.dp),
+                                    shape = MaterialTheme.shapes.large,
                                 )
                                 .padding(start = 16.dp),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -202,7 +193,7 @@ internal fun AnxietyTemperatureTab(
                             Box(
                                 modifier = Modifier
                                     .size(48.dp)
-                                    .background(Primary800),
+                                    .background(MaterialTheme.colorScheme.onSecondary),
                             )
 
                             Column(
@@ -211,8 +202,8 @@ internal fun AnxietyTemperatureTab(
                                 Text(
                                     text = "세션 후",
                                     modifier = Modifier.size(width = 46.dp, height = 20.dp),
-                                    color = Gray800,
-                                    style = Body3_14r,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     maxLines = 1,
                                 )
 
@@ -222,8 +213,8 @@ internal fun AnxietyTemperatureTab(
                                     Text(
                                         text = reportData.afterScore.toString(),
                                         modifier = Modifier.size(width = 16.dp, height = 34.dp),
-                                        color = Gray800,
-                                        style = Heading1_24sb,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.headlineLarge,
                                         maxLines = 1,
                                     )
                                     Text(
@@ -231,8 +222,8 @@ internal fun AnxietyTemperatureTab(
                                         modifier = Modifier
                                             .offset(y = 6.dp)
                                             .size(width = 30.dp, height = 22.dp),
-                                        color = Gray800,
-                                        style = Body1_16m,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.titleMedium,
                                         maxLines = 1,
                                     )
                                 }
@@ -250,8 +241,8 @@ internal fun AnxietyTemperatureTab(
                             Text(
                                 text = value,
                                 modifier = Modifier.size(width = 15.dp, height = 20.dp),
-                                color = Gray800,
-                                style = Body3_14r,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.bodyMedium,
                                 textAlign = TextAlign.Center,
                                 maxLines = 1,
                             )
@@ -274,18 +265,18 @@ internal fun AnxietyTemperatureTab(
                         )
 
                         drawLine(
-                            color = Gray800,
+                            color = graphColor,
                             start = startPoint,
                             end = endPoint,
                             strokeWidth = 1.dp.toPx(),
                         )
                         drawCircle(
-                            color = Gray800,
+                            color = graphColor,
                             radius = 3.dp.toPx(),
                             center = startPoint,
                         )
                         drawCircle(
-                            color = Gray800,
+                            color = graphColor,
                             radius = 3.dp.toPx(),
                             center = endPoint,
                         )
@@ -298,7 +289,7 @@ internal fun AnxietyTemperatureTab(
                         .size(width = 303.dp, height = 1.dp),
                 ) {
                     drawLine(
-                        color = Gray400,
+                        color = dividerColor,
                         start = Offset.Zero,
                         end = Offset(size.width, 0f),
                         strokeWidth = 0.5.dp.toPx(),
@@ -321,8 +312,8 @@ internal fun AnxietyTemperatureTab(
                             modifier = Modifier
                                 .width(303.dp)
                                 .height(21.dp),
-                            color = Gray800,
-                            style = Button1_15m,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.labelLarge,
                             maxLines = 1,
                         )
 
@@ -331,8 +322,8 @@ internal fun AnxietyTemperatureTab(
                             modifier = Modifier
                                 .width(303.dp)
                                 .height(60.dp),
-                            color = Gray600,
-                            style = Body3_14r,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodyMedium,
                         )
                     }
                 }
@@ -350,8 +341,8 @@ internal fun AnxietyTemperatureTab(
                             modifier = Modifier
                                 .width(303.dp)
                                 .height(21.dp),
-                            color = Gray800,
-                            style = Button1_15m,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.labelLarge,
                             maxLines = 1,
                         )
 
@@ -360,8 +351,8 @@ internal fun AnxietyTemperatureTab(
                             modifier = Modifier
                                 .width(303.dp)
                                 .height(60.dp),
-                            color = Gray600,
-                            style = Body3_14r,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodyMedium,
                         )
                     }
                 }
@@ -379,8 +370,8 @@ internal fun AnxietyTemperatureTab(
                             modifier = Modifier
                                 .width(303.dp)
                                 .height(21.dp),
-                            color = Gray800,
-                            style = Button1_15m,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.labelLarge,
                             maxLines = 1,
                         )
 
@@ -389,8 +380,8 @@ internal fun AnxietyTemperatureTab(
                             modifier = Modifier
                                 .width(303.dp)
                                 .height(60.dp),
-                            color = Gray600,
-                            style = Body3_14r,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodyMedium,
                         )
                     }
                 }

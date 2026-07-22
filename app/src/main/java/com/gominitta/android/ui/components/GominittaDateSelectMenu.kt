@@ -32,11 +32,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.gominitta.android.R
-import com.gominitta.android.ui.theme.Body3_14r
 import com.gominitta.android.ui.theme.GominittaTheme
-import com.gominitta.android.ui.theme.Gray800
-import com.gominitta.android.ui.theme.Primary200
-import com.gominitta.android.ui.theme.White800
 import com.gominitta.android.ui.theme.spacing
 
 enum class DateRangeOption(
@@ -49,7 +45,7 @@ enum class DateRangeOption(
 }
 
 @Composable
-fun DateSelectMenu(
+fun GominittaDateSelectMenu(
     selectedOption: DateRangeOption,
     onOptionSelected: (DateRangeOption) -> Unit,
     modifier: Modifier = Modifier,
@@ -131,7 +127,7 @@ private fun DateSelectMenuItem(
             .fillMaxWidth()
             .height(MaterialTheme.spacing.xl)
             .clip(itemShape)
-            .background(Primary200, itemShape)
+            .background(MaterialTheme.colorScheme.secondaryContainer, itemShape)
             .clickable(onClick = onClick),
     ) {
         Row(
@@ -154,8 +150,8 @@ private fun DateSelectMenuItem(
                     Text(
                         text = option.label,
                         modifier = Modifier.width(option.textWidth),
-                        color = Gray800,
-                        style = Body3_14r,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium,
                         // 닫힌 버튼은 중앙 정렬, 펼친 메뉴의 상단 버튼은 오른쪽 정렬
                         textAlign = if (arrowPointsUp) TextAlign.End else TextAlign.Center,
                         maxLines = 1,
@@ -165,8 +161,8 @@ private fun DateSelectMenuItem(
                 Text(
                     text = option.label,
                     modifier = Modifier.width(option.textWidth),
-                    color = Gray800,
-                    style = Body3_14r,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.End,
                     maxLines = 1,
                 )
@@ -183,7 +179,7 @@ private fun DateSelectMenuItem(
                         modifier = Modifier
                             .size(MaterialTheme.spacing.md)
                             .rotate(if (arrowPointsUp) 90f else -90f),
-                        tint = Gray800,
+                        tint = MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }
@@ -195,7 +191,7 @@ private fun DateSelectMenuItem(
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .height(1.dp)
-                    .background(White800),
+                    .background(MaterialTheme.colorScheme.surface),
             )
         }
     }
@@ -213,7 +209,7 @@ private fun DateSelectMenuPreview() {
     GominittaTheme {
         var selectedOption by rememberSaveable { mutableStateOf(DateRangeOption.LAST_30_DAYS) }
 
-        DateSelectMenu(
+        GominittaDateSelectMenu(
             selectedOption = selectedOption,
             onOptionSelected = { selectedOption = it },
             modifier = Modifier.padding(20.dp),

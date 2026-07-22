@@ -9,9 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,13 +23,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.gominitta.android.ui.theme.AccentCream100
-import com.gominitta.android.ui.theme.Button1_15m
-import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.GominittaTheme
-import com.gominitta.android.ui.theme.Primary200
-import com.gominitta.android.ui.theme.Primary400
-import com.gominitta.android.ui.theme.White800
 
 enum class HeartReportTab(
     val title: String,
@@ -44,7 +38,7 @@ enum class HeartReportTab(
  * 마음 리포트의 세 가지 내용을 전환하는 탭 버튼입니다.
  */
 @Composable
-fun HeartReportButton(
+fun GominittaHeartReportButton(
     selectedTab: HeartReportTab,
     onTabSelected: (HeartReportTab) -> Unit,
     modifier: Modifier = Modifier,
@@ -72,9 +66,17 @@ private fun HeartReportTabButton(
     enabled: Boolean,
     onClick: () -> Unit,
 ) {
-    val shape = RoundedCornerShape(12.dp)
-    val backgroundColor = if (selected) AccentCream100 else White800
-    val borderColor = if (selected) Primary400 else Primary200
+    val shape = MaterialTheme.shapes.medium
+    val backgroundColor = if (selected) {
+        MaterialTheme.colorScheme.tertiary
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
+    val borderColor = if (selected) {
+        MaterialTheme.colorScheme.outline
+    } else {
+        MaterialTheme.colorScheme.secondaryContainer
+    }
 
     Surface(
         modifier = Modifier
@@ -87,7 +89,7 @@ private fun HeartReportTabButton(
             ),
         shape = shape,
         color = backgroundColor,
-        contentColor = Gray800,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         border = BorderStroke(1.dp, borderColor),
         shadowElevation = 0.dp,
     ) {
@@ -99,8 +101,12 @@ private fun HeartReportTabButton(
         ) {
             Text(
                 text = tab.title,
-                color = if (enabled) Gray800 else Gray800.copy(alpha = 0.38f),
-                style = Button1_15m,
+                color = if (enabled) {
+                    MaterialTheme.colorScheme.onSurface
+                } else {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                },
+                style = MaterialTheme.typography.labelLarge,
                 maxLines = 1,
             )
         }
@@ -118,7 +124,7 @@ private fun HeartReportButtonPreview() {
     GominittaTheme {
         var selectedTab by remember { mutableStateOf(HeartReportTab.WORRY_THEME_MAP) }
 
-        HeartReportButton(
+        GominittaHeartReportButton(
             selectedTab = selectedTab,
             onTabSelected = { selectedTab = it },
             modifier = Modifier.padding(8.dp),
@@ -135,7 +141,7 @@ private fun HeartReportButtonPreview() {
 @Composable
 private fun HeartReportButtonAnxietyTemperaturePreview() {
     GominittaTheme {
-        HeartReportButton(
+        GominittaHeartReportButton(
             selectedTab = HeartReportTab.ANXIETY_TEMPERATURE,
             onTabSelected = {},
             modifier = Modifier.padding(8.dp),
@@ -152,7 +158,7 @@ private fun HeartReportButtonAnxietyTemperaturePreview() {
 @Composable
 private fun HeartReportButtonWorryTimelinePreview() {
     GominittaTheme {
-        HeartReportButton(
+        GominittaHeartReportButton(
             selectedTab = HeartReportTab.WORRY_TIMELINE,
             onTabSelected = {},
             modifier = Modifier.padding(8.dp),

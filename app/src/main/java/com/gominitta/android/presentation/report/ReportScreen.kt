@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,11 +27,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.gominitta.android.ui.components.HeartReportButton
+import com.gominitta.android.ui.components.GominittaHeartReportButton
 import com.gominitta.android.ui.components.HeartReportTab
 import com.gominitta.android.ui.theme.GominittaTheme
-import com.gominitta.android.ui.theme.Gray800
-import com.gominitta.android.ui.theme.Heading3_20m
+import com.gominitta.android.ui.theme.heading3Token
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
@@ -106,8 +106,8 @@ fun ReportScreen(
                 Text(
                     text = "마음 리포트",
                     modifier = Modifier.fillMaxWidth(),
-                    color = Gray800,
-                    style = Heading3_20m,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.heading3Token,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -116,7 +116,7 @@ fun ReportScreen(
         Spacer(Modifier.height(16.dp))
 
         // 탭 클릭 시 enum 순서와 동일한 LazyColumn item 위치로 앵커 스크롤합니다.
-        HeartReportButton(
+        GominittaHeartReportButton(
             selectedTab = selectedTab,
             onTabSelected = { tab ->
                 selectedTab = tab

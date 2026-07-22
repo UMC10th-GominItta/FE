@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,20 +30,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.gominitta.android.R
 import com.gominitta.android.ui.components.DateRangeOption
-import com.gominitta.android.ui.components.DateSelectMenu
+import com.gominitta.android.ui.components.GominittaDateSelectMenu
 import com.gominitta.android.ui.components.HeartReportTab
-import com.gominitta.android.ui.components.HeatMap
-import com.gominitta.android.ui.components.ReportCard
-import com.gominitta.android.ui.theme.Body2_15r
-import com.gominitta.android.ui.theme.Body3_14r
-import com.gominitta.android.ui.theme.Button1_15m
+import com.gominitta.android.ui.components.GominittaHeatMap
+import com.gominitta.android.ui.components.GominittaReportCard
 import com.gominitta.android.ui.theme.GominittaTheme
-import com.gominitta.android.ui.theme.Gray200
-import com.gominitta.android.ui.theme.Gray400
-import com.gominitta.android.ui.theme.Gray600
-import com.gominitta.android.ui.theme.Gray800
-import com.gominitta.android.ui.theme.Heading2_22m
-import com.gominitta.android.ui.theme.Primary800
+import com.gominitta.android.ui.theme.gray400Token
+import com.gominitta.android.ui.theme.heading2Token
 
 // =============================================================================
 // 걱정 타임라인 탭 진입점
@@ -62,11 +56,13 @@ internal fun WorryTimelineTab(
     // 전체 28개 셀 중 가장 큰 빈도를 색상 정규화의 기준값으로 사용합니다.
     val reportData = worryTimelineDummyData(selectedDateRange)
     val maxFrequency = reportData.frequencies.flatten().maxOrNull() ?: 0
+    val rowDividerColor = MaterialTheme.colorScheme.outlineVariant
+    val sectionDividerColor = MaterialTheme.colorScheme.gray400Token
 
     // -------------------------------------------------------------------------
     // 메인 리포트 카드: 335 × 461dp
     // -------------------------------------------------------------------------
-    ReportCard(
+    GominittaReportCard(
         modifier = modifier,
         height = 461.dp,
     ) {
@@ -89,8 +85,8 @@ internal fun WorryTimelineTab(
                     modifier = Modifier
                         .wrapContentWidth()
                         .height(31.dp),
-                    color = Gray800,
-                    style = Heading2_22m,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.heading2Token,
                     textAlign = TextAlign.Start,
                     maxLines = 1,
                 )
@@ -101,8 +97,8 @@ internal fun WorryTimelineTab(
                 modifier = Modifier
                     .width(303.dp)
                     .height(21.dp),
-                color = Gray600,
-                style = Body2_15r,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyLarge,
                 maxLines = 1,
             )
         }
@@ -110,7 +106,7 @@ internal fun WorryTimelineTab(
         // ---------------------------------------------------------------------
         // 카드 우측 상단: 기간 선택 메뉴
         // ---------------------------------------------------------------------
-        DateSelectMenu(
+        GominittaDateSelectMenu(
             selectedOption = selectedDateRange,
             onOptionSelected = { selectedDateRange = it },
             modifier = Modifier.offset(x = 223.dp, y = 16.dp),
@@ -127,8 +123,8 @@ internal fun WorryTimelineTab(
                 Text(
                     text = day,
                     modifier = Modifier.size(width = 29.dp, height = 21.dp),
-                    color = Primary800,
-                    style = Body2_15r,
+                    color = MaterialTheme.colorScheme.onSecondary,
+                    style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                 )
@@ -158,13 +154,13 @@ internal fun WorryTimelineTab(
                             .drawBehind {
                                 val strokeWidth = 1.dp.toPx()
                                 drawLine(
-                                    color = Gray200,
+                                    color = rowDividerColor,
                                     start = Offset(0f, strokeWidth / 2f),
                                     end = Offset(size.width, strokeWidth / 2f),
                                     strokeWidth = strokeWidth,
                                 )
                                 drawLine(
-                                    color = Gray200,
+                                    color = rowDividerColor,
                                     start = Offset(0f, size.height - strokeWidth / 2f),
                                     end = Offset(size.width, size.height - strokeWidth / 2f),
                                     strokeWidth = strokeWidth,
@@ -190,8 +186,8 @@ internal fun WorryTimelineTab(
                                 modifier = Modifier
                                     .offset(y = 1.dp)
                                     .size(width = 26.dp, height = 21.dp),
-                                color = Gray800,
-                                style = Body2_15r,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.bodyLarge,
                                 textAlign = TextAlign.Center,
                                 maxLines = 1,
                             )
@@ -200,15 +196,15 @@ internal fun WorryTimelineTab(
                         Text(
                             text = time,
                             modifier = Modifier.size(width = 58.dp, height = 20.dp),
-                            color = Gray800,
-                            style = Body3_14r,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Center,
                             maxLines = 1,
                         )
                     }
 
                     // 현재 시간대 행의 7개 빈도를 공통 최댓값 기준으로 색상 단계화합니다.
-                    HeatMap(
+                    GominittaHeatMap(
                         modifier = Modifier.align(Alignment.CenterVertically),
                         frequencies = reportData.frequencies.getOrElse(rowIndex) {
                             List(7) { 0 }
@@ -228,7 +224,7 @@ internal fun WorryTimelineTab(
                 .size(width = 303.dp, height = 1.dp),
         ) {
             drawLine(
-                color = Gray400,
+                color = sectionDividerColor,
                 start = Offset.Zero,
                 end = Offset(size.width, 0f),
                 strokeWidth = 0.5.dp.toPx(),
@@ -252,8 +248,8 @@ internal fun WorryTimelineTab(
                 modifier = Modifier
                     .width(303.dp)
                     .height(63.dp),
-                color = Gray800,
-                style = Button1_15m,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.labelLarge,
             )
 
             Text(
@@ -261,8 +257,8 @@ internal fun WorryTimelineTab(
                 modifier = Modifier
                     .width(303.dp)
                     .height(40.dp),
-                color = Gray600,
-                style = Body3_14r,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium,
             )
         }
     }
