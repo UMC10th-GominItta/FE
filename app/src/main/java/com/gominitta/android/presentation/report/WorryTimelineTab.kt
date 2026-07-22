@@ -61,7 +61,7 @@ internal fun WorryTimelineTab(
     // 메인 리포트 카드: 335 × 461dp
     // -------------------------------------------------------------------------
     ReportCard(
-        modifier = modifier.padding(top = 28.dp),
+        modifier = modifier,
         height = 461.dp,
     ) {
         // ---------------------------------------------------------------------
@@ -274,10 +274,6 @@ private fun WorryTimelineTabPreview() {
         ReportScreen(
             onNavigateBack = {},
             initialTab = HeartReportTab.WORRY_TIMELINE,
-        ) { selectedTab ->
-            if (selectedTab == HeartReportTab.WORRY_TIMELINE) {
-                WorryTimelineTab()
-            }
-        }
+        )
     }
 }

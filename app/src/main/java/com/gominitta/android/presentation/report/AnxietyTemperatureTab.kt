@@ -65,7 +65,6 @@ internal fun AnxietyTemperatureTab(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = 28.dp)
             .horizontalScroll(rememberScrollState())
             .padding(horizontal = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.md),
@@ -428,11 +427,7 @@ private fun AnxietyTemperatureTabPreview() {
         ReportScreen(
             onNavigateBack = {},
             initialTab = HeartReportTab.ANXIETY_TEMPERATURE,
-        ) { selectedTab ->
-            if (selectedTab == HeartReportTab.ANXIETY_TEMPERATURE) {
-                AnxietyTemperatureTab()
-            }
-        }
+        )
     }
 }
 

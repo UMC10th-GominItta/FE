@@ -86,7 +86,7 @@ private fun WorryThemeMapEmptyCard(
 ) {
     // 데이터가 없을 때 사용하는 453dp 카드
     ReportCard(
-        modifier = modifier.padding(top = 28.dp),
+        modifier = modifier,
         height = 453.dp,
     ) {
         WorryThemeMapCardHeader(
@@ -120,7 +120,7 @@ private fun WorryThemeMapDataCard(
 ) {
     // 데이터가 있을 때 사용하는 488dp 카드
     ReportCard(
-        modifier = modifier.padding(top = 28.dp),
+        modifier = modifier,
         height = 488.dp,
     ) {
         WorryThemeMapCardHeader(
@@ -313,11 +313,10 @@ private fun BoxScope.WorryThemeMapCardHeader(
 @Composable
 private fun WorryThemeMapEmptyPreview() {
     GominittaTheme {
-        ReportScreen(onNavigateBack = {}) { selectedTab ->
-            if (selectedTab == HeartReportTab.WORRY_THEME_MAP) {
-                WorryThemeMapTab(hasData = false)
-            }
-        }
+        ReportScreen(
+            onNavigateBack = {},
+            worryThemeHasData = false,
+        )
     }
 }
 
@@ -331,10 +330,9 @@ private fun WorryThemeMapEmptyPreview() {
 @Composable
 private fun WorryThemeMapDataPreview() {
     GominittaTheme {
-        ReportScreen(onNavigateBack = {}) { selectedTab ->
-            if (selectedTab == HeartReportTab.WORRY_THEME_MAP) {
-                WorryThemeMapTab(hasData = true)
-            }
-        }
+        ReportScreen(
+            onNavigateBack = {},
+            worryThemeHasData = true,
+        )
     }
 }
