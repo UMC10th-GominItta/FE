@@ -1,6 +1,8 @@
 package com.gominitta.android.presentation.onboarding
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -8,6 +10,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,8 +31,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.gominitta.android.R
 import com.gominitta.android.ui.components.GominittaButton
 import com.gominitta.android.ui.components.GominittaButtonVariant
 import com.gominitta.android.ui.theme.Body2_15r
@@ -37,30 +44,40 @@ import com.gominitta.android.ui.theme.Gray200
 import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.Heading4_18m
-import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Primary800
 import kotlinx.coroutines.launch
 
-private data class OnboardingPage(val title: String, val subtitle: String)
+private data class OnboardingPage(val title: String, val subtitle: String, @DrawableRes val illustration: Int)
+
+private const val ONBOARDING_SUBTITLE =
+    "약속했던 시간이 되면, 바쁜 일상에서 한 걸음 벗어나\n충분한 시간과 여유 속에서 내 마음을 차분히 마주해보세요."
 
 private val onboardingPages = listOf(
     OnboardingPage(
         "걱정은 잠시 접어두고, 이따가 마주해요",
-        "지금 당장 해결할 수 없는 고민에 갇혀 있나요?\n복잡한 생각은 잠시 앱에 맡겨두고 온전히 일상에 집중해 보세요.",
+        ONBOARDING_SUBTITLE,
+        R.drawable.onboarding_1,
     ),
     OnboardingPage(
-        "정해진 시간에 안전하게 꺼내보는 마음",
-        "불쑥 찾아오는 생각들을 기록해 보세요.\n약속된 시간이 되면 온전히 내 마음과 마주해요.",
+        "여유가 생긴 지금, 깊이 마주하기",
+        ONBOARDING_SUBTITLE,
+        R.drawable.onboarding_2,
     ),
     OnboardingPage(
-        "(3페이지 문구 준비 중)",           // TODO: 문구 확정 시 교체
-        "(내부 문구 미정 — PM 확정 후 교체 예정)",
+        "언제든 꺼내보는 나만의 리프레시 비법",
+        ONBOARDING_SUBTITLE,
+        R.drawable.onboarding_3,
+    ),
+    OnboardingPage(
+        "데이터로 보는 지나온 마음의 지도",
+        ONBOARDING_SUBTITLE,
+        R.drawable.onboarding_4,
     ),
 )
 
 /**
- * 온보딩 화면 — 스플래시 후 최초 진입. 3페이지 가로 페이저(인디케이터·건너뛰기·다음).
- * 마지막 페이지 '다음' 또는 '건너뛰기' → 로그인. 일러스트/3페이지 문구는 플레이스홀더.
+ * 온보딩 화면 — 스플래시 후 최초 진입. 4페이지 가로 페이저(인디케이터·건너뛰기·다음).
+ * 마지막 페이지 '다음' 또는 '건너뛰기' → 로그인.
  */
 @Composable
 fun OnboardingScreen(
@@ -142,20 +159,22 @@ fun OnboardingScreen(
 
                     Spacer(Modifier.height(32.dp))
 
-                    // TODO: 실제 에셋 교체
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxWidth(0.64f)
-                            .shadow(
-                                elevation = 8.dp,
-                                shape = RoundedCornerShape(16.dp),
-                            )
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(Primary200),
+                            .fillMaxWidth(),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text("일러스트 준비 중", style = Body3_14r, color = Gray400)
+                        Image(
+                            painter = painterResource(onboardingPages[page].illustration),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .aspectRatio(375f / 812f, matchHeightConstraintsFirst = true)
+                                .shadow(elevation = 8.dp, shape = RoundedCornerShape(16.dp))
+                                .clip(RoundedCornerShape(16.dp)),
+                        )
                     }
 
                     Spacer(Modifier.height(48.dp))
