@@ -6,10 +6,16 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.gominitta.android.presentation.main.MainScreen
 import com.gominitta.android.presentation.mypage.MyPageScreen
@@ -20,6 +26,7 @@ import com.gominitta.android.presentation.session.SessionActiveScreen
 import com.gominitta.android.presentation.session.SessionCompleteScreen
 import com.gominitta.android.presentation.session.SessionDetailScreen
 import com.gominitta.android.presentation.session.SessionRatingScreen
+import com.gominitta.android.presentation.worry.WorryFlowViewModel
 import com.gominitta.android.presentation.worry.WorryInputScreen
 import com.gominitta.android.presentation.worry.WorryIntensityScreen
 import com.gominitta.android.presentation.worry.WorryMemoScreen
@@ -90,33 +97,51 @@ fun AppNavHost(
         }
 
         // ── 걱정 예약 플로우 (전체화면, 바텀바 없음) ──
-        composable(Routes.WORRY_INPUT) {
-            WorryInputScreen(
-                onNavigateNext = { navController.navigate(Routes.WORRY_INTENSITY) },
-                onNavigateBack = { navController.popBackStack() },
-            )
-        }
-        composable(Routes.WORRY_INTENSITY) {
-            WorryIntensityScreen(
-                onNavigateNext = { navController.navigate(Routes.WORRY_SCHEDULE) },
-                onNavigateBack = { navController.popBackStack() },
-            )
-        }
-        composable(Routes.WORRY_SCHEDULE) {
-            WorryScheduleScreen(
-                onNavigateNext = { navController.navigate(Routes.WORRY_SAVED) },
-                onNavigateBack = { navController.popBackStack() },
-            )
+        navigation(startDestination = Routes.WORRY_INPUT, route = Routes.WORRY_FLOW) {
+            composable(Routes.WORRY_INPUT) { entry ->
+                val vm = entry.sharedWorryFlowViewModel(navController)
+                WorryInputScreen(
+                    onNavigateNext = { title, content ->
+                        vm.updateNote(title, content)
+                        navController.navigate(Routes.WORRY_INTENSITY)
+                    },
+                    onNavigateBack = { navController.popBackStack() },
+                )
+            }
+            composable(Routes.WORRY_INTENSITY) { entry ->
+                val vm = entry.sharedWorryFlowViewModel(navController)
+                WorryIntensityScreen(
+                    onNavigateNext = { intensity ->
+                        vm.updateIntensity(intensity)
+                        navController.navigate(Routes.WORRY_SCHEDULE)
+                    },
+                    onNavigateBack = { navController.popBackStack() },
+                )
+            }
+            composable(Routes.WORRY_SCHEDULE) { entry ->
+                val vm = entry.sharedWorryFlowViewModel(navController)
+                WorryScheduleScreen(
+                    onNavigateNext = { start, end ->
+                        vm.updateSchedule(start, end)
+                        navController.navigate(Routes.WORRY_SAVED)
+                    },
+                    onNavigateBack = { navController.popBackStack() },
+                )
+            }
+            composable(Routes.WORRY_SAVED) { entry ->
+                val vm = entry.sharedWorryFlowViewModel(navController)
+                val state by vm.uiState.collectAsState()
+                WorrySavedScreen(
+                    startTime = state.startTime,
+                    endTime = state.endTime,
+                    onNavigateToHome = { navController.popBackStack(Routes.MAIN, inclusive = false) },
+                )
+            }
         }
         composable(Routes.WORRY_MEMO) {
             WorryMemoScreen(
                 onNavigateNext = { navController.navigate(Routes.WORRY_SAVED) },
                 onNavigateBack = { navController.popBackStack() },
-            )
-        }
-        composable(Routes.WORRY_SAVED) {
-            WorrySavedScreen(
-                onNavigateToHome = { navController.popBackStack(Routes.MAIN, inclusive = false) },
             )
         }
 
@@ -144,4 +169,12 @@ fun AppNavHost(
             )
         }
     }
+}
+
+@Composable
+private fun NavBackStackEntry.sharedWorryFlowViewModel(
+    navController: NavHostController,
+): WorryFlowViewModel {
+    val parentEntry = remember(this) { navController.getBackStackEntry(Routes.WORRY_FLOW) }
+    return hiltViewModel(parentEntry)
 }

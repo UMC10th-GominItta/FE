@@ -23,6 +23,7 @@ object Routes {
     const val MY_PAGE      = "my_page"
 
     // 걱정 예약 플로우
+    const val WORRY_FLOW      = "worry_flow"
     const val WORRY_INPUT     = "worry_input"
     const val WORRY_INTENSITY = "worry_intensity"
     const val WORRY_SCHEDULE  = "worry_schedule"

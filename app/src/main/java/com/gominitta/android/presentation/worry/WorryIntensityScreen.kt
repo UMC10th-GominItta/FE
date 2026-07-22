@@ -47,7 +47,7 @@ import com.gominitta.android.ui.theme.Title1_20sb
  */
 @Composable
 fun WorryIntensityScreen(
-    onNavigateNext: () -> Unit,
+    onNavigateNext: (intensity: Int) -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -124,7 +124,7 @@ fun WorryIntensityScreen(
 
             WorryPrimaryButton(
                 text = "다음",
-                onClick = onNavigateNext,
+                onClick = { onNavigateNext(intensity) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)

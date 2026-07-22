@@ -81,7 +81,7 @@ private enum class WorryTimeSlot { START, END }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WorryScheduleScreen(
-    onNavigateNext: () -> Unit,
+    onNavigateNext: (start: LocalDateTime, end: LocalDateTime) -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -211,7 +211,7 @@ fun WorryScheduleScreen(
 
                 WorryPrimaryButton(
                     text = "다음",
-                    onClick = onNavigateNext,
+                    onClick = { onNavigateNext(startTime!!, endTime!!) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp)
@@ -335,7 +335,7 @@ private fun to24Hour(hour12: Int, isPm: Boolean): Int = when {
 private fun WorryScheduleScreenPreview() {
     GominittaTheme {
         GominittaBackground {
-            WorryScheduleScreen(onNavigateNext = {}, onNavigateBack = {})
+            WorryScheduleScreen(onNavigateNext = { _, _ -> }, onNavigateBack = {})
         }
     }
 }

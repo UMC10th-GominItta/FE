@@ -58,10 +58,14 @@ private val TimeFormatter = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLIS
 @Composable
 fun WorrySavedScreen(
     onNavigateToHome: () -> Unit,
+    startTime: LocalDateTime? = null,
+    endTime: LocalDateTime? = null,
     modifier: Modifier = Modifier,
 ) {
     val sampleStartTime = remember { LocalDateTime.of(LocalDate.now().year, 4, 14, 22, 0) }
     val sampleEndTime = remember { LocalDateTime.of(LocalDate.now().year, 4, 14, 23, 0) }
+    val start = startTime ?: sampleStartTime
+    val end = endTime ?: sampleEndTime
 
     BackHandler { onNavigateToHome() }
 
@@ -107,7 +111,7 @@ fun WorrySavedScreen(
                     text = buildAnnotatedString {
                         append("나의 하루를 위해 잠시 접어두고,\n")
                         withStyle(Title2_18sb.toSpanStyle()) {
-                            append(formatSessionTime(sampleStartTime))
+                            append(formatSessionTime(start))
                         }
                         append(" 에 만나요!")
                     },
@@ -144,8 +148,8 @@ fun WorrySavedScreen(
                 Spacer(Modifier.height(18.dp))
 
                 WorrySessionInfoCard(
-                    startTime = sampleStartTime,
-                    endTime = sampleEndTime,
+                    startTime = start,
+                    endTime = end,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
