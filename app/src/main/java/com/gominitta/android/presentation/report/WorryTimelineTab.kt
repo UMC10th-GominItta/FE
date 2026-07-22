@@ -57,6 +57,7 @@ internal fun WorryTimelineTab(
         mutableStateOf(DateRangeOption.LAST_30_DAYS)
     }
     val reportData = worryTimelineDummyData(selectedDateRange)
+    val maxFrequency = reportData.frequencies.flatten().maxOrNull() ?: 0
 
     // -------------------------------------------------------------------------
     // 메인 리포트 카드: 335 × 461dp
@@ -142,7 +143,7 @@ internal fun WorryTimelineTab(
                 .offset(x = 16.dp, y = 106.dp)
                 .size(width = 303.dp, height = 196.dp),
         ) {
-            timeSlots.forEach { (iconRes, label, time) ->
+            timeSlots.forEachIndexed { rowIndex, (iconRes, label, time) ->
                 Row(
                     modifier = Modifier.size(width = 303.dp, height = 49.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -204,7 +205,10 @@ internal fun WorryTimelineTab(
 
                     HeatMap(
                         modifier = Modifier.align(Alignment.CenterVertically),
-                        levels = reportData.heatLevels,
+                        frequencies = reportData.frequencies.getOrElse(rowIndex) {
+                            List(7) { 0 }
+                        },
+                        maxFrequency = maxFrequency,
                     )
                 }
             }

@@ -17,14 +17,25 @@ import com.gominitta.android.ui.theme.Primary300
 import com.gominitta.android.ui.theme.Primary400
 import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.White800
+import kotlin.math.ceil
 
 @Composable
 fun HeatMap(
     modifier: Modifier = Modifier,
-    levels: List<Int> = listOf(0, 1, 2, 3, 4, 1, 1),
+    frequencies: List<Int> = listOf(0, 1, 2, 3, 4, 1, 1),
+    maxFrequency: Int = frequencies.maxOrNull() ?: 0,
 ) {
     val shape = RoundedCornerShape(8.dp)
-    val colors = levels.take(7).map { level ->
+    val levels = frequencies.take(7).map { frequency ->
+        if (frequency <= 0 || maxFrequency <= 0) {
+            0
+        } else {
+            ceil(frequency.toDouble() / maxFrequency * 4)
+                .toInt()
+                .coerceIn(1, 4)
+        }
+    }
+    val colors = levels.map { level ->
         when (level.coerceIn(0, 4)) {
             0 -> White800
             1 -> Primary200

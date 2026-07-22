@@ -29,6 +29,37 @@ import com.gominitta.android.ui.theme.Primary400
 import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.White800
 
+/**
+ * 데이터 값에 따라 디자인 가이드의 대/중/소 버블을 선택합니다.
+ * 실제 API의 구간 정책이 확정되면 이 함수의 기준값만 교체하면 됩니다.
+ */
+@Composable
+fun WorryMapBubble(
+    title: String,
+    value: Int,
+    modifier: Modifier = Modifier,
+    mediumBackgroundColor: Color = Primary400,
+) {
+    when {
+        value >= 50 -> WorryMapLargeBubble(
+            title = title,
+            percentage = "$value%",
+            modifier = modifier,
+        )
+        value >= 25 -> WorryMapMediumBubble(
+            title = title,
+            percentage = "$value%",
+            backgroundColor = mediumBackgroundColor,
+            modifier = modifier,
+        )
+        else -> WorryMapSmallBubble(
+            title = title,
+            percentage = "$value%",
+            modifier = modifier,
+        )
+    }
+}
+
 /** WorryMap의 1번 원과 동일한 128dp 강조 버블입니다. */
 @Composable
 fun WorryMapLargeBubble(

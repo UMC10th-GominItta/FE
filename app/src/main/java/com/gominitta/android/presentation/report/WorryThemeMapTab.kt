@@ -31,9 +31,7 @@ import com.gominitta.android.ui.components.DateRangeOption
 import com.gominitta.android.ui.components.DateSelectMenu
 import com.gominitta.android.ui.components.HeartReportTab
 import com.gominitta.android.ui.components.ReportCard
-import com.gominitta.android.ui.components.WorryMapLargeBubble
-import com.gominitta.android.ui.components.WorryMapMediumBubble
-import com.gominitta.android.ui.components.WorryMapSmallBubble
+import com.gominitta.android.ui.components.WorryMapBubble
 import com.gominitta.android.ui.theme.AccentCream100
 import com.gominitta.android.ui.theme.AccentCream300
 import com.gominitta.android.ui.theme.Body2_15r
@@ -133,54 +131,54 @@ private fun WorryThemeMapDataCard(
         )
 
         // 1번 원: 진로 70%
-        WorryMapLargeBubble(
+        WorryMapBubble(
             title = "진로",
-            percentage = "${reportData.percentages[0]}%",
+            value = reportData.percentages[0],
             modifier = Modifier.offset(x = 104.dp, y = 153.dp),
         )
 
         // 2번 원: 학업 40%
-        WorryMapMediumBubble(
+        WorryMapBubble(
             title = "학업",
-            percentage = "${reportData.percentages[1]}%",
-            backgroundColor = Primary400,
+            value = reportData.percentages[1],
+            mediumBackgroundColor = Primary400,
             modifier = Modifier.offset(x = 206.dp, y = 86.dp),
         )
 
         // 3번 원: 학업 40%
-        WorryMapMediumBubble(
+        WorryMapBubble(
             title = "학업",
-            percentage = "${reportData.percentages[2]}%",
-            backgroundColor = AccentCream300,
+            value = reportData.percentages[2],
+            mediumBackgroundColor = AccentCream300,
             modifier = Modifier.offset(x = 186.dp, y = 267.dp),
         )
 
         // 4번 원: 취업 40%
-        WorryMapMediumBubble(
+        WorryMapBubble(
             title = "취업",
-            percentage = "${reportData.percentages[3]}%",
-            backgroundColor = AccentCream100,
+            value = reportData.percentages[3],
+            mediumBackgroundColor = AccentCream100,
             modifier = Modifier.offset(x = 16.dp, y = 217.dp),
         )
 
         // 5번 원: 돈 10%
-        WorryMapSmallBubble(
+        WorryMapBubble(
             title = "돈",
-            percentage = "${reportData.percentages[4]}%",
+            value = reportData.percentages[4],
             modifier = Modifier.offset(x = 51.dp, y = 122.dp),
         )
 
         // 5번 원: 건강 10%
-        WorryMapSmallBubble(
+        WorryMapBubble(
             title = "건강",
-            percentage = "${reportData.percentages[5]}%",
+            value = reportData.percentages[5],
             modifier = Modifier.offset(x = 108.dp, y = 289.dp),
         )
 
         // 5번 원: 가족 10%
-        WorryMapSmallBubble(
+        WorryMapBubble(
             title = "가족",
-            percentage = "${reportData.percentages[6]}%",
+            value = reportData.percentages[6],
             modifier = Modifier.offset(x = 239.dp, y = 189.dp),
         )
 
