@@ -110,7 +110,7 @@ fun AppNavHost(
         }
         composable(Routes.WORRY_MEMO) {
             WorryMemoScreen(
-                onNavigateNext = { navController.navigate(Routes.WORRY_SAVED) },
+                onNavigateNext = { navController.popBackStack(Routes.MAIN, inclusive = false) },
                 onNavigateBack = { navController.popBackStack() },
             )
         }
