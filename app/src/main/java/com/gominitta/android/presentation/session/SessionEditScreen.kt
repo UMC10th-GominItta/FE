@@ -2,15 +2,14 @@ package com.gominitta.android.presentation.session
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +24,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -43,7 +43,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,12 +56,13 @@ import com.gominitta.android.ui.components.GominittaElevatedCard
 import com.gominitta.android.ui.theme.AccentCream200
 import com.gominitta.android.ui.theme.Body1_16m
 import com.gominitta.android.ui.theme.Body3_14r
-import com.gominitta.android.ui.theme.Gray200
 import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.Gray600
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.Heading3_20m
+import com.gominitta.android.ui.theme.Heading4_18m
+import com.gominitta.android.ui.theme.Heading5_15m
 import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.Title1_20sb
@@ -91,98 +91,111 @@ fun SessionEditScreen(
     var isDirty by remember { mutableStateOf(false) }
     var editingSlot by remember { mutableStateOf<TimeSlot?>(null) }
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        containerColor = Color.Transparent,
-        contentColor = MaterialTheme.colorScheme.onBackground,
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 20.dp)
-                .padding(top = 12.dp, bottom = 24.dp),
-        ) {
-            Box(Modifier.fillMaxWidth()) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_back),
-                    contentDescription = "뒤로",
-                    tint = Primary800,
-                    modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .size(24.dp)
-                        .clickable(onClick = onNavigateBack),
-                )
-                Text(
-                    text = "예약된 걱정 수정",
-                    style = Title1_20sb,
-                    color = Primary800,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.align(Alignment.Center),
-                )
-                Icon(
-                    painter = painterResource(R.drawable.ic_trash),
-                    contentDescription = "삭제",
-                    tint = Primary800,
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .size(24.dp)
-                        .clickable(onClick = onDelete),
-                )
-            }
-            Spacer(Modifier.height(28.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+    Box(modifier = modifier.fillMaxSize()) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            containerColor = Color.Transparent,
+            contentColor = MaterialTheme.colorScheme.onBackground,
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 20.dp)
+                    .padding(top = 12.dp, bottom = 24.dp),
             ) {
-                TimeEditCard(
-                    dateLabel = startDateTime.toDateLabel(),
-                    timeLabel = startDateTime.toTimeLabel(),
-                    suffix = "부터",
-                    variant = if (editingSlot == TimeSlot.Start) GominittaCardVariant.Type2 else GominittaCardVariant.Type1,
-                    onClick = { editingSlot = TimeSlot.Start },
-                    modifier = Modifier.weight(1f),
-                )
-                TimeEditCard(
-                    dateLabel = endDateTime.toDateLabel(),
-                    timeLabel = endDateTime.toTimeLabel(),
-                    suffix = "까지",
-                    variant = if (editingSlot == TimeSlot.End) GominittaCardVariant.Type2 else GominittaCardVariant.Type1,
-                    onClick = { editingSlot = TimeSlot.End },
-                    modifier = Modifier.weight(1f),
-                )
-            }
-            Spacer(Modifier.height(44.dp))
-
-            Box(modifier = Modifier.fillMaxWidth()) {
-                GominittaElevatedCard(modifier = Modifier.height(170.dp)) {
-                    Text(text = FAKE_WORRY_TITLE, style = Body1_16m, color = Primary800)
-                    Spacer(Modifier.height(8.dp))
-                    BasicTextField(
-                        value = memoText,
-                        onValueChange = {
-                            memoText = it
-                            isDirty = true
-                        },
-                        textStyle = Body3_14r.copy(color = Gray600),
-                        modifier = Modifier.fillMaxWidth(),
+                Box(Modifier.fillMaxWidth()) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_back),
+                        contentDescription = "뒤로",
+                        tint = Primary800,
+                        modifier = Modifier
+                            .align(Alignment.CenterStart)
+                            .size(24.dp)
+                            .clickable(onClick = onNavigateBack),
+                    )
+                    Text(
+                        text = "예약된 걱정 수정",
+                        style = Title1_20sb,
+                        color = Primary800,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.align(Alignment.Center),
+                    )
+                    Icon(
+                        painter = painterResource(R.drawable.ic_trash),
+                        contentDescription = "삭제",
+                        tint = Primary800,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .size(24.dp)
+                            .clickable(onClick = onDelete),
                     )
                 }
-                // 테이프 세로 중심을 카드 위쪽 가장자리에 맞춰 절반만 겹치게 offset.
-                WashiTapeDecoration(
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .offset(y = -(TapeSize.height / 2)),
+                Spacer(Modifier.height(28.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    TimeEditCard(
+                        datePart = startDateTime.toDatePart(),
+                        weekdayPart = startDateTime.toWeekdayPart(),
+                        timeLabel = startDateTime.toTimeLabel(),
+                        suffix = "부터",
+                        variant = if (editingSlot == TimeSlot.Start) GominittaCardVariant.Type2 else GominittaCardVariant.Type1,
+                        onClick = { editingSlot = TimeSlot.Start },
+                        modifier = Modifier.width(166.dp).height(111.dp),
+                    )
+                    TimeEditCard(
+                        datePart = endDateTime.toDatePart(),
+                        weekdayPart = endDateTime.toWeekdayPart(),
+                        timeLabel = endDateTime.toTimeLabel(),
+                        suffix = "까지",
+                        variant = if (editingSlot == TimeSlot.End) GominittaCardVariant.Type2 else GominittaCardVariant.Type1,
+                        onClick = { editingSlot = TimeSlot.End },
+                        modifier = Modifier.width(166.dp).height(111.dp),
+                    )
+                }
+                Spacer(Modifier.height(44.dp))
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    GominittaElevatedCard(modifier = Modifier.height(170.dp)) {
+                        Text(text = FAKE_WORRY_TITLE, style = Body1_16m, color = Primary800)
+                        Spacer(Modifier.height(8.dp))
+                        BasicTextField(
+                            value = memoText,
+                            onValueChange = {
+                                memoText = it
+                                isDirty = true
+                            },
+                            textStyle = Body3_14r.copy(color = Gray600),
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                    // 테이프 세로 중심을 카드 위쪽 가장자리에 맞춰 절반만 겹치게 offset.
+                    WashiTapeDecoration(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .offset(y = -(TapeSize.height / 2)),
+                    )
+                }
+
+                Spacer(Modifier.weight(1f))
+                GominittaButton(
+                    text = "저장하기",
+                    onClick = onSave,
+                    enabled = isDirty,
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
+        }
 
-            Spacer(Modifier.weight(1f))
-            GominittaButton(
-                text = "저장하기",
-                onClick = onSave,
-                enabled = isDirty,
-                modifier = Modifier.fillMaxWidth(),
+        if (editingSlot != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .align(Alignment.BottomCenter)
+                    .background(SheetScrimGradient),
             )
         }
     }
@@ -193,8 +206,9 @@ fun SessionEditScreen(
             onDismissRequest = { editingSlot = null },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
             containerColor = Primary200,
-            shape = RectangleShape,
             contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
+            scrimColor = Color.Transparent,
+            dragHandle = { BottomSheetDefaults.DragHandle(width = 50.dp) },
         ) {
             TimePickerSheetContent(
                 initial = if (slot == TimeSlot.Start) startDateTime else endDateTime,
@@ -221,48 +235,59 @@ private data class EditableDateTime(
 private val KoreanWeekdays = arrayOf("월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일")
 
 /** 실제 서버 연동 전이라 UI 확인용으로 2026년 기준 고정 연도를 사용한다. */
-private fun EditableDateTime.toDateLabel(): String {
+private fun EditableDateTime.toDatePart(): String {
     val safeDay = day.coerceAtMost(YearMonth.of(2026, month).lengthOfMonth())
-    val weekday = KoreanWeekdays[LocalDate.of(2026, month, safeDay).dayOfWeek.value - 1]
-    return "%02d/%02d %s".format(month, safeDay, weekday)
+    return "%02d/%02d".format(month, safeDay)
+}
+
+private fun EditableDateTime.toWeekdayPart(): String {
+    val safeDay = day.coerceAtMost(YearMonth.of(2026, month).lengthOfMonth())
+    return KoreanWeekdays[LocalDate.of(2026, month, safeDay).dayOfWeek.value - 1]
 }
 
 private fun EditableDateTime.toTimeLabel(): String = "%02d:%02d %s".format(hour, minute, amPm)
 
 @Composable
 private fun TimeEditCard(
-    dateLabel: String,
+    datePart: String,
+    weekdayPart: String,
     timeLabel: String,
     suffix: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     variant: GominittaCardVariant = GominittaCardVariant.Type1,
 ) {
-    GominittaCard(modifier = modifier.clickable(onClick = onClick), variant = variant) {
-        Box(Modifier.fillMaxWidth()) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .offset(x = 9.dp, y = (-12).dp)
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .background(AccentCream200),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_pencil),
-                    contentDescription = "시간 수정",
-                    tint = Primary800,
-                    modifier = Modifier.size(24.dp),
-                )
+    Box(modifier = modifier) {
+        GominittaCard(modifier = Modifier.fillMaxSize().clickable(onClick = onClick), variant = variant) {
+            Spacer(Modifier.height(20.29.dp))
+            Row {
+                Text(text = datePart, style = Heading4_18m, color = Gray800, modifier = Modifier.alignByBaseline())
+                Spacer(Modifier.width(4.dp))
+                Text(text = weekdayPart, style = Heading5_15m, color = Gray800, modifier = Modifier.alignByBaseline())
+            }
+            Spacer(Modifier.height(4.dp))
+            Row {
+                Text(text = timeLabel, style = Heading4_18m, color = Gray800, modifier = Modifier.alignByBaseline())
+                Spacer(Modifier.width(4.dp))
+                Text(text = suffix, style = Heading5_15m, color = Gray800, modifier = Modifier.alignByBaseline())
             }
         }
-        Text(text = dateLabel, style = Body3_14r, color = Gray600)
-        Spacer(Modifier.height(4.dp))
-        Row {
-            Text(text = timeLabel, style = Body1_16m, color = Primary800)
-            Spacer(Modifier.width(4.dp))
-            Text(text = suffix, style = Body3_14r, color = Gray400)
+        // 배지는 카드 콘텐츠 흐름 밖에서 카드 가장자리 기준(위 8dp·오른쪽 11dp)으로 겹쳐 그린다.
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .offset(x = (-11).dp, y = 8.dp)
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(AccentCream200),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_pencil),
+                contentDescription = "시간 수정",
+                tint = Primary800,
+                modifier = Modifier.size(24.dp),
+            )
         }
     }
 }
@@ -271,8 +296,6 @@ private fun TimeEditCard(
 
 private val WheelItemHeight = 40.dp
 private const val WheelVisibleCount = 3
-private val SheetHeight = 329.dp
-private val SheetBorderWidth = 0.5.dp
 
 private val MonthOptions = (1..12).toList()
 private val DayOptions = (1..31).toList()
@@ -291,10 +314,9 @@ private fun TimePickerSheetContent(initial: EditableDateTime, onConfirm: (Editab
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(SheetHeight)
-            .border(SheetBorderWidth, Gray200)
+            .height(281.dp) // 329 - 드래그 핸들 영역(48dp)
             .padding(horizontal = 20.dp)
-            .padding(bottom = 44.dp, top = 53.dp),
+            .padding(bottom = 44.dp, top = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
@@ -325,7 +347,7 @@ private fun TimePickerSheetContent(initial: EditableDateTime, onConfirm: (Editab
             }
         }
 
-        Spacer(Modifier.height(52.dp))
+        Spacer(Modifier.weight(1f))
         GominittaButton(
             text = "설정하기",
             onClick = { onConfirm(EditableDateTime(month, day, hour, minute, amPm)) },
@@ -373,6 +395,7 @@ private fun <T> WheelColumn(
     ) {
         itemsIndexed(items) { index, item ->
             val isSelected = index == centeredIndex
+            val color = if (isSelected) Gray800 else Gray400
             Box(
                 modifier = Modifier
                     .height(WheelItemHeight)
@@ -382,7 +405,7 @@ private fun <T> WheelColumn(
                 Text(
                     text = label(item),
                     style = Heading3_20m,
-                    color = if (isSelected) Gray800 else Gray400,
+                    color = color,
                     textAlign = TextAlign.Center,
                 )
             }
@@ -406,6 +429,17 @@ private fun SessionEditScreenPreview() {
             onNavigateBack = {},
             onSave = {},
             onDelete = {},
+        )
+    }
+}
+
+@Preview(name = "SessionEdit - 시간설정 시트", showBackground = true, backgroundColor = 0xFFF3F0EB)
+@Composable
+private fun TimePickerSheetContentPreview() {
+    GominittaTheme {
+        TimePickerSheetContent(
+            initial = EditableDateTime(month = 4, day = 13, hour = 9, minute = 0, amPm = "PM"),
+            onConfirm = {},
         )
     }
 }

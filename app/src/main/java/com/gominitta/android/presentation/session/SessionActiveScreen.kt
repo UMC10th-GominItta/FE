@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,6 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -52,8 +55,10 @@ import com.gominitta.android.ui.theme.Body1_16m
 import com.gominitta.android.ui.theme.Body2_15r
 import com.gominitta.android.ui.theme.Body3_14r
 import com.gominitta.android.ui.theme.Gray400
+import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.Heading4_18m
+import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Primary300
 import com.gominitta.android.ui.theme.Primary400
 import com.gominitta.android.ui.theme.Primary800
@@ -77,29 +82,43 @@ fun SessionActiveScreen(
     var noteText by remember { mutableStateOf("") }
     var showIntroSheet by remember { mutableStateOf(true) }
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        containerColor = Color.Transparent,
-        contentColor = MaterialTheme.colorScheme.onBackground,
-    ) { innerPadding ->
-        SessionActiveContent(
-            innerPadding = innerPadding,
-            worryTitle = FAKE_WORRY_TITLE,
-            worryMemo = FAKE_WORRY_MEMO,
-            selectedTab = selectedTab,
-            onTabSelected = { selectedTab = it },
-            noteText = noteText,
-            onNoteTextChange = { noteText = it },
-            onNavigateBack = onNavigateBack,
-            onCompleteSession = onNavigateNext,
-        )
+    Box(modifier = modifier.fillMaxSize()) {
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            containerColor = Color.Transparent,
+            contentColor = MaterialTheme.colorScheme.onBackground,
+        ) { innerPadding ->
+            SessionActiveContent(
+                innerPadding = innerPadding,
+                worryTitle = FAKE_WORRY_TITLE,
+                worryMemo = FAKE_WORRY_MEMO,
+                selectedTab = selectedTab,
+                onTabSelected = { selectedTab = it },
+                noteText = noteText,
+                onNoteTextChange = { noteText = it },
+                onNavigateBack = onNavigateBack,
+                onCompleteSession = onNavigateNext,
+            )
+        }
+
+        if (showIntroSheet) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .align(Alignment.BottomCenter)
+                    .background(SheetScrimGradient),
+            )
+        }
     }
 
     if (showIntroSheet) {
         ModalBottomSheet(
             onDismissRequest = { showIntroSheet = false },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = Primary200,
+            contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
+            scrimColor = Color.Transparent,
+            dragHandle = { BottomSheetDefaults.DragHandle(width = 50.dp) },
         ) {
             SessionIntroSheetContent(
                 onSkip = { showIntroSheet = false },
@@ -236,7 +255,13 @@ private fun RecordTypeTabButton(
     }
 }
 
-val TapeSize = DpSize(96.dp, 28.dp)
+val TapeSize = DpSize(84.dp, 34.dp)
+
+/** 바텀시트 뜰 때 뒤 화면에 까는 배경 그라데이션 (Figma: 위 투명 → 아래 #FEFDF7). */
+val SheetScrimGradient = Brush.verticalGradient(
+    0f to Color(0xFFFEFDF7).copy(alpha = 0f),
+    1f to Color(0xFFFEFDF7),
+)
 
 
 @Composable
@@ -302,24 +327,25 @@ private fun SessionIntroSheetContent(onSkip: () -> Unit, onStartRecipe: () -> Un
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .height(235.dp) // 283 - 드래그 핸들 영역(48dp)
             .padding(horizontal = 20.dp)
-            .padding(bottom = 32.dp, top = 8.dp),
+            .padding(bottom = 44.dp, top = 56.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = "더 나은 기분으로 시작해볼까요?",
             style = Title1_20sb,
-            color = Primary800,
+            color = Gray800,
             textAlign = TextAlign.Center,
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(16.dp))
         Text(
             text = "안정된 기분으로 고민을 마주하면\n더 차분하게 정리할 수 있어요.",
             style = Body2_15r,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.weight(1f))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
