@@ -35,8 +35,14 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 /**
- * 마음 리포트의 공통 화면 골격입니다.
- * 하단 메뉴바는 MainScreen에서 제공하며, 탭과 탭별 화면은 [content]에서 조합합니다.
+ * 마음 리포트의 진입 화면입니다.
+ *
+ * 상단 제목과 리포트 탭 바는 고정하고, 아래 [LazyColumn]에 세 리포트 카드를
+ * 걱정 테마 지도 → 불안 온도차 → 걱정 타임라인 순서로 배치합니다.
+ * 탭을 누르면 해당 카드로 이동하며, 사용자가 직접 스크롤할 때는 화면에 가장 많이
+ * 노출된 카드에 맞춰 탭의 Active 상태를 갱신합니다.
+ *
+ * 실제 API 연결 전까지 [worryThemeHasData]로 테마 지도의 데이터 유무 화면을 전환합니다.
  */
 @Composable
 fun ReportScreen(
@@ -51,6 +57,7 @@ fun ReportScreen(
     )
     val coroutineScope = rememberCoroutineScope()
 
+    // 현재 뷰포트 안에서 노출 면적이 가장 큰 카드를 찾아 상단 탭 상태와 동기화합니다.
     LaunchedEffect(listState) {
         snapshotFlow {
             val layoutInfo = listState.layoutInfo
@@ -80,6 +87,7 @@ fun ReportScreen(
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        // 상태바 아래에 고정되는 화면 제목 영역
         Spacer(Modifier.height(56.dp))
 
         Box(
@@ -107,6 +115,7 @@ fun ReportScreen(
 
         Spacer(Modifier.height(16.dp))
 
+        // 탭 클릭 시 enum 순서와 동일한 LazyColumn item 위치로 앵커 스크롤합니다.
         HeartReportButton(
             selectedTab = selectedTab,
             onTabSelected = { tab ->
@@ -117,6 +126,7 @@ fun ReportScreen(
             },
         )
 
+        // 세 리포트 카드가 실제로 스크롤되는 영역입니다. 상단 탭 바는 이 영역 밖에 있습니다.
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()

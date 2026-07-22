@@ -2,11 +2,14 @@ package com.gominitta.android.presentation.report
 
 import com.gominitta.android.ui.components.DateRangeOption
 
+/** 걱정 테마 지도에 표시할 버블 비율과 분석 문구의 임시 모델입니다. */
 internal data class WorryThemeReportData(
+    // 진로, 학업, 학업, 취업, 돈, 건강, 가족 순서로 버블에 전달됩니다.
     val percentages: List<Int>,
     val summary: String,
 )
 
+/** 불안 온도차 카드의 예약 전후 점수와 점수 관계에 따른 피드백 모델입니다. */
 internal data class AnxietyReportData(
     val beforeScore: Int,
     val afterScore: Int,
@@ -14,12 +17,18 @@ internal data class AnxietyReportData(
     val tip: String,
 )
 
+/**
+ * 걱정 타임라인의 임시 모델입니다.
+ * [frequencies]는 아침·오후·저녁·밤 4행과 월~일 7열로 구성됩니다.
+ */
 internal data class WorryTimelineReportData(
     val frequencies: List<List<Int>>,
     val summary: String,
     val tip: String,
 )
 
+// 기간 선택 인터랙션을 확인하기 위한 테마 지도 더미 데이터입니다.
+// API 연결 시 이 함수 호출을 ViewModel이 제공하는 UI 상태로 교체합니다.
 internal fun worryThemeDummyData(range: DateRangeOption): WorryThemeReportData = when (range) {
     DateRangeOption.LAST_30_DAYS -> WorryThemeReportData(
         percentages = listOf(70, 40, 40, 40, 10, 10, 10),
@@ -39,12 +48,15 @@ internal fun anxietyDummyData(
     range: DateRangeOption,
     cardIndex: Int,
 ): AnxietyReportData {
+    // 각 기간의 세 쌍은 감소·증가·동일 상태 Preview를 위한 값입니다.
+    // 실제 ReportScreen은 첫 번째 카드 한 장만 사용하며 기간별로 세 상태를 보여줍니다.
     val scores = when (range) {
         DateRangeOption.LAST_30_DAYS -> listOf(8 to 4, 4 to 8, 6 to 6)
         DateRangeOption.LAST_2_WEEKS -> listOf(4 to 8, 6 to 6, 8 to 4)
         DateRangeOption.LAST_60_DAYS -> listOf(6 to 6, 8 to 4, 4 to 8)
     }
     val (before, after) = scores.getOrElse(cardIndex) { scores.first() }
+    // 점수 관계만으로 기존 디자인 문구 중 하나를 선택합니다.
     val summary = when {
         after < before -> "걱정을 마주하고 마음이 한결 가벼워졌어요."
         after > before -> "아직은 마음에 복잡한 생각들이 남아있네요."
@@ -63,6 +75,8 @@ internal fun anxietyDummyData(
     )
 }
 
+// 빈도 값은 HeatMap에서 전체 최댓값을 기준으로 0~4단계 색상으로 변환됩니다.
+// 상단 분석 문구는 기획 확정 전 임시 값이며 tip 문구는 모든 기간에 동일합니다.
 internal fun worryTimelineDummyData(range: DateRangeOption): WorryTimelineReportData = when (range) {
     DateRangeOption.LAST_30_DAYS -> WorryTimelineReportData(
         frequencies = List(4) { listOf(0, 1, 2, 3, 4, 1, 1) },

@@ -48,8 +48,12 @@ import com.gominitta.android.ui.theme.spacing
 import androidx.compose.material3.MaterialTheme
 
 /**
- * 불안 온도차 탭의 데이터 없음 카드 밑작업입니다.
- * 세부 문구와 콘텐츠는 추후 전달될 디자인에 맞춰 변경합니다.
+ * 걱정 예약 시점과 마음 세션 완료 후의 불안 점수를 비교하는 카드입니다.
+ *
+ * 실제 화면에서는 카드 한 장만 노출합니다. [cardIndices]는 감소·증가·동일 상태를
+ * 개별 Preview에서 확인하기 위해 남겨둔 테스트용 진입점입니다.
+ * 기간을 바꾸면 [anxietyDummyData]가 점수와 피드백을 제공하고, 블록 색상과 그래프
+ * 꼭짓점은 해당 점수를 기준으로 다시 계산됩니다.
  */
 @Composable
 internal fun AnxietyTemperatureTab(
@@ -65,11 +69,13 @@ internal fun AnxietyTemperatureTab(
         ),
     ) {
         cardIndices.forEach { cardIndex ->
+            // Preview 카드끼리 기간 선택 상태가 공유되지 않도록 카드별로 저장합니다.
             var selectedDateRange by rememberSaveable(cardIndex) {
                 mutableStateOf(DateRangeOption.LAST_30_DAYS)
             }
 
             ReportCard(height = 479.dp) {
+                // 선택 기간과 카드 상태에 대응하는 점수·피드백을 한 객체에서 읽습니다.
                 val reportData = anxietyDummyData(selectedDateRange, cardIndex)
                 val isRising = reportData.afterScore > reportData.beforeScore
                 val isFlat = reportData.afterScore == reportData.beforeScore
@@ -252,6 +258,7 @@ internal fun AnxietyTemperatureTab(
                         }
                     }
 
+                    // 0~10점 축을 기준으로 두 점의 Y 좌표를 계산해 꺾은선을 그립니다.
                     Canvas(
                         modifier = Modifier
                             .offset(x = 69.dp, y = 188.dp)

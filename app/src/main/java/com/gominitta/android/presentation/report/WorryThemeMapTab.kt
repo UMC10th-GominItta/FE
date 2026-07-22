@@ -48,6 +48,11 @@ import com.gominitta.android.ui.theme.Primary400
 // 탭 진입점: 데이터 유무에 따라 표시할 카드를 선택
 // =============================================================================
 
+/**
+ * 자주 기록된 걱정 키워드를 버블 차트로 보여주는 탭입니다.
+ * 기간 변경 시 더미 데이터의 비율과 하단 분석 문구가 갱신됩니다.
+ * [hasData]는 API 연동 전 데이터 있음/없음 디자인을 확인하기 위한 임시 상태입니다.
+ */
 @Composable
 internal fun WorryThemeMapTab(
     hasData: Boolean = false,
@@ -56,6 +61,7 @@ internal fun WorryThemeMapTab(
     var selectedDateRange by rememberSaveable {
         mutableStateOf(DateRangeOption.LAST_30_DAYS)
     }
+    // 기간별 버블 비율과 분석 문구를 함께 갱신합니다.
     val reportData = worryThemeDummyData(selectedDateRange)
 
     if (hasData) {
@@ -130,7 +136,9 @@ private fun WorryThemeMapDataCard(
             initiallyExpanded = false,
         )
 
-        // 1번 원: 진로 70%
+        // 버블은 비율에 따라 대(128dp)·중(92dp)·소(64dp) 크기를 선택합니다.
+        // 위치는 디자인 좌표에 고정되며 자동 패킹이나 물리 애니메이션은 적용하지 않습니다.
+        // 1번 원: 진로
         WorryMapBubble(
             title = "진로",
             value = reportData.percentages[0],

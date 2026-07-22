@@ -48,7 +48,10 @@ import com.gominitta.android.ui.theme.Primary800
 // 걱정 타임라인 탭 진입점
 // =============================================================================
 
-/** 걱정 타임라인 탭의 기본 카드 골격입니다. */
+/**
+ * 요일과 시간대별 걱정 등록 빈도를 4×7 히트맵으로 보여주는 카드입니다.
+ * 기간 변경 시 빈도 행렬과 상단 분석 문구를 교체하며, tip은 모든 기간에 동일합니다.
+ */
 @Composable
 internal fun WorryTimelineTab(
     modifier: Modifier = Modifier,
@@ -56,6 +59,7 @@ internal fun WorryTimelineTab(
     var selectedDateRange by rememberSaveable {
         mutableStateOf(DateRangeOption.LAST_30_DAYS)
     }
+    // 전체 28개 셀 중 가장 큰 빈도를 색상 정규화의 기준값으로 사용합니다.
     val reportData = worryTimelineDummyData(selectedDateRange)
     val maxFrequency = reportData.frequencies.flatten().maxOrNull() ?: 0
 
@@ -203,6 +207,7 @@ internal fun WorryTimelineTab(
                         )
                     }
 
+                    // 현재 시간대 행의 7개 빈도를 공통 최댓값 기준으로 색상 단계화합니다.
                     HeatMap(
                         modifier = Modifier.align(Alignment.CenterVertically),
                         frequencies = reportData.frequencies.getOrElse(rowIndex) {
