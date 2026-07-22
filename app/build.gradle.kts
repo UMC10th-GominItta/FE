@@ -1,9 +1,16 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
 }
+
+val kakaoNativeAppKey: String = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}.getProperty("KAKAO_NATIVE_APP_KEY") ?: ""
 
 android {
     namespace  = "com.gominitta.android"
@@ -18,6 +25,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
+
+        buildConfigField("String", "KAKAO_NATIVE_APP_KEY", "\"$kakaoNativeAppKey\"")
+        manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = kakaoNativeAppKey
     }
 
     buildTypes {
@@ -37,6 +47,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     packaging {
@@ -67,6 +78,9 @@ dependencies {
 
     // Lifecycle ViewModel (required for @HiltViewModel in Compose)
     implementation(libs.lifecycle.viewmodel.compose)
+
+    // Kakao 로그인 SDK
+    implementation(libs.kakao.user)
 
     // Debug tools
     debugImplementation(libs.androidx.compose.ui.tooling)
