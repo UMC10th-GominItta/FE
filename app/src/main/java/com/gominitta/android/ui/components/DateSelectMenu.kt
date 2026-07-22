@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.gominitta.android.R
 import com.gominitta.android.ui.theme.Body3_14r
 import com.gominitta.android.ui.theme.GominittaTheme
@@ -65,6 +66,7 @@ fun DateSelectMenu(
 
     Column(
         modifier = modifier
+            .zIndex(1f)
             .width(96.dp)
             .height(if (expanded) 96.dp else MaterialTheme.spacing.xl)
             .clip(shape),

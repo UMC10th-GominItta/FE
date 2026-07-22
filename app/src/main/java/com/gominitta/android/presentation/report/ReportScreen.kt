@@ -14,10 +14,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +31,7 @@ import com.gominitta.android.ui.components.HeartReportTab
 import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.Heading3_20m
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 /**
@@ -47,6 +50,30 @@ fun ReportScreen(
         initialFirstVisibleItemIndex = initialTab.ordinal,
     )
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            val layoutInfo = listState.layoutInfo
+            val viewportStart = layoutInfo.viewportStartOffset
+            val viewportEnd = layoutInfo.viewportEndOffset
+
+            layoutInfo.visibleItemsInfo
+                .maxByOrNull { item ->
+                    val visibleStart = maxOf(item.offset, viewportStart)
+                    val visibleEnd = minOf(item.offset + item.size, viewportEnd)
+                    (visibleEnd - visibleStart).coerceAtLeast(0)
+                }
+                ?.index
+        }
+            .distinctUntilChanged()
+            .collect { visibleIndex ->
+                visibleIndex?.let { index ->
+                    HeartReportTab.entries.getOrNull(index)?.let { tab ->
+                        selectedTab = tab
+                    }
+                }
+            }
+    }
 
     Column(
         modifier = modifier

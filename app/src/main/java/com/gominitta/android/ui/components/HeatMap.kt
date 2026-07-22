@@ -21,17 +21,18 @@ import com.gominitta.android.ui.theme.White800
 @Composable
 fun HeatMap(
     modifier: Modifier = Modifier,
+    levels: List<Int> = listOf(0, 1, 2, 3, 4, 1, 1),
 ) {
     val shape = RoundedCornerShape(8.dp)
-    val colors = listOf(
-        White800,
-        Primary200,
-        Primary300,
-        Primary400,
-        Primary800,
-        Primary200,
-        Primary200,
-    )
+    val colors = levels.take(7).map { level ->
+        when (level.coerceIn(0, 4)) {
+            0 -> White800
+            1 -> Primary200
+            2 -> Primary300
+            3 -> Primary400
+            else -> Primary800
+        }
+    }
 
     Row(
         modifier = modifier.size(width = 227.dp, height = 44.dp),
@@ -43,7 +44,7 @@ fun HeatMap(
                     .size(width = 29.dp, height = 44.dp)
                     .background(color = color, shape = shape)
                     .then(
-                        if (index == 0) {
+                        if (levels.getOrNull(index) == 0) {
                             Modifier.border(
                                 width = 1.dp,
                                 color = Primary200,

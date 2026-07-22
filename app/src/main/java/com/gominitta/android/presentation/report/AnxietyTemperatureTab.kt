@@ -58,10 +58,6 @@ internal fun AnxietyTemperatureTab(
     modifier: Modifier = Modifier,
     cardIndices: List<Int> = listOf(0, 1, 2),
 ) {
-    var selectedDateRange by rememberSaveable {
-        mutableStateOf(DateRangeOption.LAST_30_DAYS)
-    }
-
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -70,9 +66,14 @@ internal fun AnxietyTemperatureTab(
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.md),
     ) {
         cardIndices.forEach { cardIndex ->
+            var selectedDateRange by rememberSaveable(cardIndex) {
+                mutableStateOf(DateRangeOption.LAST_30_DAYS)
+            }
+
             ReportCard(height = 479.dp) {
-                val isSecondCard = cardIndex == 1
-                val isThirdCard = cardIndex == 2
+                val reportData = anxietyDummyData(selectedDateRange, cardIndex)
+                val isRising = reportData.afterScore > reportData.beforeScore
+                val isFlat = reportData.afterScore == reportData.beforeScore
 
         // 임시 공통 상단 제목 및 설명 영역
         Column(
@@ -128,8 +129,8 @@ internal fun AnxietyTemperatureTab(
                                 .size(width = 150.dp, height = 86.dp)
                                 .background(
                                     color = when {
-                                        isThirdCard -> AccentCream100
-                                        isSecondCard -> Primary200
+                                        isFlat -> AccentCream100
+                                        isRising -> Primary200
                                         else -> Primary300
                                     },
                                     shape = RoundedCornerShape(16.dp),
@@ -159,11 +160,7 @@ internal fun AnxietyTemperatureTab(
                                     modifier = Modifier.size(width = 46.dp, height = 34.dp),
                                 ) {
                                     Text(
-                                        text = when {
-                                            isThirdCard -> "6"
-                                            isSecondCard -> "4"
-                                            else -> "8"
-                                        },
+                                        text = reportData.beforeScore.toString(),
                                         modifier = Modifier.size(width = 16.dp, height = 34.dp),
                                         color = Gray800,
                                         style = Heading1_24sb,
@@ -187,8 +184,8 @@ internal fun AnxietyTemperatureTab(
                                 .size(width = 150.dp, height = 86.dp)
                                 .background(
                                     color = when {
-                                        isThirdCard -> AccentCream100
-                                        isSecondCard -> Primary300
+                                        isFlat -> AccentCream100
+                                        isRising -> Primary300
                                         else -> Primary200
                                     },
                                     shape = RoundedCornerShape(16.dp),
@@ -218,11 +215,7 @@ internal fun AnxietyTemperatureTab(
                                     modifier = Modifier.size(width = 46.dp, height = 34.dp),
                                 ) {
                                     Text(
-                                        text = when {
-                                            isThirdCard -> "6"
-                                            isSecondCard -> "8"
-                                            else -> "4"
-                                        },
+                                        text = reportData.afterScore.toString(),
                                         modifier = Modifier.size(width = 16.dp, height = 34.dp),
                                         color = Gray800,
                                         style = Heading1_24sb,
@@ -262,30 +255,16 @@ internal fun AnxietyTemperatureTab(
 
                     Canvas(
                         modifier = Modifier
-                            .offset(
-                                x = if (isThirdCard) 65.28.dp else 69.dp,
-                                y = if (isThirdCard) 254.dp else 226.dp,
-                            )
-                            .size(
-                                width = if (isThirdCard) 220.44.dp else 213.dp,
-                                height = if (isThirdCard) 6.dp else 62.dp,
-                            ),
+                            .offset(x = 69.dp, y = 188.dp)
+                            .size(width = 213.dp, height = 156.dp),
                     ) {
                         val startPoint = Offset(
                             x = 3.dp.toPx(),
-                            y = when {
-                                isThirdCard -> 3.dp.toPx()
-                                isSecondCard -> 59.dp.toPx()
-                                else -> 3.dp.toPx()
-                            },
+                            y = (153 - 14 * reportData.beforeScore).dp.toPx(),
                         )
                         val endPoint = Offset(
-                            x = if (isThirdCard) 217.44.dp.toPx() else 210.dp.toPx(),
-                            y = when {
-                                isThirdCard -> 3.dp.toPx()
-                                isSecondCard -> 3.dp.toPx()
-                                else -> 59.dp.toPx()
-                            },
+                            x = 210.dp.toPx(),
+                            y = (153 - 14 * reportData.afterScore).dp.toPx(),
                         )
 
                         drawLine(
@@ -332,7 +311,7 @@ internal fun AnxietyTemperatureTab(
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         Text(
-                            text = "걱정을 마주하고 마음이 한결 가벼워졌어요.",
+                            text = reportData.summary,
                             modifier = Modifier
                                 .width(303.dp)
                                 .height(21.dp),
@@ -342,7 +321,7 @@ internal fun AnxietyTemperatureTab(
                         )
 
                         Text(
-                            text = "tip. 기록을 돌아보면, 걱정을 마주한 뒤 감정이 차분해지는 패턴이 보여요. 이 흐름을 기억하며, 앞으로도 나를 믿어보세요.",
+                            text = reportData.tip,
                             modifier = Modifier
                                 .width(303.dp)
                                 .height(60.dp),
@@ -361,7 +340,7 @@ internal fun AnxietyTemperatureTab(
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         Text(
-                            text = "아직은 마음에 복잡한 생각들이 남아있네요.",
+                            text = reportData.summary,
                             modifier = Modifier
                                 .width(303.dp)
                                 .height(21.dp),
@@ -371,7 +350,7 @@ internal fun AnxietyTemperatureTab(
                         )
 
                         Text(
-                            text = "tip. 원인을 완벽하게 없애지 못했어도, 내 마음을 들여다본 것만으로도 큰 시작이에요. 지금 나에게 가장 필요한 '마음 레시피'를 찾고, 실천하며 잠시 쉬어가 보세요.",
+                            text = reportData.tip,
                             modifier = Modifier
                                 .width(303.dp)
                                 .height(60.dp),
@@ -390,7 +369,7 @@ internal fun AnxietyTemperatureTab(
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         Text(
-                            text = "아직은 마음에 복잡한 생각들이 남아있네요.",
+                            text = reportData.summary,
                             modifier = Modifier
                                 .width(303.dp)
                                 .height(21.dp),
@@ -400,7 +379,7 @@ internal fun AnxietyTemperatureTab(
                         )
 
                         Text(
-                            text = "tip. 원인을 완벽하게 없애지 못했어도, 내 마음을 들여다본 것만으로도 큰 시작이에요. 지금 나에게 가장 필요한 '마음 레시피'를 찾고, 실천하며 잠시 쉬어가 보세요.",
+                            text = reportData.tip,
                             modifier = Modifier
                                 .width(303.dp)
                                 .height(60.dp),

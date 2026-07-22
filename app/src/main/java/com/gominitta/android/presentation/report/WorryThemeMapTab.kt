@@ -58,11 +58,13 @@ internal fun WorryThemeMapTab(
     var selectedDateRange by rememberSaveable {
         mutableStateOf(DateRangeOption.LAST_30_DAYS)
     }
+    val reportData = worryThemeDummyData(selectedDateRange)
 
     if (hasData) {
         WorryThemeMapDataCard(
             selectedDateRange = selectedDateRange,
             onDateRangeSelected = { selectedDateRange = it },
+            reportData = reportData,
             modifier = modifier,
         )
     } else {
@@ -116,6 +118,7 @@ private fun WorryThemeMapEmptyCard(
 private fun WorryThemeMapDataCard(
     selectedDateRange: DateRangeOption,
     onDateRangeSelected: (DateRangeOption) -> Unit,
+    reportData: WorryThemeReportData,
     modifier: Modifier = Modifier,
 ) {
     // 데이터가 있을 때 사용하는 488dp 카드
@@ -132,14 +135,14 @@ private fun WorryThemeMapDataCard(
         // 1번 원: 진로 70%
         WorryMapLargeBubble(
             title = "진로",
-            percentage = "70%",
+            percentage = "${reportData.percentages[0]}%",
             modifier = Modifier.offset(x = 104.dp, y = 153.dp),
         )
 
         // 2번 원: 학업 40%
         WorryMapMediumBubble(
             title = "학업",
-            percentage = "40%",
+            percentage = "${reportData.percentages[1]}%",
             backgroundColor = Primary400,
             modifier = Modifier.offset(x = 206.dp, y = 86.dp),
         )
@@ -147,7 +150,7 @@ private fun WorryThemeMapDataCard(
         // 3번 원: 학업 40%
         WorryMapMediumBubble(
             title = "학업",
-            percentage = "40%",
+            percentage = "${reportData.percentages[2]}%",
             backgroundColor = AccentCream300,
             modifier = Modifier.offset(x = 186.dp, y = 267.dp),
         )
@@ -155,7 +158,7 @@ private fun WorryThemeMapDataCard(
         // 4번 원: 취업 40%
         WorryMapMediumBubble(
             title = "취업",
-            percentage = "40%",
+            percentage = "${reportData.percentages[3]}%",
             backgroundColor = AccentCream100,
             modifier = Modifier.offset(x = 16.dp, y = 217.dp),
         )
@@ -163,21 +166,21 @@ private fun WorryThemeMapDataCard(
         // 5번 원: 돈 10%
         WorryMapSmallBubble(
             title = "돈",
-            percentage = "10%",
+            percentage = "${reportData.percentages[4]}%",
             modifier = Modifier.offset(x = 51.dp, y = 122.dp),
         )
 
         // 5번 원: 건강 10%
         WorryMapSmallBubble(
             title = "건강",
-            percentage = "10%",
+            percentage = "${reportData.percentages[5]}%",
             modifier = Modifier.offset(x = 108.dp, y = 289.dp),
         )
 
         // 5번 원: 가족 10%
         WorryMapSmallBubble(
             title = "가족",
-            percentage = "10%",
+            percentage = "${reportData.percentages[6]}%",
             modifier = Modifier.offset(x = 239.dp, y = 189.dp),
         )
 
@@ -206,7 +209,7 @@ private fun WorryThemeMapDataCard(
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
-                text = buildWorrySummaryText(),
+                text = reportData.summary,
                 modifier = Modifier
                     .width(303.dp)
                     .height(22.dp),

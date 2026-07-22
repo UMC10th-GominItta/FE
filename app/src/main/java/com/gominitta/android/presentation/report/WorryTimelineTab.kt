@@ -56,6 +56,7 @@ internal fun WorryTimelineTab(
     var selectedDateRange by rememberSaveable {
         mutableStateOf(DateRangeOption.LAST_30_DAYS)
     }
+    val reportData = worryTimelineDummyData(selectedDateRange)
 
     // -------------------------------------------------------------------------
     // 메인 리포트 카드: 335 × 461dp
@@ -203,6 +204,7 @@ internal fun WorryTimelineTab(
 
                     HeatMap(
                         modifier = Modifier.align(Alignment.CenterVertically),
+                        levels = reportData.heatLevels,
                     )
                 }
             }
@@ -237,7 +239,7 @@ internal fun WorryTimelineTab(
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
-                text = "목요일 저녁 시간대(18-24시)와\n일요일 밤 시간대(00-06시)에\n걱정 기록이 많았어요.",
+                text = reportData.summary,
                 modifier = Modifier
                     .width(303.dp)
                     .height(63.dp),
@@ -246,7 +248,7 @@ internal fun WorryTimelineTab(
             )
 
             Text(
-                text = "tip. 마음이 자주 흔들리는 시간을 알면, 나에게 필요한 휴식 루틴도 더 잘 보일 수 있어요.",
+                text = reportData.tip,
                 modifier = Modifier
                     .width(303.dp)
                     .height(40.dp),
