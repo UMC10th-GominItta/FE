@@ -15,8 +15,7 @@ import retrofit2.Retrofit
 
 /**
  * Provides the shared Retrofit/OkHttp stack. Feature modules provide their own
- * `@Provides fun provideXxxApi(retrofit: Retrofit): XxxApi` off of [provideRetrofit]
- * (see e.g. SessionNetworkModule).
+ * `@Provides fun provideXxxApi(retrofit: Retrofit): XxxApi` off of [provideRetrofit].
  *
  * TODO: once the login flow lands, add an auth interceptor here that attaches
  * `Authorization: Bearer {Access_Token}` from wherever the token ends up stored.
