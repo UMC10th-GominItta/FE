@@ -2,7 +2,6 @@ package com.gominitta.android.presentation.report
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,7 +43,6 @@ import com.gominitta.android.ui.theme.Heading2_22m
 import com.gominitta.android.ui.theme.Heading1_24sb
 import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Primary300
-import com.gominitta.android.ui.theme.Primary400
 import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.spacing
 import androidx.compose.material3.MaterialTheme
@@ -57,14 +54,15 @@ import androidx.compose.material3.MaterialTheme
 @Composable
 internal fun AnxietyTemperatureTab(
     modifier: Modifier = Modifier,
-    cardIndices: List<Int> = listOf(0, 1, 2),
+    cardIndices: List<Int> = listOf(0),
 ) {
     Row(
         modifier = modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp),
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.md),
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(
+            space = MaterialTheme.spacing.md,
+            alignment = Alignment.CenterHorizontally,
+        ),
     ) {
         cardIndices.forEach { cardIndex ->
             var selectedDateRange by rememberSaveable(cardIndex) {
@@ -75,8 +73,6 @@ internal fun AnxietyTemperatureTab(
                 val reportData = anxietyDummyData(selectedDateRange, cardIndex)
                 val isRising = reportData.afterScore > reportData.beforeScore
                 val isFlat = reportData.afterScore == reportData.beforeScore
-                val scoreDelta = reportData.afterScore - reportData.beforeScore
-                val scoreGap = kotlin.math.abs(scoreDelta)
 
         // 임시 공통 상단 제목 및 설명 영역
         Column(
@@ -287,25 +283,6 @@ internal fun AnxietyTemperatureTab(
                             center = endPoint,
                         )
                     }
-
-                    Text(
-                        text = when {
-                            scoreDelta < 0 -> "↓${scoreGap}점 감소"
-                            scoreDelta > 0 -> "↑${scoreGap}점 증가"
-                            else -> "변화 없음"
-                        },
-                        modifier = Modifier
-                            .offset(x = 218.dp, y = 342.dp)
-                            .size(width = 101.dp, height = 20.dp),
-                        color = when {
-                            scoreGap >= 5 -> Primary800
-                            scoreGap >= 3 -> Primary400
-                            else -> Gray600
-                        },
-                        style = Body3_14r,
-                        textAlign = TextAlign.End,
-                        maxLines = 1,
-                    )
 
                 // 세 카드가 공통으로 사용하는 하단 점선 구분선
                 Canvas(
