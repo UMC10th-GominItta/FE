@@ -130,7 +130,7 @@ fun HomeScreen(
             GominittaButton(
                 text = "걱정 예약하기",
                 onClick = onNavigateToWorryInput,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().height(44.dp),
                 leadingIcon = {
                     Icon(painterResource(R.drawable.ic_plus), null, Modifier.size(20.dp))
                 },
@@ -228,7 +228,7 @@ fun HomeScreen(
                 GominittaButton(
                     text = "한 줄 보태기",
                     onClick = onNavigateToWorryMemo,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).height(44.dp),
                     variant = GominittaButtonVariant.Outlined,
                     leadingIcon = {
                         Icon(painterResource(R.drawable.ic_chat), null, Modifier.size(18.dp))
@@ -238,7 +238,7 @@ fun HomeScreen(
                 GominittaButton(
                     text = "세션 시작",
                     onClick = onNavigateToSessionDetail,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).height(44.dp),
                     leadingIcon = {
                         Icon(painterResource(R.drawable.ic_play), null, Modifier.size(18.dp))
                     },
