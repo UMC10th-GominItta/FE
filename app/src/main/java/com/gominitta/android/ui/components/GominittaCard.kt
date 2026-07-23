@@ -20,7 +20,6 @@ import com.gominitta.android.ui.theme.Body2_15r
 import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Primary300
-import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.White800
 
 /**
@@ -31,7 +30,7 @@ import com.gominitta.android.ui.theme.White800
  */
 enum class GominittaCardVariant(val container: Color, val border: Color) {
     Type1(container = White800,       border = Primary200),         // #FEFEFB / #F3F0EB
-    Type2(container = AccentCream100, border = Primary800),         // #FDF1D6 / #534B42
+    Type2(container = AccentCream100, border = Primary300),         // #FDF1D6 / #ECDFCE
     Type3(container = White800,       border = Primary300),         // #FEFEFB / #ECDFCE
 }
 

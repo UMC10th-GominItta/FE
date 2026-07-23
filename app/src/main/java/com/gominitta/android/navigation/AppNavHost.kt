@@ -8,9 +8,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.gominitta.android.presentation.main.MainScreen
 import com.gominitta.android.presentation.mypage.MyPageScreen
 import com.gominitta.android.presentation.onboarding.LoginCompleteScreen
@@ -19,6 +21,7 @@ import com.gominitta.android.presentation.onboarding.OnboardingScreen
 import com.gominitta.android.presentation.session.SessionActiveScreen
 import com.gominitta.android.presentation.session.SessionCompleteScreen
 import com.gominitta.android.presentation.session.SessionDetailScreen
+import com.gominitta.android.presentation.session.SessionEditScreen
 import com.gominitta.android.presentation.session.SessionRatingScreen
 import com.gominitta.android.presentation.worry.WorryInputScreen
 import com.gominitta.android.presentation.worry.WorryIntensityScreen
@@ -81,6 +84,8 @@ fun AppNavHost(
         ) {
             MainScreen(
                 onNavigateToWorryInput = { navController.navigate(Routes.WORRY_INPUT) },
+                onNavigateToSessionDetail = { navController.navigate(Routes.SESSION_ACTIVE) },
+                onNavigateToSessionEdit = { sessionId -> navController.navigate(Routes.sessionEditRoute(sessionId)) },
                 onNavigateToWorryMemo = { navController.navigate(Routes.WORRY_MEMO) },
                 onNavigateToSessionDetail = { navController.navigate(Routes.SESSION_DETAIL) },
                 onNavigateToMyPage = { navController.navigate(Routes.MY_PAGE) },
@@ -122,16 +127,16 @@ fun AppNavHost(
         }
 
         // ── 마음 세션 플로우 (전체화면, 바텀바 없음) ──
-        composable(Routes.SESSION_DETAIL) {
-            SessionDetailScreen(
-                onStartSession = { navController.navigate(Routes.SESSION_ACTIVE) },
-                onSkip = { navController.popBackStack(Routes.MAIN, inclusive = false) },
-            )
-        }
         composable(Routes.SESSION_ACTIVE) {
             SessionActiveScreen(
-                onNavigateNext = { navController.navigate(Routes.SESSION_COMPLETE) },
+                onNavigateNext = { navController.navigate(Routes.SESSION_DETAIL) },
                 onNavigateBack = { navController.popBackStack() },
+            )
+        }
+        composable(Routes.SESSION_DETAIL) {
+            SessionDetailScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onSave = { navController.navigate(Routes.SESSION_COMPLETE) },
             )
         }
         composable(Routes.SESSION_COMPLETE) {
@@ -142,6 +147,18 @@ fun AppNavHost(
         composable(Routes.SESSION_RATING) {
             SessionRatingScreen(
                 onSave = { navController.popBackStack(Routes.MAIN, inclusive = false) },
+            )
+        }
+        composable(
+            route = Routes.SESSION_EDIT,
+            arguments = listOf(navArgument("sessionId") { type = NavType.LongType }),
+        ) { backStackEntry ->
+            val sessionId = backStackEntry.arguments?.getLong("sessionId") ?: 0L
+            SessionEditScreen(
+                sessionId = sessionId,
+                onNavigateBack = { navController.popBackStack() },
+                onSave = { navController.popBackStack() },
+                onDelete = { navController.popBackStack(Routes.MAIN, inclusive = false) },
             )
         }
     }

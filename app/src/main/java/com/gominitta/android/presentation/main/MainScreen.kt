@@ -37,6 +37,7 @@ fun MainScreen(
     onNavigateToWorryInput: () -> Unit,
     onNavigateToWorryMemo: () -> Unit,
     onNavigateToSessionDetail: () -> Unit,
+    onNavigateToSessionEdit: (Long) -> Unit,
     onNavigateToMyPage: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -70,8 +71,10 @@ fun MainScreen(
             }
             composable(Routes.SESSION_LIST) {
                 SessionListScreen(
-                    onNavigateToSessionDetail = onNavigateToSessionDetail,
-                    onNavigateBack = {},
+                    // TODO: SESSION_DETAIL 라우트에 sessionId 인자가 추가되면 실제로 전달하도록 변경
+                    onNavigateToSessionDetail = { _ -> onNavigateToSessionDetail() },
+                    onNavigateToSessionEdit = onNavigateToSessionEdit,
+                    onNavigateToWorryInput = onNavigateToWorryInput,
                 )
             }
             composable(Routes.RECIPE) {
