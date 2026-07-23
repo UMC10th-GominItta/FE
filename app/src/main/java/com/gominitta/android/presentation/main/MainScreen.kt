@@ -14,9 +14,16 @@ import androidx.navigation.compose.rememberNavController
 import com.gominitta.android.navigation.Routes
 import com.gominitta.android.presentation.home.HomeScreen
 import com.gominitta.android.presentation.main.components.GominittaBottomBar
-import com.gominitta.android.presentation.recipe.RecipeScreen
+import com.gominitta.android.presentation.recipe.RecipeCenterScreen
 import com.gominitta.android.presentation.report.ReportScreen
 import com.gominitta.android.presentation.session.SessionListScreen
+
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.material3.Text
+import com.gominitta.android.presentation.recipe.RecipeCreateScreen
+import com.gominitta.android.presentation.recipe.RecipeEditScreen
+import com.gominitta.android.presentation.recipe.RecipeRunScreen
+import com.gominitta.android.presentation.recipe.RecipeViewModel
 
 /**
  * 하단 탭 바를 가진 메인 컨테이너.
@@ -33,6 +40,9 @@ fun MainScreen(
     modifier: Modifier = Modifier,
 ) {
     val tabNavController = rememberNavController()
+
+    val recipeViewModel: RecipeViewModel = viewModel()
+    val recipeUiState = recipeViewModel.uiState
 
     Scaffold(
         modifier = modifier,
@@ -63,7 +73,86 @@ fun MainScreen(
                 )
             }
             composable(Routes.RECIPE) {
-                RecipeScreen(onNavigateBack = {})
+                RecipeCenterScreen(
+                    recipes = recipeUiState.recipes,
+                    onNavigateBack = {},
+                    onCreateClick = {
+                        tabNavController.navigate(Routes.RECIPE_CREATE)
+                    },
+                    onRecipeClick = { recipeId ->
+                        recipeViewModel.selectRecipe(recipeId)
+                        tabNavController.navigate(Routes.RECIPE_RUN)
+                    },
+                    onEditClick = { recipeId ->
+                        recipeViewModel.selectRecipe(recipeId)
+                        tabNavController.navigate(Routes.RECIPE_EDIT)
+                    },
+                    onDeleteClick = { recipeId ->
+                        recipeViewModel.deleteRecipe(recipeId)
+                    },
+                )
+            }
+
+            composable(Routes.RECIPE_CREATE) {
+                RecipeCreateScreen(
+                    onNavigateBack = {
+                        tabNavController.popBackStack()
+                    },
+                    onRegisterClick = { title, description, durationMinutes ->
+                        recipeViewModel.createRecipe(
+                            title = title,
+                            description = description,
+                            durationMinutes = durationMinutes,
+                        )
+                        tabNavController.popBackStack()
+                    },
+                )
+            }
+
+            composable(Routes.RECIPE_RUN) {
+                val selectedRecipe = recipeUiState.selectedRecipe
+
+                if (selectedRecipe != null) {
+                    RecipeRunScreen(
+                        recipe = selectedRecipe,
+                        onNavigateBack = {
+                            tabNavController.popBackStack()
+                        },
+                        onFinishClick = {
+                            tabNavController.popBackStack()
+                        },
+                    )
+                } else {
+                    Text(text = "선택된 레시피가 없습니다.")
+                }
+            }
+
+            composable(Routes.RECIPE_EDIT) {
+                val selectedRecipe = recipeUiState.selectedRecipe
+
+                if (selectedRecipe != null) {
+                    RecipeEditScreen(
+                        recipe = selectedRecipe,
+                        onNavigateBack = {
+                            tabNavController.popBackStack()
+                        },
+                        onDeleteClick = { recipeId ->
+                            recipeViewModel.deleteRecipe(recipeId)
+                            tabNavController.popBackStack()
+                        },
+                        onCompleteClick = { recipeId, title, description, durationMinutes ->
+                            recipeViewModel.updateRecipe(
+                                recipeId = recipeId,
+                                title = title,
+                                description = description,
+                                durationMinutes = durationMinutes,
+                            )
+                            tabNavController.popBackStack()
+                        },
+                    )
+                } else {
+                    Text(text = "선택된 레시피가 없습니다.")
+                }
             }
             composable(Routes.REPORT) {
                 ReportScreen(onNavigateBack = {})
