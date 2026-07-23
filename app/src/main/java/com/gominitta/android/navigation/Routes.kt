@@ -20,7 +20,13 @@ object Routes {
     const val SESSION_LIST = "session_list"
     const val RECIPE       = "recipe"
     const val REPORT       = "report"
-    const val MY_PAGE      = "my_page"
+    const val MY_PAGE = "my_page"
+
+    const val MY_PAGE_FAVORITE_TIME = "my_page_favorite_time"
+    const val MY_PAGE_FAVORITE_TIME_ADD = "my_page_favorite_time_add"
+    const val MY_PAGE_NOTIFICATION = "my_page_notification"
+    const val MY_PAGE_PROFILE_EDIT = "my_page_profile_edit"
+    const val MY_PAGE_WITHDRAW = "my_page_withdraw"
 
     // 걱정 예약 플로우
     const val WORRY_INPUT     = "worry_input"

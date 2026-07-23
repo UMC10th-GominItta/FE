@@ -40,6 +40,8 @@ okhttp                = "5.1.0"
 junit            = "4.13.2"
 junitExt         = "1.2.1"
 espresso         = "3.6.1"
+foundationLayout = "1.11.4"
+foundation = "1.11.4"
 
 [libraries]
 # AndroidX core
@@ -85,6 +87,8 @@ okhttp-logging-interceptor         = { group = "com.squareup.okhttp3",     name 
 junit                              = { group = "junit",                    name = "junit",                   version.ref = "junit" }
 androidx-test-ext-junit            = { group = "androidx.test.ext",        name = "junit",                   version.ref = "junitExt" }
 androidx-test-espresso-core        = { group = "androidx.test.espresso",   name = "espresso-core",           version.ref = "espresso" }
+androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 
 [bundles]
 compose-core = [
