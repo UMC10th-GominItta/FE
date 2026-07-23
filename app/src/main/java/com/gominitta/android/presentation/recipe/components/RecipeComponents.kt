@@ -389,6 +389,7 @@ fun RecipeAddFloatingButton(
     FloatingActionButton(
         onClick = onClick,
         modifier = modifier,
+        shape = CircleShape,
         containerColor = MaterialTheme.colorScheme.primaryContainer
     ) {
         Image(
