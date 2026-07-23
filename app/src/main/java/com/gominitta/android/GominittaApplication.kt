@@ -1,6 +1,8 @@
 package com.gominitta.android
 
 import android.app.Application
+import com.gominitta.android.BuildConfig
+import com.kakao.sdk.common.KakaoSdk
 import dagger.hilt.android.HiltAndroidApp
 
 /**
@@ -10,4 +12,10 @@ import dagger.hilt.android.HiltAndroidApp
  * application-level component. All other Hilt components descend from here.
  */
 @HiltAndroidApp
-class GominittaApplication : Application()
+class GominittaApplication : Application() {
+
+    override fun onCreate() {
+        super.onCreate()
+        KakaoSdk.init(this, BuildConfig.KAKAO_NATIVE_APP_KEY)
+    }
+}
