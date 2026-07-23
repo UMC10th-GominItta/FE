@@ -25,7 +25,14 @@ import com.gominitta.android.presentation.worry.WorryIntensityScreen
 import com.gominitta.android.presentation.worry.WorryMemoScreen
 import com.gominitta.android.presentation.worry.WorryScheduleScreen
 import com.gominitta.android.presentation.worry.WorrySavedScreen
-
+import com.gominitta.android.presentation.mypage.FavoriteTimeAddRoute
+import com.gominitta.android.presentation.mypage.FavoriteTimeRoute
+import com.gominitta.android.presentation.mypage.MyPageRoute
+import com.gominitta.android.presentation.mypage.NotificationSettingRoute
+import com.gominitta.android.presentation.mypage.ProfileEditRoute
+import com.gominitta.android.presentation.mypage.WithdrawScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.gominitta.android.presentation.mypage.model.FavoriteTimeViewModel
 /**
  * Root navigation graph — the ONLY place holding the top-level [NavHostController].
  * Full-screen flows live here; the 4 bottom-tab screens live in a nested NavHost
@@ -46,6 +53,7 @@ fun AppNavHost(
         popEnterTransition = { EnterTransition.None },
         popExitTransition = { ExitTransition.None },
     ) {
+
         // ── 온보딩 · 인증 ──
         composable(Routes.ONBOARDING) {
             OnboardingScreen(onNavigateToLogin = { navController.navigate(Routes.LOGIN) })
@@ -83,7 +91,89 @@ fun AppNavHost(
             )
         }
         composable(Routes.MY_PAGE) {
-            MyPageScreen(onNavigateBack = { navController.popBackStack() })
+            MyPageRoute(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onFavoriteTimeClick = {
+                    navController.navigate(
+                        Routes.MY_PAGE_FAVORITE_TIME,
+                    )
+                },
+                onNotificationSettingClick = {
+                    navController.navigate(
+                        Routes.MY_PAGE_NOTIFICATION,
+                    )
+                },
+                onProfileEditClick = {
+                    navController.navigate(
+                        Routes.MY_PAGE_PROFILE_EDIT,
+                    )
+                },
+                onWithdrawClick = {
+                    navController.navigate(
+                        Routes.MY_PAGE_WITHDRAW,
+                    )
+                },
+                onLogoutConfirmed = {
+                    // TODO 실제 로그아웃 처리 후 로그인 화면 이동
+                },
+            )
+        }
+        composable(Routes.MY_PAGE_FAVORITE_TIME) {
+            val viewModel: FavoriteTimeViewModel = viewModel()   // Hilt 쓰면 hiltViewModel()
+            FavoriteTimeRoute(
+                favoriteTimes = viewModel.favoriteTimes,
+                onBackClick = { navController.popBackStack() },
+                onAddClick = { navController.navigate(Routes.MY_PAGE_FAVORITE_TIME_ADD) },
+            )
+        }
+
+        composable(Routes.MY_PAGE_FAVORITE_TIME_ADD) {
+            // 같은 그래프 안이면 이전 백스택 엔트리에서 같은 ViewModel 인스턴스를 다시 얻을 수 있음
+            val viewModel: FavoriteTimeViewModel = viewModel(
+                navController.getBackStackEntry(Routes.MY_PAGE_FAVORITE_TIME),
+            )
+            FavoriteTimeAddRoute(
+                onBackClick = { navController.popBackStack() },
+                onSaved = {
+                    viewModel.add(it)
+                    navController.popBackStack()
+                },
+            )
+        }
+
+        composable(Routes.MY_PAGE_NOTIFICATION) {
+            NotificationSettingRoute(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+            )
+        }
+
+        composable(Routes.MY_PAGE_PROFILE_EDIT) {
+            ProfileEditRoute(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onSaved = {
+                    navController.popBackStack()
+                },
+            )
+        }
+
+        composable(Routes.MY_PAGE_WITHDRAW) {
+            WithdrawScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onCancelClick = {
+                    navController.popBackStack()
+                },
+                onWithdrawClick = {
+                    // TODO 회원 탈퇴 API 성공 후 로그인 화면 이동
+                },
+            )
         }
 
         // ── 걱정 예약 플로우 (전체화면, 바텀바 없음) ──
