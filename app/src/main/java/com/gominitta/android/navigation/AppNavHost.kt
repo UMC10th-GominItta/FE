@@ -29,6 +29,7 @@ import com.gominitta.android.presentation.worry.WorryMemoScreen
 import com.gominitta.android.presentation.worry.WorryScheduleScreen
 import com.gominitta.android.presentation.worry.WorrySavedScreen
 
+
 /**
  * Root navigation graph — the ONLY place holding the top-level [NavHostController].
  * Full-screen flows live here; the 4 bottom-tab screens live in a nested NavHost
@@ -78,11 +79,15 @@ fun AppNavHost(
         composable(
             Routes.MAIN,
             enterTransition = { fadeIn(animationSpec = tween(800)) },
+            // 로그인→홈 진입 시에만 페이드. 걱정예약/세션 플로우에서 뒤로가기로 돌아올 땐 즉시 전환.
+            popEnterTransition = { EnterTransition.None },
         ) {
             MainScreen(
                 onNavigateToWorryInput = { navController.navigate(Routes.WORRY_INPUT) },
                 onNavigateToSessionDetail = { navController.navigate(Routes.SESSION_ACTIVE) },
                 onNavigateToSessionEdit = { sessionId -> navController.navigate(Routes.sessionEditRoute(sessionId)) },
+                onNavigateToWorryMemo = { navController.navigate(Routes.WORRY_MEMO) },
+                onNavigateToSessionDetail = { navController.navigate(Routes.SESSION_DETAIL) },
                 onNavigateToMyPage = { navController.navigate(Routes.MY_PAGE) },
             )
         }
@@ -105,7 +110,7 @@ fun AppNavHost(
         }
         composable(Routes.WORRY_SCHEDULE) {
             WorryScheduleScreen(
-                onNavigateNext = { navController.navigate(Routes.WORRY_MEMO) },
+                onNavigateNext = { navController.navigate(Routes.WORRY_SAVED) },
                 onNavigateBack = { navController.popBackStack() },
             )
         }

@@ -42,8 +42,9 @@ fun GominittaBottomBar(navController: NavController) {
         CompositionLocalProvider(LocalRippleConfiguration provides null) {
             NavigationBar(containerColor = Primary200) {
                 BottomNavItem.items.forEach { item ->
+                    val selected = currentRoute == item.route
                     NavigationBarItem(
-                        selected = currentRoute == item.route,
+                        selected = selected,
                         onClick = {
                             if (currentRoute != item.route) {
                                 navController.navigate(item.route) {
@@ -55,7 +56,7 @@ fun GominittaBottomBar(navController: NavController) {
                         },
                         icon = {
                             Icon(
-                                painter = painterResource(item.icon),
+                                painter = painterResource(if (selected) item.selectedIcon else item.unselectedIcon),
                                 contentDescription = item.label,
                                 modifier = Modifier.size(32.dp),
                             )
