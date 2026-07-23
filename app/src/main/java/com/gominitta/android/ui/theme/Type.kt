@@ -57,6 +57,12 @@ val Button1_15m   = pretendardStyle(15, FontWeight.Medium)
 val Caption1_12r  = pretendardStyle(12, FontWeight.Normal)
 val Timer_44r     = pretendardStyle(44, FontWeight.Normal)
 
+// Material 기본 Typography 슬롯에 없는 Figma 전용 스타일 접근자입니다.
+// 기능 UI에서는 MaterialTheme.typography.<token> 형태로 사용합니다.
+val Typography.heading2Token: TextStyle get() = Heading2_22m
+val Typography.heading3Token: TextStyle get() = Heading3_20m
+val Typography.heading4Token: TextStyle get() = Heading4_18m
+
 // --- Material 3 type scale (maps the named Figma styles onto Material slots) ---
 // Notable defaults: default Text() = bodyLarge = Body2_15r; Material Button text =
 // labelLarge = Button1_15m; NavigationBar label = labelMedium = Caption1_12r.

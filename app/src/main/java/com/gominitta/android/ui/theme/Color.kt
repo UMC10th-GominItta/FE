@@ -1,5 +1,6 @@
 package com.gominitta.android.ui.theme
 
+import androidx.compose.material3.ColorScheme
 import androidx.compose.ui.graphics.Color
 
 // =============================================================================
@@ -69,3 +70,8 @@ val OnErrorContainer  = Color(0xFF410E0B)
 // --- Semantic: Outline ---
 val OutlineDefault    = Primary400         // #D0C1AB
 val OutlineVariant    = Gray200            // #D4D4D4
+
+// Material 기본 ColorScheme 슬롯에 1:1 대응하지 않는 Figma 팔레트 토큰입니다.
+// 기능 UI에서는 직접 색상 변수를 import하지 않고 MaterialTheme.colorScheme을 통해 접근합니다.
+val ColorScheme.primary300Token: Color get() = Primary300
+val ColorScheme.gray400Token: Color get() = Gray400

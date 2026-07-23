@@ -40,6 +40,15 @@ object Routes {
     const val SESSION_ACTIVE   = "session_active"
     const val SESSION_COMPLETE = "session_complete"
     const val SESSION_RATING   = "session_rating"
+    const val SESSION_EDIT     = "session_edit/{sessionId}"
+    fun sessionEditRoute(sessionId: Long) = "session_edit/$sessionId"
+
+
+    //recipe 상세 루트
+    const val RECIPE_RUN = "reciperun"
+    const val RECIPE_CREATE = "recipecreate"
+    const val RECIPE_EDIT = "recipeedit"
+
 
     // Template: parameterised route
     // const val ITEM_DETAIL = "item_detail/{itemId}"

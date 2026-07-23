@@ -19,3 +19,6 @@ val GominittaShapes = Shapes(
     large      = RoundedCornerShape(16.dp),  // sheets, dialogs
     extraLarge = RoundedCornerShape(28.dp),  // FAB, large cards
 )
+
+// 24dp 리포트 카드 모서리는 Material 기본 shape scale에 없어 확장 토큰으로 제공합니다.
+val Shapes.reportCardToken: RoundedCornerShape get() = RoundedCornerShape(24.dp)
