@@ -35,6 +35,7 @@ import com.gominitta.android.presentation.recipe.RecipeViewModel
 @Composable
 fun MainScreen(
     onNavigateToWorryInput: () -> Unit,
+    onNavigateToWorryMemo: () -> Unit,
     onNavigateToSessionDetail: () -> Unit,
     onNavigateToMyPage: () -> Unit,
     modifier: Modifier = Modifier,
@@ -62,6 +63,7 @@ fun MainScreen(
             composable(Routes.HOME) {
                 HomeScreen(
                     onNavigateToWorryInput = onNavigateToWorryInput,
+                    onNavigateToWorryMemo = onNavigateToWorryMemo,
                     onNavigateToSessionDetail = onNavigateToSessionDetail,
                     onNavigateToMyPage = onNavigateToMyPage,
                 )
