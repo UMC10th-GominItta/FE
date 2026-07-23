@@ -144,7 +144,7 @@ fun SessionEditScreen(
                         suffix = "부터",
                         variant = if (editingSlot == TimeSlot.Start) GominittaCardVariant.Type2 else GominittaCardVariant.Type1,
                         onClick = { editingSlot = TimeSlot.Start },
-                        modifier = Modifier.width(166.dp).height(111.dp),
+                        modifier = Modifier.weight(1f).height(111.dp),
                     )
                     TimeEditCard(
                         datePart = endDateTime.toDatePart(),
@@ -153,7 +153,7 @@ fun SessionEditScreen(
                         suffix = "까지",
                         variant = if (editingSlot == TimeSlot.End) GominittaCardVariant.Type2 else GominittaCardVariant.Type1,
                         onClick = { editingSlot = TimeSlot.End },
-                        modifier = Modifier.width(166.dp).height(111.dp),
+                        modifier = Modifier.weight(1f).height(111.dp),
                     )
                 }
                 Spacer(Modifier.height(44.dp))
@@ -298,18 +298,16 @@ private val WheelItemHeight = 40.dp
 private const val WheelVisibleCount = 3
 
 private val MonthOptions = (1..12).toList()
-private val DayOptions = (1..31).toList()
 private val HourOptions = (1..12).toList()
 private val MinuteOptions = (0..55 step 5).toList()
 private val AmPmOptions = listOf("AM", "PM")
 
 @Composable
 private fun TimePickerSheetContent(initial: EditableDateTime, onConfirm: (EditableDateTime) -> Unit) {
-    var month by remember { mutableStateOf(initial.month) }
-    var day by remember { mutableStateOf(initial.day) }
-    var hour by remember { mutableStateOf(initial.hour) }
-    var minute by remember { mutableStateOf(initial.minute) }
-    var amPm by remember { mutableStateOf(initial.amPm) }
+    var current by remember { mutableStateOf(initial) }
+    val dayOptions = remember(current.month) {
+        (1..YearMonth.of(2026, current.month).lengthOfMonth()).toList()
+    }
 
     Column(
         modifier = Modifier
@@ -337,20 +335,49 @@ private fun TimePickerSheetContent(initial: EditableDateTime, onConfirm: (Editab
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
             ) {
-                WheelColumn(items = MonthOptions, selectedIndex = MonthOptions.indexOf(month), onSelect = { month = MonthOptions[it] }, label = { "${it}월" })
-                WheelColumn(items = DayOptions, selectedIndex = DayOptions.indexOf(day), onSelect = { day = DayOptions[it] }, label = { "${it}일" })
+                WheelColumn(
+                    items = MonthOptions,
+                    selectedIndex = MonthOptions.indexOf(current.month),
+                    onSelect = { index ->
+                        val newMonth = MonthOptions[index]
+                        val maxDay = YearMonth.of(2026, newMonth).lengthOfMonth()
+                        current = current.copy(month = newMonth, day = current.day.coerceAtMost(maxDay))
+                    },
+                    label = { "${it}월" },
+                )
+                WheelColumn(
+                    items = dayOptions,
+                    selectedIndex = dayOptions.indexOf(current.day),
+                    onSelect = { index -> current = current.copy(day = dayOptions[index]) },
+                    label = { "${it}일" },
+                )
                 Spacer(Modifier.width(20.dp))
-                WheelColumn(items = HourOptions, selectedIndex = HourOptions.indexOf(hour), onSelect = { hour = HourOptions[it] }, label = { "$it" })
-                WheelColumn(items = MinuteOptions, selectedIndex = MinuteOptions.indexOf(minute), onSelect = { minute = MinuteOptions[it] }, label = { "%02d".format(it) })
+                WheelColumn(
+                    items = HourOptions,
+                    selectedIndex = HourOptions.indexOf(current.hour),
+                    onSelect = { index -> current = current.copy(hour = HourOptions[index]) },
+                    label = { "$it" },
+                )
+                WheelColumn(
+                    items = MinuteOptions,
+                    selectedIndex = MinuteOptions.indexOf(current.minute),
+                    onSelect = { index -> current = current.copy(minute = MinuteOptions[index]) },
+                    label = { "%02d".format(it) },
+                )
                 Spacer(Modifier.width(20.dp))
-                WheelColumn(items = AmPmOptions, selectedIndex = AmPmOptions.indexOf(amPm), onSelect = { amPm = AmPmOptions[it] }, label = { it })
+                WheelColumn(
+                    items = AmPmOptions,
+                    selectedIndex = AmPmOptions.indexOf(current.amPm),
+                    onSelect = { index -> current = current.copy(amPm = AmPmOptions[index]) },
+                    label = { it },
+                )
             }
         }
 
         Spacer(Modifier.weight(1f))
         GominittaButton(
             text = "설정하기",
-            onClick = { onConfirm(EditableDateTime(month, day, hour, minute, amPm)) },
+            onClick = { onConfirm(current) },
             variant = GominittaButtonVariant.Primary,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -382,6 +409,14 @@ private fun <T> WheelColumn(
     LaunchedEffect(listState.isScrollInProgress) {
         if (!listState.isScrollInProgress) {
             onSelect(centeredIndex.coerceIn(items.indices))
+        }
+    }
+
+    // 다른 휠(예: 월)의 변경으로 selectedIndex 가 바깥에서 바뀌었을 때(예: 일자 클램핑),
+    // 스크롤 위치를 새 값에 맞춰 따라가게 한다.
+    LaunchedEffect(startIndex, items) {
+        if (!listState.isScrollInProgress && centeredIndex != startIndex) {
+            listState.scrollToItem(startIndex)
         }
     }
 

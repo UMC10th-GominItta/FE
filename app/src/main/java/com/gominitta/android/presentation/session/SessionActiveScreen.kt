@@ -329,7 +329,7 @@ private fun SessionIntroSheetContent(onSkip: () -> Unit, onStartRecipe: () -> Un
             .fillMaxWidth()
             .height(235.dp) // 283 - 드래그 핸들 영역(48dp)
             .padding(horizontal = 20.dp)
-            .padding(bottom = 44.dp, top = 56.dp),
+            .padding(bottom = 44.dp, top = 8.dp), // 드래그 핸들(48) + 8 = 맨 위에서 56dp
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(

@@ -14,9 +14,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -123,28 +123,31 @@ private fun SessionListContent(
     onNavigateToSessionEdit: (Long) -> Unit,
     onNavigateToWorryInput: () -> Unit,
 ) {
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding)
-            .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp)
             .padding(top = 12.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text(
-            text = "마음 세션",
-            style = Title1_20sb,
-            color = Primary800,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-        )
+        item {
+            Text(
+                text = "마음 세션",
+                style = Title1_20sb,
+                color = Primary800,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+            )
+        }
 
-        Text(text = "예정된 세션", style = Heading4_18m, color = Primary800)
+        item {
+            Text(text = "예정된 세션", style = Heading4_18m, color = Primary800)
+        }
         if (scheduled.isEmpty()) {
-            EmptyScheduledCard(onNavigateToWorryInput)
+            item { EmptyScheduledCard(onNavigateToWorryInput) }
         } else {
-            scheduled.forEach { session ->
+            items(scheduled, key = { it.id }) { session ->
                 SessionCard(
                     session = session,
                     onStartSession = onNavigateToSessionDetail,
@@ -153,17 +156,21 @@ private fun SessionListContent(
             }
         }
 
-        Text(text = "미완료 세션", style = Heading4_18m, color = Primary800)
+        item {
+            Text(text = "미완료 세션", style = Heading4_18m, color = Primary800)
+        }
         if (incomplete.isEmpty()) {
-            Text(
-                text = "미완료된 세션이 없어요.",
-                style = Body3_14r,
-                color = Gray400,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-            )
+            item {
+                Text(
+                    text = "미완료된 세션이 없어요.",
+                    style = Body3_14r,
+                    color = Gray400,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                )
+            }
         } else {
-            incomplete.forEach { session ->
+            items(incomplete, key = { it.id }) { session ->
                 SessionCard(
                     session = session,
                     onStartSession = onNavigateToSessionDetail,
