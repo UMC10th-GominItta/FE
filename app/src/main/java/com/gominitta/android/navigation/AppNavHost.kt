@@ -96,7 +96,6 @@ fun AppNavHost(
                 onNavigateToSessionDetail = { navController.navigate(Routes.SESSION_ACTIVE) },
                 onNavigateToSessionEdit = { sessionId -> navController.navigate(Routes.sessionEditRoute(sessionId)) },
                 onNavigateToWorryMemo = { navController.navigate(Routes.WORRY_MEMO) },
-                onNavigateToSessionDetail = { navController.navigate(Routes.SESSION_DETAIL) },
                 onNavigateToMyPage = { navController.navigate(Routes.MY_PAGE) },
             )
         }
