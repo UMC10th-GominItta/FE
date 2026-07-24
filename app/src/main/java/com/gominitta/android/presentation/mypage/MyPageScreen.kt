@@ -54,6 +54,7 @@ import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Title1_20sb
 import androidx.compose.ui.platform.LocalDensity
+import androidx.lifecycle.viewmodel.compose.viewModel // 추가
 
 @Composable
 fun MyPageRoute(
@@ -64,12 +65,14 @@ fun MyPageRoute(
     onWithdrawClick: () -> Unit,
     onLogoutConfirmed: () -> Unit,
 ) {
+    val viewModel: MyPageViewModel = viewModel() // 추가
+
     var showLogoutSheet by rememberSaveable { mutableStateOf(false) }
     var sheetTopY by remember { mutableStateOf(0f) }
 
     MyPageScreen(
-        nickname = "00님",
-        email = "abcdef@gmail.com",
+        nickname = viewModel.nickname, // 변경 — 기존 "00님" 하드코딩 제거
+        email = viewModel.email,       // 변경 — 기존 "abcdef@gmail.com" 하드코딩 제거
         isEditing = showLogoutSheet,
         sheetTopY = sheetTopY,
         onBackClick = onBackClick,
@@ -166,8 +169,6 @@ fun MyPageScreen(
             }
 
             if (isEditing && sheetTopY > 0f && boxBottomY > 0f) {
-                // 이미지 하단이 팝업 상단(sheetTopY)에 정확히 맞닿도록,
-                // Box 하단 기준으로 위로 밀어올림
                 val liftPx = boxBottomY - sheetTopY
                 val liftDp = with(density) { liftPx.toDp() }
 
@@ -177,7 +178,7 @@ fun MyPageScreen(
                     contentScale = ContentScale.FillBounds,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .offset(y = -liftDp) // 팝업 상단만큼 위로 띄움 → 겹치지 않음
+                        .offset(y = -liftDp)
                         .fillMaxWidth()
                         .height(424.dp),
                 )
@@ -185,6 +186,7 @@ fun MyPageScreen(
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LogoutBottomSheet(
@@ -205,13 +207,12 @@ private fun LogoutBottomSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Primary200) // #F3F0EB
+                .background(Primary200)
                 .navigationBarsPadding()
                 .onGloballyPositioned { coordinates ->
                     onSheetPositioned(coordinates.positionInWindow().y)
                 },
         ) {
-            // 상단 검정 테두리
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -219,7 +220,6 @@ private fun LogoutBottomSheet(
                     .background(Color.Black),
             )
 
-            // 드래그 핸들
             Box(
                 modifier = Modifier
                     .padding(top = 10.dp)

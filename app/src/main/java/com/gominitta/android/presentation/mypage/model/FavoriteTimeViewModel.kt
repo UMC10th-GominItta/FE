@@ -2,11 +2,14 @@ package com.gominitta.android.presentation.mypage.model
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import com.gominitta.android.presentation.mypage.model.FavoriteTimeUiModel
 
-class FavoriteTimeViewModel : ViewModel() {
+class FavoriteTimeViewModel @JvmOverloads constructor(
+    private val repository: MyPageRepository = DummyMyPageRepository(),
+) : ViewModel() {
 
-    val favoriteTimes = mutableStateListOf<FavoriteTimeUiModel>()
+    val favoriteTimes = mutableStateListOf<FavoriteTimeUiModel>().apply {
+        addAll(repository.getFavoriteTimes())
+    }
 
     fun add(item: FavoriteTimeUiModel) {
         favoriteTimes.add(item)
