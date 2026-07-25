@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -90,8 +91,13 @@ fun AppNavHost(
             enterTransition = { fadeIn(animationSpec = tween(800)) },
             // 로그인→홈 진입 시에만 페이드. 걱정예약/세션 플로우에서 뒤로가기로 돌아올 땐 즉시 전환.
             popEnterTransition = { EnterTransition.None },
-        ) {
+        ) { backStackEntry ->
+            val startTab = remember(backStackEntry) {
+                backStackEntry.savedStateHandle.remove<String>("startTab")
+            }
             MainScreen(
+                startTab = startTab ?: Routes.HOME,
+                onNavigateBackToSession = { navController.popBackStack() },
                 onNavigateToWorryInput = { navController.navigate(Routes.WORRY_INPUT) },
                 onNavigateToSessionDetail = { navController.navigate(Routes.SESSION_ACTIVE) },
                 onNavigateToSessionEdit = { sessionId -> navController.navigate(Routes.sessionEditRoute(sessionId)) },
@@ -206,7 +212,7 @@ fun AppNavHost(
         }
         composable(Routes.WORRY_MEMO) {
             WorryMemoScreen(
-                onNavigateNext = { navController.navigate(Routes.WORRY_SAVED) },
+                onNavigateNext = { navController.popBackStack(Routes.MAIN, inclusive = false) },
                 onNavigateBack = { navController.popBackStack() },
             )
         }
@@ -221,6 +227,12 @@ fun AppNavHost(
             SessionActiveScreen(
                 onNavigateNext = { navController.navigate(Routes.SESSION_DETAIL) },
                 onNavigateBack = { navController.popBackStack() },
+                onNavigateToRecipeCenter = {
+                    // SESSION_ACTIVE를 스택에 남겨둬야 레시피 센터에서 뒤로가기로 돌아올 수 있다.
+                    navController.navigate(Routes.MAIN)
+                    navController.currentBackStackEntry
+                        ?.savedStateHandle?.set("startTab", Routes.RECIPE)
+                },
             )
         }
         composable(Routes.SESSION_DETAIL) {

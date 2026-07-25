@@ -62,6 +62,7 @@ fun SessionListScreen(
     onNavigateToSessionDetail: (Long) -> Unit,
     onNavigateToSessionEdit: (Long) -> Unit,
     onNavigateToWorryInput: () -> Unit,
+    onNavigateToWorryMemo: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SessionListViewModel = hiltViewModel(),
 ) {
@@ -86,6 +87,7 @@ fun SessionListScreen(
                 onNavigateToSessionDetail = onNavigateToSessionDetail,
                 onNavigateToSessionEdit = onNavigateToSessionEdit,
                 onNavigateToWorryInput = onNavigateToWorryInput,
+                onNavigateToWorryMemo = onNavigateToWorryMemo,
             )
         }
     }
@@ -122,6 +124,7 @@ private fun SessionListContent(
     onNavigateToSessionDetail: (Long) -> Unit,
     onNavigateToSessionEdit: (Long) -> Unit,
     onNavigateToWorryInput: () -> Unit,
+    onNavigateToWorryMemo: () -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier
@@ -152,6 +155,7 @@ private fun SessionListContent(
                     session = session,
                     onStartSession = onNavigateToSessionDetail,
                     onEditSession = onNavigateToSessionEdit,
+                    onAddMemo = onNavigateToWorryMemo,
                 )
             }
         }
@@ -175,6 +179,7 @@ private fun SessionListContent(
                     session = session,
                     onStartSession = onNavigateToSessionDetail,
                     onEditSession = onNavigateToSessionEdit,
+                    onAddMemo = onNavigateToWorryMemo,
                 )
             }
         }
@@ -208,6 +213,7 @@ private fun SessionCard(
     session: SessionSummary,
     onStartSession: (Long) -> Unit,
     onEditSession: (Long) -> Unit,
+    onAddMemo: () -> Unit,
 ) {
     GominittaElevatedCard {
         Row(
@@ -251,9 +257,7 @@ private fun SessionCard(
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             GominittaButton(
                 text = "한 줄 보태기",
-                onClick = {
-                    // TODO: 걱정 메모 추가 API 연결
-                },
+                onClick = onAddMemo,
                 modifier = Modifier.weight(1f),
                 variant = GominittaButtonVariant.Outlined,
                 leadingIcon = {
@@ -332,6 +336,7 @@ private fun SessionListContentPopulatedPreview() {
             onNavigateToSessionDetail = {},
             onNavigateToSessionEdit = {},
             onNavigateToWorryInput = {},
+            onNavigateToWorryMemo = {},
         )
     }
 }
@@ -347,6 +352,7 @@ private fun SessionListContentEmptyPreview() {
             onNavigateToSessionDetail = {},
             onNavigateToSessionEdit = {},
             onNavigateToWorryInput = {},
+            onNavigateToWorryMemo = {},
         )
     }
 }

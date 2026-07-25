@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
@@ -39,9 +40,18 @@ fun MainScreen(
     onNavigateToSessionDetail: () -> Unit,
     onNavigateToSessionEdit: (Long) -> Unit,
     onNavigateToMyPage: () -> Unit,
+    startTab: String = Routes.HOME,
+    onNavigateBackToSession: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val tabNavController = rememberNavController()
+    val cameFromSession = startTab == Routes.RECIPE
+
+    LaunchedEffect(startTab) {
+        if (startTab != Routes.HOME) {
+            tabNavController.navigate(startTab) { launchSingleTop = true }
+        }
+    }
 
     val recipeViewModel: RecipeViewModel = viewModel()
     val recipeUiState = recipeViewModel.uiState
@@ -75,12 +85,13 @@ fun MainScreen(
                     onNavigateToSessionDetail = { _ -> onNavigateToSessionDetail() },
                     onNavigateToSessionEdit = onNavigateToSessionEdit,
                     onNavigateToWorryInput = onNavigateToWorryInput,
+                    onNavigateToWorryMemo = onNavigateToWorryMemo,
                 )
             }
             composable(Routes.RECIPE) {
                 RecipeCenterScreen(
                     recipes = recipeUiState.recipes,
-                    onNavigateBack = {},
+                    onNavigateBack = { if (cameFromSession) onNavigateBackToSession() },
                     onCreateClick = {
                         tabNavController.navigate(Routes.RECIPE_CREATE)
                     },
