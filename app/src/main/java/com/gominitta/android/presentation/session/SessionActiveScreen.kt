@@ -14,10 +14,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -328,6 +330,7 @@ private fun SessionIntroSheetContent(onSkip: () -> Unit, onStartRecipe: () -> Un
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .navigationBarsPadding()
             .height(235.dp) // 283 - 드래그 핸들 영역(48dp)
             .padding(horizontal = 20.dp)
             .padding(bottom = 44.dp, top = 8.dp), // 드래그 핸들(48) + 8 = 맨 위에서 56dp
@@ -349,18 +352,18 @@ private fun SessionIntroSheetContent(onSkip: () -> Unit, onStartRecipe: () -> Un
         Spacer(Modifier.weight(1f))
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
         ) {
             GominittaButton(
                 text = "건너뛰기",
                 onClick = onSkip,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.width(112.dp),
                 variant = GominittaButtonVariant.Outlined,
             )
             GominittaButton(
                 text = "마음 레시피 실행하기",
                 onClick = onStartRecipe,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.width(214.dp),
             )
         }
     }
