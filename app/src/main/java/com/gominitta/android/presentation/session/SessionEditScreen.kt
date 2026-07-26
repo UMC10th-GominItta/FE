@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -312,6 +313,7 @@ private fun TimePickerSheetContent(initial: EditableDateTime, onConfirm: (Editab
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .navigationBarsPadding()
             .height(281.dp) // 329 - 드래그 핸들 영역(48dp)
             .padding(horizontal = 20.dp)
             .padding(bottom = 44.dp, top = 6.dp),
