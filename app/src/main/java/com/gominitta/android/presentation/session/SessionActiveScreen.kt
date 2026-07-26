@@ -76,6 +76,7 @@ import com.gominitta.android.ui.theme.White800
 fun SessionActiveScreen(
     onNavigateNext: () -> Unit,
     onNavigateBack: () -> Unit,
+    onNavigateToRecipeCenter: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var selectedTab by remember { mutableStateOf(RecordTab.Text) }
@@ -124,7 +125,7 @@ fun SessionActiveScreen(
                 onSkip = { showIntroSheet = false },
                 onStartRecipe = {
                     showIntroSheet = false
-                    // TODO: 마음 레시피 실행 플로우 연결
+                    onNavigateToRecipeCenter()
                 },
             )
         }
