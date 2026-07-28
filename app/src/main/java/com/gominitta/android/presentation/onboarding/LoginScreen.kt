@@ -12,18 +12,26 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.gominitta.android.R
 import com.gominitta.android.ui.components.KakaoLoginButton
+import com.gominitta.android.ui.theme.Caption1_12r
+import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.Gray600
 import com.gominitta.android.ui.theme.Heading1_24sb
 import com.gominitta.android.ui.theme.Heading4_18m
@@ -31,11 +39,33 @@ import com.gominitta.android.ui.theme.Primary800
 
 /**
  * 로그인 화면 — 카카오 로그인 진입. 온보딩 후 진입.
- * 실제 카카오 SDK 연동은 미구현(버튼 클릭 시 로그인 완료 화면으로).
  */
 @Composable
 fun LoginScreen(
     onLoginComplete: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: LoginViewModel = hiltViewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.loginSuccess.collect { onLoginComplete() }
+    }
+
+    LoginContent(
+        isLoading = uiState.isLoading,
+        errorMessage = uiState.errorMessage,
+        onKakaoLogin = { viewModel.login(context) },
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun LoginContent(
+    isLoading: Boolean,
+    errorMessage: String?,
+    onKakaoLogin: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -91,9 +121,41 @@ fun LoginScreen(
 
             Spacer(Modifier.weight(1.3f))
 
-            KakaoLoginButton(onClick = onLoginComplete, modifier = Modifier.fillMaxWidth())
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage,
+                    style = Caption1_12r,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(Modifier.height(8.dp))
+            }
+
+            KakaoLoginButton(
+                onClick = onKakaoLogin,
+                enabled = !isLoading,
+                modifier = Modifier.fillMaxWidth(),
+            )
 
             Spacer(Modifier.height(16.dp))
         }
+    }
+}
+
+// ---- Preview ---------------------------------------------------------------
+
+@Preview(name = "LoginScreen", showBackground = true)
+@Composable
+private fun LoginContentPreview() {
+    GominittaTheme {
+        LoginContent(isLoading = false, errorMessage = null, onKakaoLogin = {})
+    }
+}
+
+@Preview(name = "LoginScreen - Error", showBackground = true)
+@Composable
+private fun LoginContentErrorPreview() {
+    GominittaTheme {
+        LoginContent(isLoading = false, errorMessage = "로그인에 실패했어요. 다시 시도해주세요.", onKakaoLogin = {})
     }
 }
