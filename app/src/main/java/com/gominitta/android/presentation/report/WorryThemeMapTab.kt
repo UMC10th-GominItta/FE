@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -21,7 +22,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.gominitta.android.ui.components.DateRangeOption
 import com.gominitta.android.ui.components.GominittaDateSelectMenu
@@ -77,6 +77,9 @@ private fun WorryThemeMapDataCard(
     modifier: Modifier,
 ) {
     val rankedThemes = data.rankedThemes()
+    val bubblePlacements = remember(rankedThemes) {
+        layoutWorryThemeBubbles(rankedThemes)
+    }
     val mediumColors = listOf(
         MaterialTheme.colorScheme.outline,
         MaterialTheme.colorScheme.primary,
@@ -87,15 +90,15 @@ private fun WorryThemeMapDataCard(
     GominittaReportCard(modifier = modifier, height = 488.dp) {
         WorryThemeMapCardHeader(selectedRange, onRangeSelected)
 
-        rankedThemes.take(BUBBLE_POSITIONS.size).forEachIndexed { index, ranked ->
+        rankedThemes.zip(bubblePlacements).forEachIndexed { index, (ranked, placement) ->
             GominittaWorryMapBubble(
                 title = ranked.item.theme.label,
                 value = ranked.item.percentage,
                 isPrimary = ranked.weight == WorryThemeWeight.PRIMARY,
                 mediumBackgroundColor = mediumColors[index % mediumColors.size],
                 modifier = Modifier.offset(
-                    x = BUBBLE_POSITIONS[index].x,
-                    y = BUBBLE_POSITIONS[index].y,
+                    x = (8f + placement.x).dp,
+                    y = (80f + placement.y).dp,
                 ),
             )
         }
@@ -171,18 +174,6 @@ private fun BoxScope.WorryThemeMapCardHeader(
         modifier = Modifier.offset(x = 223.dp, y = 16.dp),
     )
 }
-
-/** 비율순으로 최대 8개를 카드 안에 가볍게 패킹하는 디자인 좌표입니다. */
-private val BUBBLE_POSITIONS = listOf(
-    DpOffset(104.dp, 112.dp),
-    DpOffset(16.dp, 98.dp),
-    DpOffset(227.dp, 91.dp),
-    DpOffset(20.dp, 228.dp),
-    DpOffset(229.dp, 226.dp),
-    DpOffset(91.dp, 277.dp),
-    DpOffset(166.dp, 286.dp),
-    DpOffset(263.dp, 172.dp),
-)
 
 @Preview(showBackground = true, widthDp = 375, heightDp = 812)
 @Composable

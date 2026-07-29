@@ -4,6 +4,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import kotlin.math.hypot
 
 class WorryThemeReportModelTest {
     @Test
@@ -45,5 +46,30 @@ class WorryThemeReportModelTest {
             "최근에는 진로와 학업에 대한 고민이 깊었네요.",
             data.feedbackText(),
         )
+    }
+
+    @Test
+    fun `일반적인 8개 테마는 카드 안에서 겹치지 않게 배치한다`() {
+        val data = worryThemeDummyData(
+            com.gominitta.android.ui.components.DateRangeOption.LAST_30_DAYS,
+        )
+        val placements = layoutWorryThemeBubbles(data.rankedThemes())
+
+        assertEquals(8, placements.size)
+        placements.forEach { placement ->
+            assertTrue(placement.x >= 0f)
+            assertTrue(placement.y >= 0f)
+            assertTrue(placement.x + placement.size <= 319f)
+            assertTrue(placement.y + placement.size <= 306f)
+        }
+        placements.forEachIndexed { index, first ->
+            placements.drop(index + 1).forEach { second ->
+                val distance = hypot(
+                    first.x + first.size / 2f - second.x - second.size / 2f,
+                    first.y + first.size / 2f - second.y - second.size / 2f,
+                )
+                assertTrue(distance >= first.size / 2f + second.size / 2f)
+            }
+        }
     }
 }
