@@ -81,7 +81,7 @@ fun SessionDetailScreen(
                 Text(
                     text = "마음 세션",
                     style = Title1_20sb,
-                    color = Primary800,
+                    color = Gray800,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.align(Alignment.Center),
                 )
@@ -104,7 +104,7 @@ fun SessionDetailScreen(
                     BasicTextField(
                         value = recordText,
                         onValueChange = { recordText = it },
-                        textStyle = Body2_15r.copy(color = Primary800),
+                        textStyle = Body2_15r.copy(color = Gray800),
                         modifier = Modifier.fillMaxWidth().heightIn(min = 160.dp),
                     )
                 }
