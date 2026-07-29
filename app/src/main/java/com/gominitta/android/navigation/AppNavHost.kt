@@ -6,11 +6,14 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.gominitta.android.presentation.main.MainScreen
 import com.gominitta.android.presentation.mypage.MyPageScreen
 import com.gominitta.android.presentation.onboarding.LoginCompleteScreen
@@ -19,12 +22,22 @@ import com.gominitta.android.presentation.onboarding.OnboardingScreen
 import com.gominitta.android.presentation.session.SessionActiveScreen
 import com.gominitta.android.presentation.session.SessionCompleteScreen
 import com.gominitta.android.presentation.session.SessionDetailScreen
+import com.gominitta.android.presentation.session.SessionEditScreen
 import com.gominitta.android.presentation.session.SessionRatingScreen
 import com.gominitta.android.presentation.worry.WorryInputScreen
 import com.gominitta.android.presentation.worry.WorryIntensityScreen
 import com.gominitta.android.presentation.worry.WorryMemoScreen
 import com.gominitta.android.presentation.worry.WorryScheduleScreen
 import com.gominitta.android.presentation.worry.WorrySavedScreen
+import com.gominitta.android.presentation.mypage.FavoriteTimeAddRoute
+import com.gominitta.android.presentation.mypage.FavoriteTimeRoute
+import com.gominitta.android.presentation.mypage.MyPageRoute
+import com.gominitta.android.presentation.mypage.NotificationSettingRoute
+import com.gominitta.android.presentation.mypage.ProfileEditRoute
+import com.gominitta.android.presentation.mypage.WithdrawScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.gominitta.android.presentation.mypage.model.FavoriteTimeViewModel
+
 
 /**
  * Root navigation graph — the ONLY place holding the top-level [NavHostController].
@@ -46,6 +59,7 @@ fun AppNavHost(
         popEnterTransition = { EnterTransition.None },
         popExitTransition = { ExitTransition.None },
     ) {
+
         // ── 온보딩 · 인증 ──
         composable(Routes.ONBOARDING) {
             OnboardingScreen(onNavigateToLogin = { navController.navigate(Routes.LOGIN) })
@@ -75,15 +89,106 @@ fun AppNavHost(
         composable(
             Routes.MAIN,
             enterTransition = { fadeIn(animationSpec = tween(800)) },
-        ) {
+            // 로그인→홈 진입 시에만 페이드. 걱정예약/세션 플로우에서 뒤로가기로 돌아올 땐 즉시 전환.
+            popEnterTransition = { EnterTransition.None },
+        ) { backStackEntry ->
+            val startTab = remember(backStackEntry) {
+                backStackEntry.savedStateHandle.remove<String>("startTab")
+            }
             MainScreen(
+                startTab = startTab ?: Routes.HOME,
+                onNavigateBackToSession = { navController.popBackStack() },
                 onNavigateToWorryInput = { navController.navigate(Routes.WORRY_INPUT) },
-                onNavigateToSessionDetail = { navController.navigate(Routes.SESSION_DETAIL) },
+                onNavigateToSessionDetail = { navController.navigate(Routes.SESSION_ACTIVE) },
+                onNavigateToSessionEdit = { sessionId -> navController.navigate(Routes.sessionEditRoute(sessionId)) },
+                onNavigateToWorryMemo = { navController.navigate(Routes.WORRY_MEMO) },
                 onNavigateToMyPage = { navController.navigate(Routes.MY_PAGE) },
             )
         }
         composable(Routes.MY_PAGE) {
-            MyPageScreen(onNavigateBack = { navController.popBackStack() })
+            MyPageRoute(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onFavoriteTimeClick = {
+                    navController.navigate(
+                        Routes.MY_PAGE_FAVORITE_TIME,
+                    )
+                },
+                onNotificationSettingClick = {
+                    navController.navigate(
+                        Routes.MY_PAGE_NOTIFICATION,
+                    )
+                },
+                onProfileEditClick = {
+                    navController.navigate(
+                        Routes.MY_PAGE_PROFILE_EDIT,
+                    )
+                },
+                onWithdrawClick = {
+                    navController.navigate(
+                        Routes.MY_PAGE_WITHDRAW,
+                    )
+                },
+                onLogoutConfirmed = {
+                    // TODO 실제 로그아웃 처리 후 로그인 화면 이동
+                },
+            )
+        }
+        composable(Routes.MY_PAGE_FAVORITE_TIME) {
+            val viewModel: FavoriteTimeViewModel = viewModel()   // Hilt 쓰면 hiltViewModel()
+            FavoriteTimeRoute(
+                favoriteTimes = viewModel.favoriteTimes,
+                onBackClick = { navController.popBackStack() },
+                onAddClick = { navController.navigate(Routes.MY_PAGE_FAVORITE_TIME_ADD) },
+            )
+        }
+
+        composable(Routes.MY_PAGE_FAVORITE_TIME_ADD) {
+            // 같은 그래프 안이면 이전 백스택 엔트리에서 같은 ViewModel 인스턴스를 다시 얻을 수 있음
+            val viewModel: FavoriteTimeViewModel = viewModel(
+                navController.getBackStackEntry(Routes.MY_PAGE_FAVORITE_TIME),
+            )
+            FavoriteTimeAddRoute(
+                onBackClick = { navController.popBackStack() },
+                onSaved = {
+                    viewModel.add(it)
+                    navController.popBackStack()
+                },
+            )
+        }
+
+        composable(Routes.MY_PAGE_NOTIFICATION) {
+            NotificationSettingRoute(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+            )
+        }
+
+        composable(Routes.MY_PAGE_PROFILE_EDIT) {
+            ProfileEditRoute(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onSaved = {
+                    navController.popBackStack()
+                },
+            )
+        }
+
+        composable(Routes.MY_PAGE_WITHDRAW) {
+            WithdrawScreen(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onCancelClick = {
+                    navController.popBackStack()
+                },
+                onWithdrawClick = {
+                    // TODO 회원 탈퇴 API 성공 후 로그인 화면 이동
+                },
+            )
         }
 
         // ── 걱정 예약 플로우 (전체화면, 바텀바 없음) ──
@@ -101,13 +206,13 @@ fun AppNavHost(
         }
         composable(Routes.WORRY_SCHEDULE) {
             WorryScheduleScreen(
-                onNavigateNext = { navController.navigate(Routes.WORRY_MEMO) },
+                onNavigateNext = { navController.navigate(Routes.WORRY_SAVED) },
                 onNavigateBack = { navController.popBackStack() },
             )
         }
         composable(Routes.WORRY_MEMO) {
             WorryMemoScreen(
-                onNavigateNext = { navController.navigate(Routes.WORRY_SAVED) },
+                onNavigateNext = { navController.popBackStack(Routes.MAIN, inclusive = false) },
                 onNavigateBack = { navController.popBackStack() },
             )
         }
@@ -118,16 +223,22 @@ fun AppNavHost(
         }
 
         // ── 마음 세션 플로우 (전체화면, 바텀바 없음) ──
-        composable(Routes.SESSION_DETAIL) {
-            SessionDetailScreen(
-                onStartSession = { navController.navigate(Routes.SESSION_ACTIVE) },
-                onSkip = { navController.popBackStack(Routes.MAIN, inclusive = false) },
-            )
-        }
         composable(Routes.SESSION_ACTIVE) {
             SessionActiveScreen(
-                onNavigateNext = { navController.navigate(Routes.SESSION_COMPLETE) },
+                onNavigateNext = { navController.navigate(Routes.SESSION_DETAIL) },
                 onNavigateBack = { navController.popBackStack() },
+                onNavigateToRecipeCenter = {
+                    // SESSION_ACTIVE를 스택에 남겨둬야 레시피 센터에서 뒤로가기로 돌아올 수 있다.
+                    navController.navigate(Routes.MAIN)
+                    navController.currentBackStackEntry
+                        ?.savedStateHandle?.set("startTab", Routes.RECIPE)
+                },
+            )
+        }
+        composable(Routes.SESSION_DETAIL) {
+            SessionDetailScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onSave = { navController.navigate(Routes.SESSION_COMPLETE) },
             )
         }
         composable(Routes.SESSION_COMPLETE) {
@@ -138,6 +249,18 @@ fun AppNavHost(
         composable(Routes.SESSION_RATING) {
             SessionRatingScreen(
                 onSave = { navController.popBackStack(Routes.MAIN, inclusive = false) },
+            )
+        }
+        composable(
+            route = Routes.SESSION_EDIT,
+            arguments = listOf(navArgument("sessionId") { type = NavType.LongType }),
+        ) { backStackEntry ->
+            val sessionId = backStackEntry.arguments?.getLong("sessionId") ?: 0L
+            SessionEditScreen(
+                sessionId = sessionId,
+                onNavigateBack = { navController.popBackStack() },
+                onSave = { navController.popBackStack() },
+                onDelete = { navController.popBackStack(Routes.MAIN, inclusive = false) },
             )
         }
     }

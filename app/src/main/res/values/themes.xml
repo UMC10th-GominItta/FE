@@ -3,3 +3,4 @@
     <!-- Fallback XML theme used only for the window background before Compose takes over. -->
     <style name="Theme.GominittaAndroid" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>
+

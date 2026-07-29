@@ -1,7 +1,9 @@
 package com.gominitta.android.di
 
 import com.gominitta.android.data.repository.FakeSampleRepository
+import com.gominitta.android.data.repository.FakeSessionRepository
 import com.gominitta.android.domain.repository.SampleRepository
+import com.gominitta.android.domain.repository.SessionRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -26,4 +28,11 @@ abstract class AppModule {
     abstract fun bindSampleRepository(
         fake: FakeSampleRepository,
     ): SampleRepository
+
+    // TODO: 실제 서버(NetworkModule.BASE_URL) 준비되면 SessionRepositoryImpl 로 교체
+    @Binds
+    @Singleton
+    abstract fun bindSessionRepository(
+        fake: FakeSessionRepository,
+    ): SessionRepository
 }
