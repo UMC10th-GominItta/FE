@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gominitta.android.ui.components.GominittaHeartReportButton
 import com.gominitta.android.ui.components.HeartReportTab
+import com.gominitta.android.ui.components.DateRangeOption
 import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.heading3Token
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -42,14 +43,15 @@ import kotlinx.coroutines.launch
  * 탭을 누르면 해당 카드로 이동하며, 사용자가 직접 스크롤할 때는 화면에 가장 많이
  * 노출된 카드에 맞춰 탭의 Active 상태를 갱신합니다.
  *
- * 실제 API 연결 전까지 [worryThemeHasData]로 테마 지도의 데이터 유무 화면을 전환합니다.
+ * 걱정 테마 데이터와 기간 변경 콜백은 파라미터로 주입해 API 상태와 연결할 수 있습니다.
  */
 @Composable
 fun ReportScreen(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     initialTab: HeartReportTab = HeartReportTab.WORRY_THEME_MAP,
-    worryThemeHasData: Boolean = true,
+    worryThemeDataProvider: (DateRangeOption) -> WorryThemeReportData? = ::worryThemeDummyData,
+    onWorryThemeDateRangeChanged: (DateRangeOption) -> Unit = {},
 ) {
     var selectedTab by remember { mutableStateOf(initialTab) }
     val listState = rememberLazyListState(
@@ -137,7 +139,10 @@ fun ReportScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             item(key = HeartReportTab.WORRY_THEME_MAP) {
-                WorryThemeMapTab(hasData = worryThemeHasData)
+                WorryThemeMapTab(
+                    dataProvider = worryThemeDataProvider,
+                    onDateRangeChanged = onWorryThemeDateRangeChanged,
+                )
             }
             item(key = HeartReportTab.ANXIETY_TEMPERATURE) {
                 AnxietyTemperatureTab()

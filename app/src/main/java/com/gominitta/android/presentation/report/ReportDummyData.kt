@@ -2,13 +2,6 @@ package com.gominitta.android.presentation.report
 
 import com.gominitta.android.ui.components.DateRangeOption
 
-/** 걱정 테마 지도에 표시할 버블 비율과 분석 문구의 임시 모델입니다. */
-internal data class WorryThemeReportData(
-    // 진로, 학업, 학업, 취업, 돈, 건강, 가족 순서로 버블에 전달됩니다.
-    val percentages: List<Int>,
-    val summary: String,
-)
-
 /** 불안 온도차 카드의 예약 전후 점수와 점수 관계에 따른 피드백 모델입니다. */
 internal data class AnxietyReportData(
     val beforeScore: Int,
@@ -26,23 +19,6 @@ internal data class WorryTimelineReportData(
     val summary: String,
     val tip: String,
 )
-
-// 기간 선택 인터랙션을 확인하기 위한 테마 지도 더미 데이터입니다.
-// API 연결 시 이 함수 호출을 ViewModel이 제공하는 UI 상태로 교체합니다.
-internal fun worryThemeDummyData(range: DateRangeOption): WorryThemeReportData = when (range) {
-    DateRangeOption.LAST_30_DAYS -> WorryThemeReportData(
-        percentages = listOf(70, 40, 40, 40, 10, 10, 10),
-        summary = "최근에는 진로와 가족 관련된 걱정이 가장 많았어요.",
-    )
-    DateRangeOption.LAST_2_WEEKS -> WorryThemeReportData(
-        percentages = listOf(55, 35, 30, 25, 15, 10, 5),
-        summary = "최근 2주에는 진로 관련 걱정이 가장 많았어요.",
-    )
-    DateRangeOption.LAST_60_DAYS -> WorryThemeReportData(
-        percentages = listOf(75, 50, 45, 35, 20, 15, 10),
-        summary = "최근 60일에는 진로와 학업 고민이 꾸준히 나타났어요.",
-    )
-}
 
 internal fun anxietyDummyData(
     range: DateRangeOption,
