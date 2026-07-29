@@ -3,6 +3,7 @@ package com.gominitta.android.presentation.report
 import com.gominitta.android.ui.components.DateRangeOption
 import kotlin.math.hypot
 import kotlin.math.max
+import kotlin.random.Random
 
 /** API의 걱정 테마 응답을 화면에 전달하기 위한 계약입니다. */
 data class WorryThemeReportData(
@@ -86,62 +87,85 @@ internal fun layoutWorryThemeBubbles(
     areaWidth: Float = 319f,
     areaHeight: Float = 306f,
     gap: Float = 4f,
-    searchStep: Float = 3f,
 ): List<WorryBubblePlacement> {
-    val placements = mutableListOf<WorryBubblePlacement>()
+    if (themes.isEmpty()) return emptyList()
+    val seed = themes.fold(17) { result, ranked ->
+        31 * result +
+            ranked.item.theme.ordinal * 1_009 +
+            ranked.item.percentage * 37 +
+            ranked.weight.ordinal
+    }
+    var bestLayout: List<WorryBubblePlacement> = emptyList()
+    var bestOverlap = Float.POSITIVE_INFINITY
 
-    themes.forEach { ranked ->
-        val size = when (ranked.weight) {
-            WorryThemeWeight.PRIMARY -> 128f
-            WorryThemeWeight.NORMAL -> 92f
-            WorryThemeWeight.MINOR -> 64f
-        }
-        val maxX = max(0f, areaWidth - size)
-        val maxY = max(0f, areaHeight - size)
-        val candidatesX = candidateAxis(maxX, searchStep)
-        val candidatesY = candidateAxis(maxY, searchStep)
-        val areaCenterX = areaWidth / 2f
-        val areaCenterY = areaHeight / 2f
+    repeat(RANDOM_LAYOUT_ATTEMPTS) { attempt ->
+        val random = Random(seed + attempt * 7_919)
+        val placements = mutableListOf<WorryBubblePlacement>()
 
-        val best = candidatesY.flatMap { y ->
-            candidatesX.map { x -> WorryBubblePlacement(x, y, size) }
-        }.minByOrNull { candidate ->
-            val overlapPenalty = placements.sumOf { placed ->
-                val candidateRadius = candidate.size / 2f
-                val placedRadius = placed.size / 2f
-                val distance = hypot(
-                    (candidate.x + candidateRadius) - (placed.x + placedRadius),
-                    (candidate.y + candidateRadius) - (placed.y + placedRadius),
+        themes.forEach { ranked ->
+            val size = ranked.bubbleSize()
+            val maxX = max(0f, areaWidth - size)
+            val maxY = max(0f, areaHeight - size)
+            var bestCandidate = WorryBubblePlacement(0f, 0f, size)
+            var smallestOverlap = Float.POSITIVE_INFINITY
+
+            repeat(RANDOM_CANDIDATES_PER_BUBBLE) {
+                val candidate = WorryBubblePlacement(
+                    x = random.nextFloat() * maxX,
+                    y = random.nextFloat() * maxY,
+                    size = size,
                 )
-                val intrusion = max(
-                    0f,
-                    candidateRadius + placedRadius + gap - distance,
-                )
-                (intrusion * intrusion * 10_000f).toDouble()
+                val overlap = candidate.overlapScore(placements, gap)
+                if (overlap <= 0f) {
+                    bestCandidate = candidate
+                    smallestOverlap = 0f
+                    return@repeat
+                }
+                if (overlap < smallestOverlap) {
+                    bestCandidate = candidate
+                    smallestOverlap = overlap
+                }
             }
-            val centerDistance = hypot(
-                candidate.x + candidate.size / 2f - areaCenterX,
-                candidate.y + candidate.size / 2f - areaCenterY,
-            )
-            overlapPenalty + centerDistance
-        } ?: WorryBubblePlacement(0f, 0f, size)
+            placements += bestCandidate
+        }
 
-        placements += best
+        val totalOverlap = placements.totalOverlap(gap)
+        if (totalOverlap < bestOverlap) {
+            bestOverlap = totalOverlap
+            bestLayout = placements
+        }
+        if (totalOverlap <= 0f) return bestLayout
     }
-    return placements
+    return bestLayout
 }
 
-private fun candidateAxis(maxValue: Float, step: Float): List<Float> {
-    if (maxValue <= 0f) return listOf(0f)
-    val values = mutableListOf<Float>()
-    var value = 0f
-    while (value < maxValue) {
-        values += value
-        value += step
-    }
-    values += maxValue
-    return values
+private fun RankedWorryTheme.bubbleSize(): Float = when (weight) {
+    WorryThemeWeight.PRIMARY -> 128f
+    WorryThemeWeight.NORMAL -> 92f
+    WorryThemeWeight.MINOR -> 64f
 }
+
+private fun WorryBubblePlacement.overlapScore(
+    placed: List<WorryBubblePlacement>,
+    gap: Float,
+): Float = placed.sumOf { other ->
+    val radius = size / 2f
+    val otherRadius = other.size / 2f
+    val distance = hypot(
+        (x + radius) - (other.x + otherRadius),
+        (y + radius) - (other.y + otherRadius),
+    )
+    val intrusion = max(0f, radius + otherRadius + gap - distance)
+    (intrusion * intrusion).toDouble()
+}.toFloat()
+
+private fun List<WorryBubblePlacement>.totalOverlap(gap: Float): Float =
+    indices.sumOf { index ->
+        this[index].overlapScore(drop(index + 1), gap).toDouble()
+    }.toFloat()
+
+private const val RANDOM_LAYOUT_ATTEMPTS = 32
+private const val RANDOM_CANDIDATES_PER_BUBBLE = 1_000
 
 /** API 연결 전 UT에서 기간 필터와 8개 테마 노출을 확인하기 위한 데이터입니다. */
 internal fun worryThemeDummyData(range: DateRangeOption): WorryThemeReportData {

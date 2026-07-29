@@ -72,4 +72,30 @@ class WorryThemeReportModelTest {
             }
         }
     }
+
+    @Test
+    fun `같은 데이터는 같은 랜덤 배치를 재현한다`() {
+        val themes = worryThemeDummyData(
+            com.gominitta.android.ui.components.DateRangeOption.LAST_30_DAYS,
+        ).rankedThemes()
+
+        assertEquals(
+            layoutWorryThemeBubbles(themes),
+            layoutWorryThemeBubbles(themes),
+        )
+    }
+
+    @Test
+    fun `비율 데이터가 바뀌면 랜덤 배치도 바뀐다`() {
+        val first = worryThemeDummyData(
+            com.gominitta.android.ui.components.DateRangeOption.LAST_30_DAYS,
+        ).rankedThemes()
+        val second = worryThemeDummyData(
+            com.gominitta.android.ui.components.DateRangeOption.LAST_2_WEEKS,
+        ).rankedThemes()
+
+        assertTrue(
+            layoutWorryThemeBubbles(first) != layoutWorryThemeBubbles(second),
+        )
+    }
 }
