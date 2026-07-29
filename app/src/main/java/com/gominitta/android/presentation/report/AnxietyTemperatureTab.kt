@@ -83,7 +83,7 @@ private fun AnxietyDataCard(
     val graphColor = MaterialTheme.colorScheme.onSurface
     val dividerColor = MaterialTheme.colorScheme.gray400Token
 
-    GominittaReportCard(modifier = modifier, height = 518.dp) {
+    GominittaReportCard(modifier = modifier, height = 479.dp) {
         AnxietyCardHeader(selectedRange, onRangeSelected)
 
         Row(
@@ -153,7 +153,7 @@ private fun AnxietyDataCard(
         }
 
         Column(
-            modifier = Modifier.offset(x = 16.dp, y = 378.dp).size(303.dp, 124.dp),
+            modifier = Modifier.offset(x = 16.dp, y = 378.dp).size(303.dp, 85.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
