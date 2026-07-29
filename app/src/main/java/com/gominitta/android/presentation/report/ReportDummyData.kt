@@ -2,14 +2,6 @@ package com.gominitta.android.presentation.report
 
 import com.gominitta.android.ui.components.DateRangeOption
 
-/** 불안 온도차 카드의 예약 전후 점수와 점수 관계에 따른 피드백 모델입니다. */
-internal data class AnxietyReportData(
-    val beforeScore: Int,
-    val afterScore: Int,
-    val summary: String,
-    val tip: String,
-)
-
 /**
  * 걱정 타임라인의 임시 모델입니다.
  * [frequencies]는 아침·오후·저녁·밤 4행과 월~일 7열로 구성됩니다.
@@ -19,37 +11,6 @@ internal data class WorryTimelineReportData(
     val summary: String,
     val tip: String,
 )
-
-internal fun anxietyDummyData(
-    range: DateRangeOption,
-    cardIndex: Int,
-): AnxietyReportData {
-    // 각 기간의 세 쌍은 감소·증가·동일 상태 Preview를 위한 값입니다.
-    // 실제 ReportScreen은 첫 번째 카드 한 장만 사용하며 기간별로 세 상태를 보여줍니다.
-    val scores = when (range) {
-        DateRangeOption.LAST_30_DAYS -> listOf(8 to 4, 4 to 8, 6 to 6)
-        DateRangeOption.LAST_2_WEEKS -> listOf(4 to 8, 6 to 6, 8 to 4)
-        DateRangeOption.LAST_60_DAYS -> listOf(6 to 6, 8 to 4, 4 to 8)
-    }
-    val (before, after) = scores.getOrElse(cardIndex) { scores.first() }
-    // 점수 관계만으로 기존 디자인 문구 중 하나를 선택합니다.
-    val summary = when {
-        after < before -> "걱정을 마주하고 마음이 한결 가벼워졌어요."
-        after > before -> "아직은 마음에 복잡한 생각들이 남아있네요."
-        else -> "아직은 마음에 복잡한 생각들이 남아있네요."
-    }
-    val tip = when {
-        after < before -> "tip. 기록을 돌아보면, 걱정을 마주한 뒤 감정이 차분해지는 패턴이 보여요. 이 흐름을 기억하며, 앞으로도 나를 믿어보세요."
-        else -> "tip. 원인을 완벽하게 없애지 못했어도, 내 마음을 들여다본 것만으로도 큰 시작이에요. 지금 나에게 가장 필요한 '마음 레시피'를 찾고, 실천하며 잠시 쉬어가 보세요."
-    }
-
-    return AnxietyReportData(
-        beforeScore = before,
-        afterScore = after,
-        summary = summary,
-        tip = tip,
-    )
-}
 
 // 빈도 값은 HeatMap에서 전체 최댓값을 기준으로 0~4단계 색상으로 변환됩니다.
 // 상단 분석 문구는 기획 확정 전 임시 값이며 tip 문구는 모든 기간에 동일합니다.

@@ -52,6 +52,8 @@ fun ReportScreen(
     initialTab: HeartReportTab = HeartReportTab.WORRY_THEME_MAP,
     worryThemeDataProvider: (DateRangeOption) -> WorryThemeReportData? = ::worryThemeDummyData,
     onWorryThemeDateRangeChanged: (DateRangeOption) -> Unit = {},
+    anxietyDataProvider: (DateRangeOption) -> AnxietyReportData? = ::anxietyDummyData,
+    onAnxietyDateRangeChanged: (DateRangeOption) -> Unit = {},
 ) {
     var selectedTab by remember { mutableStateOf(initialTab) }
     val listState = rememberLazyListState(
@@ -145,7 +147,10 @@ fun ReportScreen(
                 )
             }
             item(key = HeartReportTab.ANXIETY_TEMPERATURE) {
-                AnxietyTemperatureTab()
+                AnxietyTemperatureTab(
+                    dataProvider = anxietyDataProvider,
+                    onDateRangeChanged = onAnxietyDateRangeChanged,
+                )
             }
             item(key = HeartReportTab.WORRY_TIMELINE) {
                 WorryTimelineTab()
