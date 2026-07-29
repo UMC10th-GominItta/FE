@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -37,6 +38,9 @@ fun RecipeCreateScreen(
         durationMinutes: Int,
     ) -> Unit = { _, _, _ -> },
 ) {
+    val displayedRecommendedRecipes = remember(recommendedRecipes) {
+        recommendedRecipes.shuffled().take(3)
+    }
     var selectedRecommendedTitle by rememberSaveable {
         mutableStateOf<String?>(null)
     }
@@ -86,7 +90,7 @@ fun RecipeCreateScreen(
             Spacer(modifier = Modifier.height(10.dp))
 
             RecommendedRecipeChips(
-                recommendedRecipes = recommendedRecipes,
+                recommendedRecipes = displayedRecommendedRecipes,
                 selectedTitle = selectedRecommendedTitle,
                 onRecommendedRecipeClick = { recommendedRecipe ->
                     selectedRecommendedTitle = recommendedRecipe.title
