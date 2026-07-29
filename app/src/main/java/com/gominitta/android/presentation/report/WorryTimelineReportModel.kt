@@ -44,8 +44,8 @@ internal fun WorryTimelineReportData.feedbackText(): String {
 
     return when (peaks.size) {
         0 -> ""
-        1 -> "${peaks.first()}에 걱정 기록이 많았어요."
-        else -> "${peaks[0]}와 ${peaks[1]}에 걱정 기록이 많았어요."
+        1 -> "${peaks.first()}에\n걱정 기록이 많았어요."
+        else -> "${peaks[0]}와\n${peaks[1]}에\n걱정 기록이 많았어요."
     }
 }
 

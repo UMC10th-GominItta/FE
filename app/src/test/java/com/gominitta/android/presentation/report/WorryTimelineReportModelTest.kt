@@ -25,7 +25,9 @@ class WorryTimelineReportModelTest {
         )
 
         assertEquals(
-            "목요일 저녁 시간대(18-24시)와 일요일 밤 시간대(00-06시)에 걱정 기록이 많았어요.",
+            "목요일 저녁 시간대(18-24시)와\n" +
+                "일요일 밤 시간대(00-06시)에\n" +
+                "걱정 기록이 많았어요.",
             data.feedbackText(),
         )
     }
@@ -37,7 +39,7 @@ class WorryTimelineReportModelTest {
             levels = listOf(listOf(4, 0, 0, 0, 0, 0, 0)),
         )
         assertEquals(
-            "월요일 아침 시간대(06-12시)에 걱정 기록이 많았어요.",
+            "월요일 아침 시간대(06-12시)에\n걱정 기록이 많았어요.",
             data.feedbackText(),
         )
     }
