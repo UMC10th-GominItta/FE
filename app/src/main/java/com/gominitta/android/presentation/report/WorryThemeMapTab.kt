@@ -132,7 +132,7 @@ private fun WorryThemeMapDataCard(
                 maxLines = 1,
             )
             Text(
-                text = "tip. 어떤 걱정이 자주 찾아오는지 아는 것만으로도\n마음을 돌보는 첫걸음이 될 수 있어요.",
+                text = "tip. 어떤 걱정이 자주 찾아오는지 아는 것만으로도,\n마음을 돌보는 첫걸음이 될 수 있어요.",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium,
             )
