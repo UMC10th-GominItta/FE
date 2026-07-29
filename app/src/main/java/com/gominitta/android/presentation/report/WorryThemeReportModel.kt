@@ -6,6 +6,7 @@ import com.gominitta.android.ui.components.DateRangeOption
 data class WorryThemeReportData(
     val totalCount: Int,
     val themes: List<WorryThemeItem>,
+    val feedback: String? = null,
 ) {
     val canRender: Boolean get() = totalCount >= MINIMUM_WORRY_COUNT
 
@@ -56,6 +57,7 @@ internal fun WorryThemeReportData.rankedThemes(): List<RankedWorryTheme> {
 }
 
 internal fun WorryThemeReportData.feedbackText(): String {
+    feedback?.let { return it }
     val visible = themes.filter { it.percentage > 0 }
     val highest = visible.maxOfOrNull { it.percentage } ?: return ""
     val leaders = visible.filter { it.percentage == highest }
@@ -67,17 +69,37 @@ internal fun WorryThemeReportData.feedbackText(): String {
     }
 }
 
-/** API 연결 전 UT에서 기간 필터와 8개 테마 노출을 확인하기 위한 데이터입니다. */
+/**
+ * API 연결 전 화면 확인용 데이터입니다.
+ * 기존 화면의 테마 구성과 비율을 유지하며, 실제 API 연결 시 이 공급자만 교체합니다.
+ */
 internal fun worryThemeDummyData(range: DateRangeOption): WorryThemeReportData {
     val percentages = when (range) {
-        DateRangeOption.LAST_2_WEEKS -> listOf(29, 21, 17, 13, 8, 6, 4, 2)
-        DateRangeOption.LAST_30_DAYS -> listOf(32, 20, 16, 12, 8, 5, 4, 3)
-        DateRangeOption.LAST_60_DAYS -> listOf(30, 22, 16, 11, 8, 6, 4, 3)
+        DateRangeOption.LAST_30_DAYS -> listOf(70, 40, 40, 40, 10, 10, 10)
+        DateRangeOption.LAST_2_WEEKS -> listOf(55, 35, 30, 25, 15, 10, 5)
+        DateRangeOption.LAST_60_DAYS -> listOf(75, 50, 45, 35, 20, 15, 10)
     }
+    val themes = listOf(
+        WorryTheme.CAREER,
+        WorryTheme.STUDY,
+        WorryTheme.STUDY,
+        WorryTheme.EMPLOYMENT,
+        WorryTheme.MONEY,
+        WorryTheme.HEALTH,
+        WorryTheme.FAMILY,
+    )
     return WorryThemeReportData(
         totalCount = 100,
-        themes = WorryTheme.entries.mapIndexed { index, theme ->
+        themes = themes.mapIndexed { index, theme ->
             WorryThemeItem(theme, percentages[index])
+        },
+        feedback = when (range) {
+            DateRangeOption.LAST_30_DAYS ->
+                "최근에는 진로와 가족 관련된 걱정이 가장 많았어요."
+            DateRangeOption.LAST_2_WEEKS ->
+                "최근 2주에는 진로 관련 걱정이 가장 많았어요."
+            DateRangeOption.LAST_60_DAYS ->
+                "최근 60일에는 진로와 학업 고민이 꾸준히 나타났어요."
         },
     )
 }
