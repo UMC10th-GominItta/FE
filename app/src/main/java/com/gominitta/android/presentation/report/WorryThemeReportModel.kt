@@ -5,23 +5,41 @@ import kotlin.math.hypot
 import kotlin.math.max
 import kotlin.random.Random
 
-/** API의 걱정 테마 응답을 화면에 전달하기 위한 계약입니다. */
+/**
+ * 선택한 기간의 걱정 기록을 테마별로 요약한 화면 모델입니다.
+ *
+ * @property totalCount 선택한 기간에 작성된 전체 걱정 기록 수
+ * @property themes 각 걱정 테마와 해당 테마가 차지하는 비율 목록
+ */
 data class WorryThemeReportData(
     val totalCount: Int,
     val themes: List<WorryThemeItem>,
 ) {
+    /** 걱정 테마 리포트를 표시하기에 전체 걱정 기록 수가 충분한지 여부 */
     val canRender: Boolean get() = totalCount >= MINIMUM_WORRY_COUNT
 
     companion object {
+        /** 걱정 테마 리포트를 표시하기 위해 필요한 최소 걱정 기록 수 */
         const val MINIMUM_WORRY_COUNT = 3
     }
 }
 
+/**
+ * 걱정 테마 하나의 집계 결과입니다.
+ *
+ * @property theme 백엔드의 테마 코드를 화면에서 사용하는 [WorryTheme]으로 변환한 값
+ * @property percentage 전체 걱정 기록 중 해당 테마가 차지하는 비율(0~100)
+ */
 data class WorryThemeItem(
     val theme: WorryTheme,
     val percentage: Int,
 )
 
+/**
+ * 걱정 기록에 사용할 수 있는 테마입니다.
+ *
+ * @property label 테마 코드를 사용자에게 보여줄 때 사용하는 한글 이름
+ */
 enum class WorryTheme(val label: String) {
     CAREER("진로"),
     EMPLOYMENT("취업"),
@@ -33,13 +51,27 @@ enum class WorryTheme(val label: String) {
     ETC("기타"),
 }
 
+/** 테마 비율을 기준으로 정한 버블의 시각적 중요도와 크기 단계입니다. */
 internal enum class WorryThemeWeight { PRIMARY, NORMAL, MINOR }
 
+/**
+ * 비율순으로 정렬된 걱정 테마와 화면에서 사용할 버블 중요도를 묶은 모델입니다.
+ *
+ * @property item 화면에 표시할 테마와 비율
+ * @property weight 테마 비율을 기준으로 계산한 버블 중요도
+ */
 internal data class RankedWorryTheme(
     val item: WorryThemeItem,
     val weight: WorryThemeWeight,
 )
 
+/**
+ * 걱정 테마 버블을 카드 내부에 배치하기 위한 화면 전용 좌표 모델입니다.
+ *
+ * @property x 버블 영역의 왼쪽을 기준으로 한 가로 위치(dp 단위로 사용)
+ * @property y 버블 영역의 위쪽을 기준으로 한 세로 위치(dp 단위로 사용)
+ * @property size 버블의 가로·세로 크기(dp 단위로 사용)
+ */
 internal data class WorryBubblePlacement(
     val x: Float,
     val y: Float,

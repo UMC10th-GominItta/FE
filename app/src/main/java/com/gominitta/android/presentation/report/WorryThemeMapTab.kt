@@ -11,11 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -33,21 +29,15 @@ import com.gominitta.android.ui.theme.heading2Token
 
 @Composable
 internal fun WorryThemeMapTab(
-    dataProvider: (DateRangeOption) -> WorryThemeReportData? = ::worryThemeDummyData,
-    onDateRangeChanged: (DateRangeOption) -> Unit = {},
+    selectedRange: DateRangeOption = DateRangeOption.LAST_30_DAYS,
+    data: WorryThemeReportData? = worryThemeDummyData(selectedRange),
+    onRangeSelected: (DateRangeOption) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    var selectedRange by rememberSaveable { mutableStateOf(DateRangeOption.LAST_30_DAYS) }
-    val data = dataProvider(selectedRange)
-    val selectRange: (DateRangeOption) -> Unit = {
-        selectedRange = it
-        onDateRangeChanged(it)
-    }
-
     if (data?.canRender == true) {
-        WorryThemeMapDataCard(selectedRange, selectRange, data, modifier)
+        WorryThemeMapDataCard(selectedRange, onRangeSelected, data, modifier)
     } else {
-        WorryThemeMapEmptyCard(selectedRange, selectRange, modifier)
+        WorryThemeMapEmptyCard(selectedRange, onRangeSelected, modifier)
     }
 }
 
