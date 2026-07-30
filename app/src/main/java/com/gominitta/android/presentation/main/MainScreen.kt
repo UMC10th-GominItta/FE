@@ -16,7 +16,7 @@ import com.gominitta.android.navigation.Routes
 import com.gominitta.android.presentation.home.HomeScreen
 import com.gominitta.android.presentation.main.components.GominittaBottomBar
 import com.gominitta.android.presentation.recipe.RecipeCenterScreen
-import com.gominitta.android.presentation.report.ReportScreen
+import com.gominitta.android.presentation.report.ReportRoute
 import com.gominitta.android.presentation.session.SessionListScreen
 
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -170,7 +170,7 @@ fun MainScreen(
                 }
             }
             composable(Routes.REPORT) {
-                ReportScreen(onNavigateBack = {})
+                ReportRoute(onNavigateBack = {})
             }
         }
     }
