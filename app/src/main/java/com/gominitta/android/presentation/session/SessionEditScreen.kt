@@ -118,7 +118,7 @@ fun SessionEditScreen(
                     Text(
                         text = "예약된 걱정 수정",
                         style = Title1_20sb,
-                        color = Primary800,
+                        color = Gray800,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.align(Alignment.Center),
                     )
@@ -161,7 +161,7 @@ fun SessionEditScreen(
 
                 Box(modifier = Modifier.fillMaxWidth()) {
                     GominittaElevatedCard(modifier = Modifier.height(170.dp)) {
-                        Text(text = FAKE_WORRY_TITLE, style = Body1_16m, color = Primary800)
+                        Text(text = FAKE_WORRY_TITLE, style = Body1_16m, color = Gray800)
                         Spacer(Modifier.height(8.dp))
                         BasicTextField(
                             value = memoText,

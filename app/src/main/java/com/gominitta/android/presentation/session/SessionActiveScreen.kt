@@ -59,7 +59,7 @@ import com.gominitta.android.ui.theme.Body3_14r
 import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.GominittaTheme
-import com.gominitta.android.ui.theme.Heading4_18m
+import com.gominitta.android.ui.theme.Heading5_15m
 import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Primary300
 import com.gominitta.android.ui.theme.Primary400
@@ -167,7 +167,7 @@ private fun SessionActiveContent(
             Text(
                 text = "마음 세션",
                 style = Title1_20sb,
-                color = Primary800,
+                color = Gray800,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.align(Alignment.Center),
             )
@@ -179,10 +179,10 @@ private fun SessionActiveContent(
                 .weight(1f)
                 .verticalScroll(rememberScrollState()),
         ) {
-            Text(text = "예약된 걱정", style = Heading4_18m, color = Primary800)
+            Text(text = "예약된 걱정", style = Heading5_15m, color = Gray800)
             Spacer(Modifier.height(8.dp))
             GominittaElevatedCard(modifier = Modifier.height(170.dp)) {
-                Text(text = worryTitle, style = Body1_16m, color = Primary800)
+                Text(text = worryTitle, style = Body1_16m, color = Gray800)
                 Spacer(Modifier.height(4.dp))
                 Text(text = worryMemo, style = Body3_14r, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
@@ -283,7 +283,7 @@ private fun TextRecordArea(value: String, onValueChange: (String) -> Unit, modif
             BasicTextField(
                 value = value,
                 onValueChange = onValueChange,
-                textStyle = Body2_15r.copy(color = Primary800),
+                textStyle = Body2_15r.copy(color = Gray800),
                 modifier = Modifier.fillMaxWidth().heightIn(min = 160.dp),
                 decorationBox = { innerTextField ->
                     if (value.isEmpty()) {
