@@ -1,6 +1,5 @@
 package com.gominitta.android.presentation.report
 
-import com.gominitta.android.ui.components.DateRangeOption
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -66,10 +65,4 @@ internal fun AnxietyReportData.tipText(): String =
 internal fun Double.displayScore(): String {
     val rounded = roundToInt()
     return if (abs(this - rounded) < 0.001) rounded.toString() else "%.1f".format(this)
-}
-
-internal fun anxietyDummyData(range: DateRangeOption): AnxietyReportData = when (range) {
-    DateRangeOption.LAST_30_DAYS -> AnxietyReportData(6, 8.0, 4.0)
-    DateRangeOption.LAST_2_WEEKS -> AnxietyReportData(3, 4.0, 8.0)
-    DateRangeOption.LAST_60_DAYS -> AnxietyReportData(12, 6.0, 6.0)
 }

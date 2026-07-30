@@ -1,7 +1,5 @@
 package com.gominitta.android.presentation.report
 
-import com.gominitta.android.ui.components.DateRangeOption
-
 /**
  * 선택한 기간의 걱정 기록을 요일과 시간대별 히트맵 단계로 요약한 화면 모델입니다.
  *
@@ -65,33 +63,3 @@ internal fun WorryTimelineReportData.feedbackText(): String {
 
 internal const val TIMELINE_TIP =
     "tip. 마음이 자주 흔들리는 시간을 알면, 나에게 필요한 휴식 루틴도 더 잘 보일 수 있어요."
-
-internal fun worryTimelineDummyData(range: DateRangeOption): WorryTimelineReportData = when (range) {
-    DateRangeOption.LAST_30_DAYS -> WorryTimelineReportData(
-        totalCount = 20,
-        levels = listOf(
-            listOf(0, 1, 2, 1, 2, 1, 0),
-            listOf(1, 2, 2, 3, 2, 1, 1),
-            listOf(1, 2, 3, 4, 3, 2, 1),
-            listOf(0, 1, 2, 3, 2, 2, 4),
-        ),
-    )
-    DateRangeOption.LAST_2_WEEKS -> WorryTimelineReportData(
-        totalCount = 10,
-        levels = listOf(
-            listOf(0, 1, 1, 2, 2, 1, 0),
-            listOf(1, 2, 2, 3, 4, 2, 1),
-            listOf(1, 2, 3, 3, 4, 2, 1),
-            listOf(0, 1, 2, 2, 3, 1, 1),
-        ),
-    )
-    DateRangeOption.LAST_60_DAYS -> WorryTimelineReportData(
-        totalCount = 40,
-        levels = listOf(
-            listOf(1, 2, 2, 3, 3, 2, 2),
-            listOf(2, 2, 3, 3, 3, 2, 2),
-            listOf(2, 3, 3, 4, 4, 3, 2),
-            listOf(1, 2, 3, 3, 3, 2, 2),
-        ),
-    )
-}

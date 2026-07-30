@@ -1,6 +1,5 @@
 package com.gominitta.android.presentation.report
 
-import com.gominitta.android.ui.components.DateRangeOption
 import kotlin.math.hypot
 import kotlin.math.max
 import kotlin.random.Random
@@ -198,18 +197,3 @@ private fun List<WorryBubblePlacement>.totalOverlap(gap: Float): Float =
 
 private const val RANDOM_LAYOUT_ATTEMPTS = 32
 private const val RANDOM_CANDIDATES_PER_BUBBLE = 1_000
-
-/** API 연결 전 UT에서 기간 필터와 8개 테마 노출을 확인하기 위한 데이터입니다. */
-internal fun worryThemeDummyData(range: DateRangeOption): WorryThemeReportData {
-    val percentages = when (range) {
-        DateRangeOption.LAST_2_WEEKS -> listOf(29, 21, 17, 13, 8, 6, 4, 2)
-        DateRangeOption.LAST_30_DAYS -> listOf(32, 20, 16, 12, 8, 5, 4, 3)
-        DateRangeOption.LAST_60_DAYS -> listOf(30, 22, 16, 11, 8, 6, 4, 3)
-    }
-    return WorryThemeReportData(
-        totalCount = 100,
-        themes = WorryTheme.entries.mapIndexed { index, theme ->
-            WorryThemeItem(theme, percentages[index])
-        },
-    )
-}
