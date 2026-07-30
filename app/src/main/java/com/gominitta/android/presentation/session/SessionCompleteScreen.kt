@@ -26,7 +26,7 @@ import com.gominitta.android.ui.theme.Body2_15r
 import com.gominitta.android.ui.theme.Gray600
 import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.Heading1_24sb
-import com.gominitta.android.ui.theme.Primary800
+import com.gominitta.android.ui.theme.Gray800
 import kotlinx.coroutines.delay
 
 private const val AUTO_ADVANCE_DELAY_MS = 1800L
@@ -65,7 +65,7 @@ fun SessionCompleteScreen(
                 modifier = Modifier.size(width = 58.dp, height = 64.dp),
             )
             Spacer(Modifier.height(24.dp))
-            Text(text = "마음 세션 완료", style = Heading1_24sb, color = Primary800, textAlign = TextAlign.Center)
+            Text(text = "마음 세션 완료", style = Heading1_24sb, color = Gray800, textAlign = TextAlign.Center)
             Spacer(Modifier.height(12.dp))
             Text(
                 text = "걱정을 피하지 않고 마주한 것만으로도\n마음 건강에 도움이 되는 일이에요.",
