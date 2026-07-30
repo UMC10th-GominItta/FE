@@ -36,8 +36,10 @@ object Routes {
     const val WORRY_SAVED     = "worry_saved"
 
     // 마음 세션 플로우
-    const val SESSION_DETAIL   = "session_detail"
-    const val SESSION_ACTIVE   = "session_active"
+    const val SESSION_ACTIVE   = "session_active/{sessionId}"
+    fun sessionActiveRoute(sessionId: Long) = "session_active/$sessionId"
+    const val SESSION_DETAIL   = "session_detail/{sessionId}"
+    fun sessionDetailRoute(sessionId: Long) = "session_detail/$sessionId"
     const val SESSION_COMPLETE = "session_complete"
     const val SESSION_RATING   = "session_rating"
     const val SESSION_EDIT     = "session_edit/{sessionId}"

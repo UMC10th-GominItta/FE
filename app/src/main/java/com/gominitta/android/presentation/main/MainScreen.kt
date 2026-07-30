@@ -37,7 +37,7 @@ import com.gominitta.android.presentation.recipe.RecipeViewModel
 fun MainScreen(
     onNavigateToWorryInput: () -> Unit,
     onNavigateToWorryMemo: () -> Unit,
-    onNavigateToSessionDetail: () -> Unit,
+    onNavigateToSessionActive: (Long) -> Unit,
     onNavigateToSessionEdit: (Long) -> Unit,
     onNavigateToMyPage: () -> Unit,
     startTab: String = Routes.HOME,
@@ -75,14 +75,13 @@ fun MainScreen(
                 HomeScreen(
                     onNavigateToWorryInput = onNavigateToWorryInput,
                     onNavigateToWorryMemo = onNavigateToWorryMemo,
-                    onNavigateToSessionDetail = onNavigateToSessionDetail,
+                    // "다음 마음 세션" 카드는 아직 플레이스홀더 데이터라 실제 sessionId가 없음 — 연결 전까지 비활성.
                     onNavigateToMyPage = onNavigateToMyPage,
                 )
             }
             composable(Routes.SESSION_LIST) {
                 SessionListScreen(
-                    // TODO: SESSION_DETAIL 라우트에 sessionId 인자가 추가되면 실제로 전달하도록 변경
-                    onNavigateToSessionDetail = { _ -> onNavigateToSessionDetail() },
+                    onNavigateToSessionDetail = onNavigateToSessionActive,
                     onNavigateToSessionEdit = onNavigateToSessionEdit,
                     onNavigateToWorryInput = onNavigateToWorryInput,
                     onNavigateToWorryMemo = onNavigateToWorryMemo,

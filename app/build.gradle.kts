@@ -92,6 +92,12 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)
 
+    // Local storage
+    implementation(libs.androidx.datastore.preferences)
+
+    // ML Kit (온디바이스 텍스트 인식)
+    implementation(libs.mlkit.text.recognition.korean)
+
     // Debug tools
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

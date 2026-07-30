@@ -29,6 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.gominitta.android.R
 import com.gominitta.android.ui.components.GominittaButton
 import com.gominitta.android.ui.components.GominittaCard
@@ -41,20 +42,39 @@ import com.gominitta.android.ui.theme.Title1_20sb
 
 /**
  * 마음 세션 기록 확인 (C103 "인식 내용 확인 및 텍스트 수정 영역", 확정 디자인) —
- * 세션 기록 → 기록 내용 확인 → 세션 완료. 방금 기록한 내용을 다시 보여주고 눌러서 바로
- * 고칠 수 있게 한다. 카드 장식은 [SessionActiveScreen]의 텍스트 기록 카드와 동일한
- * [WashiTapeDecoration] 을 재사용해 두 화면의 카드 톤을 맞춘다. 지금은 API 연동 전이라
- * SessionActiveScreen에서 입력한 텍스트를 실제로 넘겨받지 않고 더미 텍스트로 미리 채워둔다.
+ * 세션 기록 → 기록 내용 확인 → 세션 완료. [SessionActiveScreen]에서 방금 기록한 [initialText]를
+ * 다시 보여주고 눌러서 바로 고칠 수 있게 하며, "저장하기"를 누르면 [sessionId] 세션에 실제로 저장된다.
+ * 카드 장식은 [SessionActiveScreen]의 텍스트 기록 카드와 동일한 [WashiTapeDecoration]을 재사용해
+ * 두 화면의 카드 톤을 맞춘다.
  */
 @Composable
 fun SessionDetailScreen(
+    sessionId: Long,
+    initialText: String,
     onNavigateBack: () -> Unit,
     onSave: () -> Unit,
     modifier: Modifier = Modifier,
-    initialText: String = FAKE_RECORDED_TEXT,
+    viewModel: SessionDetailViewModel = hiltViewModel(),
 ) {
-    var recordText by remember { mutableStateOf(initialText) }
+    var recordText by remember(sessionId) { mutableStateOf(initialText) }
 
+    SessionDetailContent(
+        recordText = recordText,
+        onRecordTextChange = { recordText = it },
+        onNavigateBack = onNavigateBack,
+        onSaveClick = { viewModel.save(sessionId, recordText, onSaved = onSave) },
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun SessionDetailContent(
+    recordText: String,
+    onRecordTextChange: (String) -> Unit,
+    onNavigateBack: () -> Unit,
+    onSaveClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = Color.Transparent,
@@ -103,7 +123,7 @@ fun SessionDetailScreen(
                 GominittaCard {
                     BasicTextField(
                         value = recordText,
-                        onValueChange = { recordText = it },
+                        onValueChange = onRecordTextChange,
                         textStyle = Body2_15r.copy(color = Primary800),
                         modifier = Modifier.fillMaxWidth().heightIn(min = 160.dp),
                     )
@@ -119,18 +139,12 @@ fun SessionDetailScreen(
 
             GominittaButton(
                 text = "저장하기",
-                onClick = onSave,
+                onClick = onSaveClick,
                 modifier = Modifier.fillMaxWidth(),
             )
         }
     }
 }
-
-// ---- Fake data (API 연동 전) --------------------------------------------------
-
-private const val FAKE_RECORDED_TEXT = "입력된 내용 입력된 내용 입력된 내용 입력된 내용 입력된 내용 " +
-    "입력된 내용 입력된 내용 입력된 내용 입력된 내용 입력된 내용 입력된 내용 입력된 내용 " +
-    "입력된 내용 입력된 내용 입력된 내용"
 
 // ---- Preview ---------------------------------------------------------------
 
@@ -138,6 +152,13 @@ private const val FAKE_RECORDED_TEXT = "입력된 내용 입력된 내용 입력
 @Composable
 private fun SessionDetailScreenPreview() {
     GominittaTheme {
-        SessionDetailScreen(onNavigateBack = {}, onSave = {})
+        SessionDetailContent(
+            recordText = "입력된 내용 입력된 내용 입력된 내용 입력된 내용 입력된 내용 " +
+                "입력된 내용 입력된 내용 입력된 내용 입력된 내용 입력된 내용 입력된 내용 입력된 내용 " +
+                "입력된 내용 입력된 내용 입력된 내용",
+            onRecordTextChange = {},
+            onNavigateBack = {},
+            onSaveClick = {},
+        )
     }
 }

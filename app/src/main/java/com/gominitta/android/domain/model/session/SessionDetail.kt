@@ -7,6 +7,8 @@ data class SessionDetail(
     val id: Long,
     val worryId: Long,
     val worryContent: String,
+    /** 걱정 예약 시 함께 적은 상세 메모(WorryInputScreen의 본문 입력). */
+    val worryMemo: String,
     val themeCategory: String,
     val status: SessionStatus,
     val scheduledStartAt: LocalDateTime,

@@ -7,11 +7,11 @@ import com.gominitta.android.domain.model.session.SessionSummary
 import com.gominitta.android.domain.usecase.GetSessionListUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 
 data class SessionListUiState(
     val isLoading: Boolean = true,
@@ -22,31 +22,20 @@ data class SessionListUiState(
 
 @HiltViewModel
 class SessionListViewModel @Inject constructor(
-    private val getSessionList: GetSessionListUseCase,
+    getSessionList: GetSessionListUseCase,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SessionListUiState())
-    val uiState: StateFlow<SessionListUiState> = _uiState.asStateFlow()
-
-    init {
-        load()
-    }
-
-    fun load() {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-            try {
-                val sessions = getSessionList()
-                _uiState.value = SessionListUiState(
-                    isLoading = false,
-                    scheduled = sessions.filter { it.status == SessionStatus.SCHEDULED },
-                    incomplete = sessions.filter { it.status == SessionStatus.INCOMPLETE },
-                )
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, errorMessage = e.message)
-            }
+    val uiState: StateFlow<SessionListUiState> = getSessionList()
+        .map { sessions ->
+            SessionListUiState(
+                isLoading = false,
+                scheduled = sessions.filter { it.status == SessionStatus.SCHEDULED },
+                incomplete = sessions.filter { it.status == SessionStatus.INCOMPLETE },
+            )
         }
-    }
+        .catch { e -> emit(SessionListUiState(isLoading = false, errorMessage = e.message)) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SessionListUiState())
+
+    /** DataStore Flow가 저장소 변경에 자동으로 반응하므로 수동 재조회는 더 이상 필요 없다. */
+    fun load() = Unit
 }

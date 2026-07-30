@@ -6,8 +6,12 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -29,6 +33,7 @@ import com.gominitta.android.presentation.worry.WorryIntensityScreen
 import com.gominitta.android.presentation.worry.WorryMemoScreen
 import com.gominitta.android.presentation.worry.WorryScheduleScreen
 import com.gominitta.android.presentation.worry.WorrySavedScreen
+import com.gominitta.android.presentation.worry.WorrySaveViewModel
 import com.gominitta.android.presentation.mypage.FavoriteTimeAddRoute
 import com.gominitta.android.presentation.mypage.FavoriteTimeRoute
 import com.gominitta.android.presentation.mypage.MyPageRoute
@@ -37,6 +42,7 @@ import com.gominitta.android.presentation.mypage.ProfileEditRoute
 import com.gominitta.android.presentation.mypage.WithdrawScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gominitta.android.presentation.mypage.model.FavoriteTimeViewModel
+import java.time.LocalDateTime
 
 
 /**
@@ -50,6 +56,17 @@ fun AppNavHost(
     navController: NavHostController = rememberNavController(),
     startDestination: String = Routes.ONBOARDING,
 ) {
+    // 걱정 예약 플로우(WORRY_INPUT~WORRY_SAVED) 단계 간에 공유하는 임시 상태 —
+    // 각 화면은 여전히 콜백에 자기 값을 실어 넘기고, 여기서는 다음 단계로 전달할 값만 들고 있는다.
+    var worryTitle by remember { mutableStateOf("") }
+    var worryContent by remember { mutableStateOf("") }
+    var worryIntensity by remember { mutableStateOf(5) }
+    var worryStartTime by remember { mutableStateOf(LocalDateTime.now()) }
+    var worryEndTime by remember { mutableStateOf(LocalDateTime.now()) }
+
+    // 마음 세션 플로우(SESSION_ACTIVE → SESSION_DETAIL) 단계 간에 기록한 텍스트를 넘기는 임시 상태.
+    var sessionRecordText by remember { mutableStateOf("") }
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -99,7 +116,7 @@ fun AppNavHost(
                 startTab = startTab ?: Routes.HOME,
                 onNavigateBackToSession = { navController.popBackStack() },
                 onNavigateToWorryInput = { navController.navigate(Routes.WORRY_INPUT) },
-                onNavigateToSessionDetail = { navController.navigate(Routes.SESSION_ACTIVE) },
+                onNavigateToSessionActive = { sessionId -> navController.navigate(Routes.sessionActiveRoute(sessionId)) },
                 onNavigateToSessionEdit = { sessionId -> navController.navigate(Routes.sessionEditRoute(sessionId)) },
                 onNavigateToWorryMemo = { navController.navigate(Routes.WORRY_MEMO) },
                 onNavigateToMyPage = { navController.navigate(Routes.MY_PAGE) },
@@ -194,19 +211,38 @@ fun AppNavHost(
         // ── 걱정 예약 플로우 (전체화면, 바텀바 없음) ──
         composable(Routes.WORRY_INPUT) {
             WorryInputScreen(
-                onNavigateNext = { navController.navigate(Routes.WORRY_INTENSITY) },
+                onNavigateNext = { title, content ->
+                    worryTitle = title
+                    worryContent = content
+                    navController.navigate(Routes.WORRY_INTENSITY)
+                },
                 onNavigateBack = { navController.popBackStack() },
             )
         }
         composable(Routes.WORRY_INTENSITY) {
             WorryIntensityScreen(
-                onNavigateNext = { navController.navigate(Routes.WORRY_SCHEDULE) },
+                onNavigateNext = { intensity ->
+                    worryIntensity = intensity
+                    navController.navigate(Routes.WORRY_SCHEDULE)
+                },
                 onNavigateBack = { navController.popBackStack() },
             )
         }
         composable(Routes.WORRY_SCHEDULE) {
+            val saveViewModel: WorrySaveViewModel = hiltViewModel()
             WorryScheduleScreen(
-                onNavigateNext = { navController.navigate(Routes.WORRY_SAVED) },
+                onNavigateNext = { startTime, endTime ->
+                    worryStartTime = startTime
+                    worryEndTime = endTime
+                    saveViewModel.save(
+                        worryContent = worryTitle,
+                        worryMemo = worryContent,
+                        scheduledStartAt = startTime,
+                        scheduledEndAt = endTime,
+                        emotionScoreBefore = worryIntensity,
+                        onSaved = { navController.navigate(Routes.WORRY_SAVED) },
+                    )
+                },
                 onNavigateBack = { navController.popBackStack() },
             )
         }
@@ -218,14 +254,24 @@ fun AppNavHost(
         }
         composable(Routes.WORRY_SAVED) {
             WorrySavedScreen(
+                startTime = worryStartTime,
+                endTime = worryEndTime,
                 onNavigateToHome = { navController.popBackStack(Routes.MAIN, inclusive = false) },
             )
         }
 
         // ── 마음 세션 플로우 (전체화면, 바텀바 없음) ──
-        composable(Routes.SESSION_ACTIVE) {
+        composable(
+            route = Routes.SESSION_ACTIVE,
+            arguments = listOf(navArgument("sessionId") { type = NavType.LongType }),
+        ) { backStackEntry ->
+            val sessionId = backStackEntry.arguments?.getLong("sessionId") ?: 0L
             SessionActiveScreen(
-                onNavigateNext = { navController.navigate(Routes.SESSION_DETAIL) },
+                sessionId = sessionId,
+                onNavigateNext = { recordedText ->
+                    sessionRecordText = recordedText
+                    navController.navigate(Routes.sessionDetailRoute(sessionId))
+                },
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToRecipeCenter = {
                     // SESSION_ACTIVE를 스택에 남겨둬야 레시피 센터에서 뒤로가기로 돌아올 수 있다.
@@ -235,8 +281,14 @@ fun AppNavHost(
                 },
             )
         }
-        composable(Routes.SESSION_DETAIL) {
+        composable(
+            route = Routes.SESSION_DETAIL,
+            arguments = listOf(navArgument("sessionId") { type = NavType.LongType }),
+        ) { backStackEntry ->
+            val sessionId = backStackEntry.arguments?.getLong("sessionId") ?: 0L
             SessionDetailScreen(
+                sessionId = sessionId,
+                initialText = sessionRecordText,
                 onNavigateBack = { navController.popBackStack() },
                 onSave = { navController.navigate(Routes.SESSION_COMPLETE) },
             )

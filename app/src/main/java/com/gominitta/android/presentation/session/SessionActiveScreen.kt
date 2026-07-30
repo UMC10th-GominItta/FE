@@ -1,5 +1,15 @@
 package com.gominitta.android.presentation.session
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,10 +31,12 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +45,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,13 +54,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.gominitta.android.R
 import com.gominitta.android.ui.components.GominittaButton
 import com.gominitta.android.ui.components.GominittaButtonVariant
@@ -70,20 +88,63 @@ import com.gominitta.android.ui.theme.White800
 /**
  * 마음 세션 진행 (C102 인트로 바텀시트 + C103 세션 기록 3종). 세션 상세 → 시작.
  * 진입 시 "더 나은 기분으로 시작해볼까요?" 바텀시트가 한 번 뜨고, 아래엔 걱정 기록용
- * 텍스트/음성/사진 3탭이 있다. 지금은 API 연동 전이라 걱정 내용은 하드코딩된 더미값이고,
- * 음성 인식·카메라 텍스트 인식 탭은 아이콘만 있는 자리표시자(실제 녹음/촬영 미구현).
+ * 텍스트/음성/사진 3탭이 있다. [sessionId]로 예약된 걱정 내용을 실제로 불러온다.
+ * 음성 인식은 온디바이스 [android.speech.SpeechRecognizer]로(마이크 눌러 시작, 다시 눌러 종료),
+ * 카메라 텍스트 인식은 시스템 카메라로 촬영한 사진을 ML Kit 온디바이스 한국어 인식기로 처리한다.
+ * 둘 다 인식 결과는 noteText 하나로 모여서 세션 완료 → 상세 확인 화면으로 넘어간다.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SessionActiveScreen(
-    onNavigateNext: () -> Unit,
+    sessionId: Long,
+    onNavigateNext: (recordedText: String) -> Unit,
     onNavigateBack: () -> Unit,
     onNavigateToRecipeCenter: () -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: SessionActiveViewModel = hiltViewModel(),
 ) {
     var selectedTab by remember { mutableStateOf(RecordTab.Text) }
-    var noteText by remember { mutableStateOf("") }
     var showIntroSheet by remember { mutableStateOf(true) }
+    val context = LocalContext.current
+
+    LaunchedEffect(sessionId) { viewModel.load(sessionId) }
+
+    // 다른 탭으로 넘어가면 마이크를 켜둔 채로 두지 않는다.
+    LaunchedEffect(selectedTab) {
+        if (selectedTab != RecordTab.Voice && viewModel.isListening) {
+            viewModel.toggleVoiceRecognition(context)
+        }
+    }
+
+    // 화면을 벗어날 때도 마찬가지로 마이크를 정리한다.
+    DisposableEffect(Unit) {
+        onDispose {
+            if (viewModel.isListening) viewModel.toggleVoiceRecognition(context)
+        }
+    }
+
+    val requestMicPermission = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        if (granted) viewModel.toggleVoiceRecognition(context)
+    }
+    val onMicClick = {
+        val granted = ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
+            PackageManager.PERMISSION_GRANTED
+        if (granted) {
+            viewModel.toggleVoiceRecognition(context)
+        } else {
+            requestMicPermission.launch(Manifest.permission.RECORD_AUDIO)
+        }
+    }
+
+    // 시스템 카메라 앱에 위임 — 우리 앱은 CAMERA 권한/미리보기 없이 썸네일 Bitmap만 돌려받는다.
+    val takePicture = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicturePreview(),
+    ) { bitmap ->
+        if (bitmap != null) viewModel.recognizeImage(bitmap)
+    }
+    val onCameraClick = { takePicture.launch(null) }
 
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(
@@ -93,14 +154,18 @@ fun SessionActiveScreen(
         ) { innerPadding ->
             SessionActiveContent(
                 innerPadding = innerPadding,
-                worryTitle = FAKE_WORRY_TITLE,
-                worryMemo = FAKE_WORRY_MEMO,
+                worryTitle = viewModel.worryTitle,
+                worryMemo = viewModel.worryMemo,
                 selectedTab = selectedTab,
                 onTabSelected = { selectedTab = it },
-                noteText = noteText,
-                onNoteTextChange = { noteText = it },
+                noteText = viewModel.noteText,
+                onNoteTextChange = { viewModel.noteText = it },
+                isListening = viewModel.isListening,
+                onMicClick = onMicClick,
+                isRecognizingImage = viewModel.isRecognizingImage,
+                onCameraClick = onCameraClick,
                 onNavigateBack = onNavigateBack,
-                onCompleteSession = onNavigateNext,
+                onCompleteSession = { onNavigateNext(viewModel.noteText) },
             )
         }
 
@@ -143,6 +208,10 @@ private fun SessionActiveContent(
     onTabSelected: (RecordTab) -> Unit,
     noteText: String,
     onNoteTextChange: (String) -> Unit,
+    isListening: Boolean,
+    onMicClick: () -> Unit,
+    isRecognizingImage: Boolean,
+    onCameraClick: () -> Unit,
     onNavigateBack: () -> Unit,
     onCompleteSession: () -> Unit,
 ) {
@@ -205,15 +274,8 @@ private fun SessionActiveContent(
 
             when (selectedTab) {
                 RecordTab.Text -> TextRecordArea(value = noteText, onValueChange = onNoteTextChange)
-                RecordTab.Voice -> PlaceholderRecordArea(
-                    guide = "지금 드는 생각을 자유롭게 털어놔보세요. 중간중간 마이크를 눌러 멈춰도 돼요. " +
-                        "다 끝나면 세션 완료하기를 누르세요.",
-                    icon = R.drawable.ic_mic,
-                )
-                RecordTab.Camera -> PlaceholderRecordArea(
-                    guide = "노트나 일기장에 적어둔 내용이 있다면 카메라로 스캔해보세요.",
-                    icon = R.drawable.ic_camera,
-                )
+                RecordTab.Voice -> VoiceRecordArea(isListening = isListening, onMicClick = onMicClick)
+                RecordTab.Camera -> CameraRecordArea(isRecognizing = isRecognizingImage, onCameraClick = onCameraClick)
             }
         }
         Spacer(Modifier.height(20.dp))
@@ -307,20 +369,96 @@ private fun TextRecordArea(value: String, onValueChange: (String) -> Unit, modif
 }
 
 @Composable
-private fun PlaceholderRecordArea(guide: String, icon: Int, modifier: Modifier = Modifier) {
+private fun VoiceRecordArea(isListening: Boolean, onMicClick: () -> Unit, modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth()) {
-        Text(text = guide, style = Body2_15r, color = Gray400)
+        Text(
+            text = if (isListening) {
+                "듣고 있어요. 다 말했으면 마이크를 다시 눌러주세요."
+            } else {
+                "마이크를 누르고 지금 드는 생각을 자유롭게 말해보세요."
+            },
+            style = Body2_15r,
+            color = Gray400,
+        )
         Spacer(Modifier.height(48.dp))
         Box(
             modifier = Modifier.fillMaxWidth().height(140.dp),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(
-                painter = painterResource(icon),
-                contentDescription = null,
-                tint = Primary400,
-                modifier = Modifier.size(100.dp),
-            )
+            Box(
+                modifier = Modifier
+                    .size(126.dp)
+                    .clip(CircleShape)
+                    .clickable(onClick = onMicClick),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (isListening) {
+                    MicListeningPulse()
+                }
+                Icon(
+                    painter = painterResource(R.drawable.ic_mic),
+                    contentDescription = if (isListening) "녹음 종료" else "녹음 시작",
+                    tint = if (isListening) Primary800 else Primary400,
+                    modifier = Modifier.size(if (isListening) 56.dp else 100.dp),
+                )
+            }
+        }
+    }
+}
+
+/** 녹음 중 마이크 주변에 뜨는 방사형 그라데이션(중앙 White800 → 외곽 Primary300) 펄스 애니메이션. */
+@Composable
+private fun MicListeningPulse(modifier: Modifier = Modifier) {
+    val transition = rememberInfiniteTransition(label = "micListeningPulse")
+    val scale by transition.animateFloat(
+        initialValue = 0.85f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 900, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "micListeningPulseScale",
+    )
+    Box(
+        modifier = modifier
+            .size(126.dp)
+            .scale(scale)
+            .clip(CircleShape)
+            .background(Brush.radialGradient(colors = listOf(White800, Primary300))),
+    )
+}
+
+@Composable
+private fun CameraRecordArea(isRecognizing: Boolean, onCameraClick: () -> Unit, modifier: Modifier = Modifier) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = if (isRecognizing) {
+                "사진에서 글자를 읽고 있어요..."
+            } else {
+                "노트나 일기장에 적어둔 내용이 있다면 카메라로 스캔해보세요."
+            },
+            style = Body2_15r,
+            color = Gray400,
+        )
+        Spacer(Modifier.height(48.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(140.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .clickable(enabled = !isRecognizing, onClick = onCameraClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (isRecognizing) {
+                CircularProgressIndicator(color = Primary800)
+            } else {
+                Icon(
+                    painter = painterResource(R.drawable.ic_camera),
+                    contentDescription = "사진 찍고 텍스트 인식하기",
+                    tint = Primary400,
+                    modifier = Modifier.size(100.dp),
+                )
+            }
         }
     }
 }
@@ -369,11 +507,6 @@ private fun SessionIntroSheetContent(onSkip: () -> Unit, onStartRecipe: () -> Un
     }
 }
 
-// ---- Fake data (API 연동 전) --------------------------------------------------
-
-private const val FAKE_WORRY_TITLE = "UMC 프론트가 안 구해지면 어떡하지"
-private const val FAKE_WORRY_MEMO = "걱정걱정걱정"
-
 // ---- Preview ---------------------------------------------------------------
 
 @Preview(name = "SessionActive - 텍스트 탭", showBackground = true, backgroundColor = 0xFFF3F0EB)
@@ -382,12 +515,16 @@ private fun SessionActiveContentTextPreview() {
     GominittaTheme {
         SessionActiveContent(
             innerPadding = PaddingValues(0.dp),
-            worryTitle = FAKE_WORRY_TITLE,
-            worryMemo = FAKE_WORRY_MEMO,
+            worryTitle = "UMC 프론트가 안 구해지면 어떡하지",
+            worryMemo = "걱정걱정걱정",
             selectedTab = RecordTab.Text,
             onTabSelected = {},
             noteText = "",
             onNoteTextChange = {},
+            isListening = false,
+            onMicClick = {},
+            isRecognizingImage = false,
+            onCameraClick = {},
             onNavigateBack = {},
             onCompleteSession = {},
         )
@@ -400,12 +537,38 @@ private fun SessionActiveContentVoicePreview() {
     GominittaTheme {
         SessionActiveContent(
             innerPadding = PaddingValues(0.dp),
-            worryTitle = FAKE_WORRY_TITLE,
-            worryMemo = FAKE_WORRY_MEMO,
+            worryTitle = "UMC 프론트가 안 구해지면 어떡하지",
+            worryMemo = "걱정걱정걱정",
             selectedTab = RecordTab.Voice,
             onTabSelected = {},
             noteText = "",
             onNoteTextChange = {},
+            isListening = false,
+            onMicClick = {},
+            isRecognizingImage = false,
+            onCameraClick = {},
+            onNavigateBack = {},
+            onCompleteSession = {},
+        )
+    }
+}
+
+@Preview(name = "SessionActive - 카메라 탭", showBackground = true, backgroundColor = 0xFFF3F0EB)
+@Composable
+private fun SessionActiveContentCameraPreview() {
+    GominittaTheme {
+        SessionActiveContent(
+            innerPadding = PaddingValues(0.dp),
+            worryTitle = "UMC 프론트가 안 구해지면 어떡하지",
+            worryMemo = "걱정걱정걱정",
+            selectedTab = RecordTab.Camera,
+            onTabSelected = {},
+            noteText = "",
+            onNoteTextChange = {},
+            isListening = false,
+            onMicClick = {},
+            isRecognizingImage = false,
+            onCameraClick = {},
             onNavigateBack = {},
             onCompleteSession = {},
         )

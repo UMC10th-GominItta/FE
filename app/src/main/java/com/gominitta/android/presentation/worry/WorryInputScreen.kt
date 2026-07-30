@@ -44,7 +44,7 @@ import com.gominitta.android.ui.theme.Heading4_18m
  */
 @Composable
 fun WorryInputScreen(
-    onNavigateNext: () -> Unit,
+    onNavigateNext: (title: String, content: String) -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -101,7 +101,7 @@ fun WorryInputScreen(
 
             WorryPrimaryButton(
                 text = "다음",
-                onClick = onNavigateNext,
+                onClick = { onNavigateNext(noteTitle, noteContent) },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
@@ -131,7 +131,7 @@ fun WorryInputScreen(
 private fun WorryInputScreenPreview() {
     GominittaTheme {
         GominittaBackground {
-            WorryInputScreen(onNavigateNext = {}, onNavigateBack = {})
+            WorryInputScreen(onNavigateNext = { _, _ -> }, onNavigateBack = {})
         }
     }
 }
