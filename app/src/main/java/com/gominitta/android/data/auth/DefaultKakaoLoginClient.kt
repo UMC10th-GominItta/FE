@@ -27,10 +27,17 @@ class DefaultKakaoLoginClient @Inject constructor() : KakaoLoginClient {
                                     continuation.resumeWithException(accountError)
                                 } else if (accountToken != null) {
                                     continuation.resume(accountToken)
+                                } else {
+                                    continuation.resumeWithException(
+                                        IllegalStateException("카카오 로그인 응답이 비어 있습니다."),
+                                    )
                                 }
                             }
                         }
                         token != null -> continuation.resume(token)
+                        else -> continuation.resumeWithException(
+                            IllegalStateException("카카오 로그인 응답이 비어 있습니다."),
+                        )
                     }
                 }
             } else {
@@ -39,6 +46,10 @@ class DefaultKakaoLoginClient @Inject constructor() : KakaoLoginClient {
                         continuation.resumeWithException(error)
                     } else if (token != null) {
                         continuation.resume(token)
+                    } else {
+                        continuation.resumeWithException(
+                            IllegalStateException("카카오 로그인 응답이 비어 있습니다."),
+                        )
                     }
                 }
             }
