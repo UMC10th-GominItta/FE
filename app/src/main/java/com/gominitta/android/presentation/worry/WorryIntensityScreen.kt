@@ -1,8 +1,7 @@
 package com.gominitta.android.presentation.worry
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -21,7 +19,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -33,12 +30,9 @@ import com.gominitta.android.presentation.worry.components.WorryIntensitySlider
 import com.gominitta.android.presentation.worry.components.WorryPrimaryButton
 import com.gominitta.android.presentation.worry.components.WorryTopBar
 import com.gominitta.android.ui.components.GominittaBackground
-import com.gominitta.android.ui.theme.Body3_14r
-import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.Heading4_18m
-import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.Title1_20sb
 
@@ -84,29 +78,17 @@ fun WorryIntensityScreen(
 
                 Spacer(Modifier.height(100.dp))
 
-                if (intensity == 7) {
-                    Image(
-                        painter = painterResource(R.drawable.worry_cat_anxious),
-                        contentDescription = "불안한 고양이",
-                        modifier = Modifier.size(220.dp),
-                        contentScale = ContentScale.Fit,
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .size(220.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(Primary200),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text("$intensity 준비중", style = Body3_14r, color = Gray400)
-                    }
-                }
+                Image(
+                    painter = painterResource(worryCatImage(intensity)),
+                    contentDescription = "불안도 고양이",
+                    modifier = Modifier.size(220.dp),
+                    contentScale = ContentScale.Fit,
+                )
 
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = if (intensity == 7) "꽤 불안해요." else "$intensity 준비중",
+                    text = worryCatCaption(intensity),
                     style = Title1_20sb,
                     color = Primary800,
                     modifier = Modifier.fillMaxWidth(),
@@ -133,6 +115,25 @@ fun WorryIntensityScreen(
             )
         }
     }
+}
+
+@DrawableRes
+private fun worryCatImage(intensity: Int): Int = when (intensity) {
+    0 -> R.drawable.worry_cat_0
+    1, 2 -> R.drawable.worry_cat_1_2
+    3, 4 -> R.drawable.worry_cat_3_4
+    5, 6 -> R.drawable.worry_cat_5_6
+    7, 8 -> R.drawable.worry_cat_7_8
+    else -> R.drawable.worry_cat_9_10
+}
+
+private fun worryCatCaption(intensity: Int): String = when (intensity) {
+    0 -> "아무렇지 않아요."
+    1, 2 -> "불안하지 않아요."
+    3, 4 -> "조금 불안해요."
+    5, 6 -> "꽤 불안해요."
+    7, 8 -> "많이 불안해요."
+    else -> "너무 불안해요."
 }
 
 // ---- Preview ---------------------------------------------------------------

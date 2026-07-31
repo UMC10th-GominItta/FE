@@ -33,7 +33,7 @@ fun WorryIntensitySlider(
     onValueChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val label = if (value == 7) "높음" else value.toString()
+    val label = value.toString()
 
     Slider(
         value = value.toFloat(),
