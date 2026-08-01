@@ -37,9 +37,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gominitta.android.R
 import com.gominitta.android.presentation.mypage.components.MyPageOutlinedButton
 import com.gominitta.android.presentation.mypage.components.MyPagePrimaryButton
@@ -47,14 +49,13 @@ import com.gominitta.android.presentation.mypage.components.MyPageProfileCard
 import com.gominitta.android.presentation.mypage.components.MyPageSectionTitle
 import com.gominitta.android.presentation.mypage.components.MyPageSettingRow
 import com.gominitta.android.presentation.mypage.components.MyPageTopBar
+import com.gominitta.android.presentation.mypage.model.ProfileImages
 import com.gominitta.android.ui.theme.Body1_16m
 import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.Gray600
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Title1_20sb
-import androidx.compose.ui.platform.LocalDensity
-import androidx.lifecycle.viewmodel.compose.viewModel // 추가
 
 @Composable
 fun MyPageRoute(
@@ -65,14 +66,15 @@ fun MyPageRoute(
     onWithdrawClick: () -> Unit,
     onLogoutConfirmed: () -> Unit,
 ) {
-    val viewModel: MyPageViewModel = viewModel() // 추가
+    val viewModel: MyPageViewModel = viewModel()
 
     var showLogoutSheet by rememberSaveable { mutableStateOf(false) }
     var sheetTopY by remember { mutableStateOf(0f) }
 
     MyPageScreen(
-        nickname = viewModel.nickname, // 변경 — 기존 "00님" 하드코딩 제거
-        email = viewModel.email,       // 변경 — 기존 "abcdef@gmail.com" 하드코딩 제거
+        nickname = viewModel.nickname,
+        email = viewModel.email,
+        profileImageRes = ProfileImages.all.getOrNull(viewModel.profileImageIndex), // 추가
         isEditing = showLogoutSheet,
         sheetTopY = sheetTopY,
         onBackClick = onBackClick,
@@ -105,11 +107,12 @@ fun MyPageScreen(
     onProfileEditClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onWithdrawClick: () -> Unit,
+    profileImageRes: Int? = null, // 추가
     isEditing: Boolean = false,
     sheetTopY: Float = 0f,
 ) {
     val density = LocalDensity.current
-    var boxBottomY by remember { mutableStateOf(0f) } // 이 Box 하단의 window y좌표
+    var boxBottomY by remember { mutableStateOf(0f) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -135,6 +138,7 @@ fun MyPageScreen(
                 MyPageProfileCard(
                     nickname = nickname,
                     email = email,
+                    profileImageRes = profileImageRes, // 추가
                     onProfileEditClick = onProfileEditClick,
                 )
                 Spacer(modifier = Modifier.height(30.dp))
