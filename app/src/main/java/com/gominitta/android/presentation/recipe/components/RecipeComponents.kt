@@ -205,6 +205,7 @@ fun RecipeInputField(
     singleLine: Boolean = true,
     minLines: Int = 1,
     digitsOnly: Boolean = false,
+    errorMessage: String? = null, // 추가
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -239,6 +240,7 @@ fun RecipeInputField(
                     color = Color(0xFFA6A6A6),
                 )
             },
+            isError = errorMessage != null, // 추가
             singleLine = singleLine,
             minLines = minLines,
             textStyle = TextStyle(
@@ -258,13 +260,29 @@ fun RecipeInputField(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFFD0C1AB),
                 unfocusedBorderColor = Color(0xFFE8DDCC),
+                errorBorderColor = Color(0xFFE53935), // 추가
                 focusedContainerColor = Color(0xFFFEFFFB),
                 unfocusedContainerColor = Color(0xFFFEFFFB),
+                errorContainerColor = Color(0xFFFEFFFB), // 추가
                 cursorColor = Color(0xFF404040),
                 focusedTextColor = Color(0xFF404040),
                 unfocusedTextColor = Color(0xFF404040),
             ),
         )
+
+        // 추가: 인라인 에러 메시지
+        if (errorMessage != null) {
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = errorMessage,
+                fontSize = 13.sp,
+                lineHeight = 18.sp,
+                fontWeight = FontWeight.Normal,
+                letterSpacing = (-0.26).sp,
+                color = Color(0xFFE53935),
+            )
+        }
     }
 }
 /**

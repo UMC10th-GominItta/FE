@@ -26,6 +26,9 @@ import com.gominitta.android.presentation.recipe.components.RecipePrimaryButton
 import com.gominitta.android.presentation.recipe.components.RecipeRecommendChip
 import com.gominitta.android.presentation.recipe.components.RecipeScreenScaffold
 
+private const val MIN_DURATION_MINUTES = 1
+private const val MAX_DURATION_MINUTES = 60
+
 @Composable
 fun RecipeCreateScreen(
     onNavigateBack: () -> Unit,
@@ -53,13 +56,31 @@ fun RecipeCreateScreen(
         mutableStateOf("")
     }
 
-    val durationMinutes = duration.toIntOrNull()
+    var durationErrorMessage by rememberSaveable {
+        mutableStateOf<String?>(null)
+    }
 
     val isRegisterEnabled =
-        title.isNotBlank() &&
-                description.isNotBlank() &&
-                durationMinutes != null &&
-                durationMinutes > 0
+        title.isNotBlank() && description.isNotBlank()
+
+    fun validateDurationOrShowError(): Int? {
+        val minutes = duration.toIntOrNull()
+        return when {
+            duration.isBlank() -> {
+                durationErrorMessage = "예상 소요 시간을 입력해주세요"
+                null
+            }
+            minutes == null || minutes !in MIN_DURATION_MINUTES..MAX_DURATION_MINUTES -> {
+                durationErrorMessage =
+                    "${MIN_DURATION_MINUTES}~${MAX_DURATION_MINUTES}분 사이의 시간을 입력해주세요"
+                null
+            }
+            else -> {
+                durationErrorMessage = null
+                minutes
+            }
+        }
+    }
 
     RecipeScreenScaffold(
         title = "새 레시피 등록",
@@ -93,6 +114,7 @@ fun RecipeCreateScreen(
                     title = recommendedRecipe.title
                     description = recommendedRecipe.description
                     duration = recommendedRecipe.durationMinutes.toString()
+                    durationErrorMessage = null
                 },
             )
 
@@ -141,9 +163,11 @@ fun RecipeCreateScreen(
                 onValueChange = { newDuration ->
                     duration = newDuration.filter(Char::isDigit)
                     selectedRecommendedTitle = null
+                    durationErrorMessage = null
                 },
-                placeholder = "예: 5",
+                placeholder = "1~60분 사이로 입력해주세요",
                 digitsOnly = true,
+                errorMessage = durationErrorMessage,
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -153,7 +177,7 @@ fun RecipeCreateScreen(
                 enabled = isRegisterEnabled,
                 onClick = {
                     val parsedDurationMinutes =
-                        durationMinutes ?: return@RecipePrimaryButton
+                        validateDurationOrShowError() ?: return@RecipePrimaryButton
 
                     onRegisterClick(
                         title.trim(),
