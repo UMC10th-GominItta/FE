@@ -48,7 +48,7 @@ fun LoginCompleteScreen(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("로그인 완료!", style = Heading4_18m, color = Gray600)
                 Spacer(Modifier.height(8.dp))
-                Text("OO님, 환영해요!", style = Heading1_24sb, color = Primary800)
+                Text("고민이따님, 환영해요!", style = Heading1_24sb, color = Primary800)
             }
         }
     }

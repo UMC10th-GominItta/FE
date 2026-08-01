@@ -1,6 +1,7 @@
 package com.gominitta.android.presentation.report
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,23 +12,30 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gominitta.android.ui.components.DateRangeOption
 import com.gominitta.android.ui.components.GominittaDateSelectMenu
 import com.gominitta.android.ui.components.GominittaReportCard
+import com.gominitta.android.ui.components.moodCatDrawableRes
 import com.gominitta.android.ui.theme.GominittaTheme
+import com.gominitta.android.ui.theme.White800
 import com.gominitta.android.ui.theme.gray400Token
 import com.gominitta.android.ui.theme.heading2Token
 import com.gominitta.android.ui.theme.primary300Token
+import kotlin.math.roundToInt
 
 @Composable
 internal fun AnxietyTemperatureTab(
@@ -176,8 +184,16 @@ private fun ScoreBlock(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier = Modifier.size(48.dp).background(MaterialTheme.colorScheme.onSecondary),
-        )
+            modifier = Modifier.size(48.dp).clip(CircleShape).background(White800),
+            contentAlignment = Alignment.Center,
+        ) {
+            Image(
+                painter = painterResource(moodCatDrawableRes(score.roundToInt())),
+                contentDescription = null,
+                modifier = Modifier.size(40.dp),
+                contentScale = ContentScale.Fit,
+            )
+        }
         Column(modifier = Modifier.width(62.dp)) {
             Text(
                 text = label,

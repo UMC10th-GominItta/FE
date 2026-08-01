@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.gominitta.android.presentation.worry.components.WorryExitDialog
 import com.gominitta.android.presentation.worry.components.WorryMemoField
 import com.gominitta.android.presentation.worry.components.WorryPrimaryButton
@@ -39,16 +40,37 @@ import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.Heading4_18m
 
 /**
- * 한 줄 보태기 (B104) — 걱정 시간 예약 → 완료. 추가로 드는 생각을 한 줄 메모로 받는다.
+ * 한 줄 보태기 (B104) — 마음 세션 목록/홈에서 진입. 추가로 드는 생각을 한 줄 메모로 받아
+ * [sessionId] 세션의 걱정 본문(worryMemo) 바로 아랫줄에 이어붙인다.
  * 뒤로가기 시 작성 취소 확인 다이얼로그를 띄운다.
  */
 @Composable
 fun WorryMemoScreen(
+    sessionId: Long,
     onNavigateNext: () -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: WorryMemoViewModel = hiltViewModel(),
 ) {
     var content by remember { mutableStateOf("") }
+
+    WorryMemoContent(
+        content = content,
+        onContentChange = { content = it },
+        onNavigateBack = onNavigateBack,
+        onSaveClick = { viewModel.addLine(sessionId, content, onSaved = onNavigateNext) },
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun WorryMemoContent(
+    content: String,
+    onContentChange: (String) -> Unit,
+    onNavigateBack: () -> Unit,
+    onSaveClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     var showExitDialog by remember { mutableStateOf(false) }
 
     BackHandler(enabled = true) { showExitDialog = true }
@@ -89,7 +111,7 @@ fun WorryMemoScreen(
 
                     WorryMemoField(
                         content = content,
-                        onContentChange = { content = it },
+                        onContentChange = onContentChange,
                     )
 
                     Spacer(Modifier.height(96.dp))
@@ -98,7 +120,7 @@ fun WorryMemoScreen(
 
             WorryPrimaryButton(
                 text = "완료",
-                onClick = onNavigateNext,
+                onClick = onSaveClick,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
@@ -128,7 +150,12 @@ fun WorryMemoScreen(
 private fun WorryMemoScreenPreview() {
     GominittaTheme {
         GominittaBackground {
-            WorryMemoScreen(onNavigateNext = {}, onNavigateBack = {})
+            WorryMemoContent(
+                content = "",
+                onContentChange = {},
+                onNavigateBack = {},
+                onSaveClick = {},
+            )
         }
     }
 }

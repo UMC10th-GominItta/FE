@@ -12,7 +12,7 @@ interface MyPageRepository {
 
 class DummyMyPageRepository : MyPageRepository {
 
-    override fun getNickname(): String = "00님"
+    override fun getNickname(): String = "고민이따님"
 
     override fun getEmail(): String = "abcdef@gmail.com"
 

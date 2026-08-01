@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -36,7 +37,7 @@ import com.gominitta.android.presentation.recipe.RecipeViewModel
 @Composable
 fun MainScreen(
     onNavigateToWorryInput: () -> Unit,
-    onNavigateToWorryMemo: () -> Unit,
+    onNavigateToWorryMemo: (Long) -> Unit,
     onNavigateToSessionActive: (Long) -> Unit,
     onNavigateToSessionEdit: (Long) -> Unit,
     onNavigateToMyPage: () -> Unit,
@@ -49,7 +50,13 @@ fun MainScreen(
 
     LaunchedEffect(startTab) {
         if (startTab != Routes.HOME) {
-            tabNavController.navigate(startTab) { launchSingleTop = true }
+            // 바텀바 탭 전환과 동일한 방식으로 이동해야, 나중에 "홈" 탭으로 되돌아갈 때
+            // (홈이 시작 목적지라 restoreState 대상이 됨) 정상적으로 복원된다.
+            tabNavController.navigate(startTab) {
+                popUpTo(tabNavController.graph.findStartDestination().id) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
         }
     }
 
@@ -75,7 +82,7 @@ fun MainScreen(
                 HomeScreen(
                     onNavigateToWorryInput = onNavigateToWorryInput,
                     onNavigateToWorryMemo = onNavigateToWorryMemo,
-                    // "다음 마음 세션" 카드는 아직 플레이스홀더 데이터라 실제 sessionId가 없음 — 연결 전까지 비활성.
+                    onNavigateToSessionActive = onNavigateToSessionActive,
                     onNavigateToMyPage = onNavigateToMyPage,
                 )
             }

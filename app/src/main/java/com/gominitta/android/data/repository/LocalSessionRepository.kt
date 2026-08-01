@@ -259,11 +259,11 @@ class LocalSessionRepository @Inject constructor(
     }
 
     override suspend fun startSession(sessionId: Long): SessionStatusResult =
-        updateDetail(sessionId) { it.copy(status = SessionStatus.IN_PROGRESS, startedAt = LocalDateTime.now()) }
+        updateDetailAndSyncSummary(sessionId) { it.copy(status = SessionStatus.IN_PROGRESS, startedAt = LocalDateTime.now()) }
             .toStatusResult()
 
     override suspend fun completeSession(sessionId: Long, emotionScoreAfter: Int): SessionStatusResult =
-        updateDetail(sessionId) {
+        updateDetailAndSyncSummary(sessionId) {
             it.copy(
                 status = SessionStatus.COMPLETED,
                 completedAt = LocalDateTime.now(),
@@ -278,6 +278,31 @@ class LocalSessionRepository @Inject constructor(
             val current = details[sessionId]?.toDomain() ?: error("Session id=$sessionId 상세가 없습니다.")
             updated = transform(current).also { details[sessionId] = it.toDto() }
             prefs[DetailsKey] = json.encodeToString(details)
+        }
+        return updated!!
+    }
+
+    /** [updateDetail]과 달리 status가 바뀌는 전이(시작/완료)에서는 목록에 쓰이는 summary의 status도 같이 맞춘다. */
+    private suspend fun updateDetailAndSyncSummary(
+        sessionId: Long,
+        transform: (SessionDetail) -> SessionDetail,
+    ): SessionDetail {
+        var updated: SessionDetail? = null
+        dataStore.edit { prefs ->
+            val details = decodeDetails(prefs).toMutableMap()
+            val current = details[sessionId]?.toDomain() ?: error("Session id=$sessionId 상세가 없습니다.")
+            val newDetail = transform(current)
+            details[sessionId] = newDetail.toDto()
+
+            val summaries = decodeSummaries(prefs).toMutableList()
+            val index = summaries.indexOfFirst { it.id == sessionId }
+            if (index != -1) {
+                summaries[index] = summaries[index].copy(status = newDetail.status)
+            }
+
+            prefs[DetailsKey] = json.encodeToString(details)
+            prefs[SummariesKey] = json.encodeToString(summaries.map { it.toDto() })
+            updated = newDetail
         }
         return updated!!
     }

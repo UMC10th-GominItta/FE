@@ -32,7 +32,8 @@ object Routes {
     const val WORRY_INPUT     = "worry_input"
     const val WORRY_INTENSITY = "worry_intensity"
     const val WORRY_SCHEDULE  = "worry_schedule"
-    const val WORRY_MEMO      = "worry_memo"
+    const val WORRY_MEMO      = "worry_memo/{sessionId}"
+    fun worryMemoRoute(sessionId: Long) = "worry_memo/$sessionId"
     const val WORRY_SAVED     = "worry_saved"
 
     // 마음 세션 플로우
@@ -40,8 +41,10 @@ object Routes {
     fun sessionActiveRoute(sessionId: Long) = "session_active/$sessionId"
     const val SESSION_DETAIL   = "session_detail/{sessionId}"
     fun sessionDetailRoute(sessionId: Long) = "session_detail/$sessionId"
-    const val SESSION_COMPLETE = "session_complete"
-    const val SESSION_RATING   = "session_rating"
+    const val SESSION_COMPLETE = "session_complete/{sessionId}"
+    fun sessionCompleteRoute(sessionId: Long) = "session_complete/$sessionId"
+    const val SESSION_RATING   = "session_rating/{sessionId}"
+    fun sessionRatingRoute(sessionId: Long) = "session_rating/$sessionId"
     const val SESSION_EDIT     = "session_edit/{sessionId}"
     fun sessionEditRoute(sessionId: Long) = "session_edit/$sessionId"
 

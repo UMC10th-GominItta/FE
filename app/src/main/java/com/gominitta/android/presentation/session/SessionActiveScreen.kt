@@ -10,6 +10,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -77,6 +78,7 @@ import com.gominitta.android.ui.theme.Body3_14r
 import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.GominittaTheme
+import com.gominitta.android.ui.theme.Heading3_20m
 import com.gominitta.android.ui.theme.Heading5_15m
 import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Primary300
@@ -235,7 +237,7 @@ private fun SessionActiveContent(
             )
             Text(
                 text = "마음 세션",
-                style = Title1_20sb,
+                style = Heading3_20m,
                 color = Gray800,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.align(Alignment.Center),
@@ -398,8 +400,8 @@ private fun VoiceRecordArea(isListening: Boolean, onMicClick: () -> Unit, modifi
                 Icon(
                     painter = painterResource(R.drawable.ic_mic),
                     contentDescription = if (isListening) "녹음 종료" else "녹음 시작",
-                    tint = if (isListening) Primary800 else Primary400,
-                    modifier = Modifier.size(if (isListening) 56.dp else 100.dp),
+                    tint = Primary400,
+                    modifier = Modifier.size(100.dp),
                 )
             }
         }
@@ -465,44 +467,67 @@ private fun CameraRecordArea(isRecognizing: Boolean, onCameraClick: () -> Unit, 
 
 @Composable
 private fun SessionIntroSheetContent(onSkip: () -> Unit, onStartRecipe: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .navigationBarsPadding()
-            .height(235.dp) // 283 - 드래그 핸들 영역(48dp)
-            .padding(horizontal = 20.dp)
-            .padding(bottom = 44.dp, top = 8.dp), // 드래그 핸들(48) + 8 = 맨 위에서 56dp
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            text = "더 나은 기분으로 시작해볼까요?",
-            style = Title1_20sb,
-            color = Gray800,
-            textAlign = TextAlign.Center,
+    Box(modifier = Modifier.fillMaxWidth()) {
+
+        Image(
+            painter = painterResource(R.drawable.session_right_leaf),
+            contentDescription = null,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .offset(x = 18.96.dp, y = (-65.01).dp)
+                .size(width = 117.dp, height = 105.dp),
         )
-        Spacer(Modifier.height(16.dp))
-        Text(
-            text = "안정된 기분으로 고민을 마주하면\n더 차분하게 정리할 수 있어요.",
-            style = Body2_15r,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
+
+
+        Image(
+            painter = painterResource(R.drawable.session_left_leaf),
+            contentDescription = null,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .offset( y = 76.79.dp)
+                .size(width = 47.dp, height = 61.dp),
         )
-        Spacer(Modifier.weight(1f))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .height(235.dp) // 283 - 드래그 핸들 영역(48dp)
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 44.dp, top = 8.dp), // 드래그 핸들(48) + 8 = 맨 위에서 56dp
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            GominittaButton(
-                text = "건너뛰기",
-                onClick = onSkip,
-                modifier = Modifier.width(112.dp),
-                variant = GominittaButtonVariant.Outlined,
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = "더 나은 기분으로 시작해볼까요?",
+                style = Title1_20sb,
+                color = Gray800,
+                textAlign = TextAlign.Center,
             )
-            GominittaButton(
-                text = "마음 레시피 실행하기",
-                onClick = onStartRecipe,
-                modifier = Modifier.width(214.dp),
+            Spacer(Modifier.height(16.dp))
+            Text(
+                text = "안정된 기분으로 고민을 마주하면\n더 차분하게 정리할 수 있어요.",
+                style = Body1_16m,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
             )
+            Spacer(Modifier.weight(1f))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            ) {
+                GominittaButton(
+                    text = "건너뛰기",
+                    onClick = onSkip,
+                    modifier = Modifier.width(112.dp),
+                    variant = GominittaButtonVariant.Outlined,
+                )
+                GominittaButton(
+                    text = "마음 레시피 실행하기",
+                    onClick = onStartRecipe,
+                    modifier = Modifier.width(214.dp),
+                )
+            }
         }
     }
 }

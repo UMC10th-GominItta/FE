@@ -1,8 +1,6 @@
 package com.gominitta.android.presentation.worry
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -21,24 +18,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.gominitta.android.R
 import com.gominitta.android.presentation.worry.components.WorryIntensitySlider
 import com.gominitta.android.presentation.worry.components.WorryPrimaryButton
 import com.gominitta.android.presentation.worry.components.WorryTopBar
 import com.gominitta.android.ui.components.GominittaBackground
-import com.gominitta.android.ui.theme.Body3_14r
-import com.gominitta.android.ui.theme.Gray400
+import com.gominitta.android.ui.components.moodCatDrawableRes
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.Heading4_18m
-import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.Title1_20sb
 
@@ -84,29 +77,17 @@ fun WorryIntensityScreen(
 
                 Spacer(Modifier.height(100.dp))
 
-                if (intensity == 7) {
-                    Image(
-                        painter = painterResource(R.drawable.worry_cat_anxious),
-                        contentDescription = "불안한 고양이",
-                        modifier = Modifier.size(220.dp),
-                        contentScale = ContentScale.Fit,
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .size(220.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(Primary200),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text("$intensity 준비중", style = Body3_14r, color = Gray400)
-                    }
-                }
+                Image(
+                    painter = painterResource(moodCatDrawableRes(intensity)),
+                    contentDescription = "걱정 강도 고양이",
+                    modifier = Modifier.size(220.dp),
+                    contentScale = ContentScale.Fit,
+                )
 
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = if (intensity == 7) "꽤 불안해요." else "$intensity 준비중",
+                    text = intensity.toIntensityLabel(),
                     style = Title1_20sb,
                     color = Primary800,
                     modifier = Modifier.fillMaxWidth(),
@@ -134,6 +115,23 @@ fun WorryIntensityScreen(
         }
     }
 }
+
+/** 걱정 강도(0~10 스케일, 슬라이더는 1~10) 단계별 안내 멘트. */
+private val IntensityLabels = listOf(
+    "아주 평온해요",           // 0
+    "잔잔하고 편안해요",       // 1
+    "살짝 신경이 쓰여요",      // 2
+    "조금 싱숭생숭해요",       // 3
+    "계속 신경이 쓰여요",      // 4
+    "미미한 불안이 있어요",    // 5
+    "조금 강한 불안이 느껴져요", // 6
+    "은근히 많이 불안해요",    // 7
+    "꽤 불안해서 집중이 안 돼요", // 8
+    "너무 불안해서 초조해요",  // 9
+    "터질 것처럼 너무 불안해요", // 10
+)
+
+private fun Int.toIntensityLabel(): String = IntensityLabels[coerceIn(0, 10)]
 
 // ---- Preview ---------------------------------------------------------------
 

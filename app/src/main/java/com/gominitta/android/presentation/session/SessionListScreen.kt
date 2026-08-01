@@ -50,9 +50,9 @@ import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.Gray600
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.GominittaTheme
+import com.gominitta.android.ui.theme.Heading3_20m
 import com.gominitta.android.ui.theme.Heading4_18m
 import com.gominitta.android.ui.theme.Primary800
-import com.gominitta.android.ui.theme.Title1_20sb
 import java.time.LocalDateTime
 
 /**
@@ -64,7 +64,7 @@ fun SessionListScreen(
     onNavigateToSessionDetail: (Long) -> Unit,
     onNavigateToSessionEdit: (Long) -> Unit,
     onNavigateToWorryInput: () -> Unit,
-    onNavigateToWorryMemo: () -> Unit,
+    onNavigateToWorryMemo: (Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SessionListViewModel = hiltViewModel(),
 ) {
@@ -127,7 +127,7 @@ private fun SessionListContent(
     onNavigateToSessionDetail: (Long) -> Unit,
     onNavigateToSessionEdit: (Long) -> Unit,
     onNavigateToWorryInput: () -> Unit,
-    onNavigateToWorryMemo: () -> Unit,
+    onNavigateToWorryMemo: (Long) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier
@@ -140,7 +140,7 @@ private fun SessionListContent(
         item {
             Text(
                 text = "마음 세션",
-                style = Title1_20sb,
+                style = Heading3_20m,
                 color = Gray800,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
@@ -216,7 +216,7 @@ private fun SessionCard(
     session: SessionSummary,
     onStartSession: (Long) -> Unit,
     onEditSession: (Long) -> Unit,
-    onAddMemo: () -> Unit,
+    onAddMemo: (Long) -> Unit,
 ) {
     GominittaElevatedCard {
         Row(
@@ -260,7 +260,7 @@ private fun SessionCard(
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             GominittaButton(
                 text = "한 줄 보태기",
-                onClick = onAddMemo,
+                onClick = { onAddMemo(session.id) },
                 modifier = Modifier.weight(1f),
                 variant = GominittaButtonVariant.Outlined,
                 leadingIcon = {

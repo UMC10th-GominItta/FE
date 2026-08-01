@@ -1,6 +1,6 @@
 package com.gominitta.android.presentation.mypage
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,7 +27,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.gominitta.android.R
 import com.gominitta.android.presentation.mypage.components.MyPagePrimaryButton
 import com.gominitta.android.presentation.mypage.components.MyPageTopBar
 import androidx.compose.ui.graphics.Color
@@ -47,7 +51,7 @@ fun ProfileEditRoute(
 
     ProfileEditScreen(
         nickname = nickname,
-        initialNickname = "00님",
+        initialNickname = "고민이따님",
         selectedProfileIndex = selectedProfileIndex,
         saveEnabled = nickname.isNotBlank() || selectedProfileIndex != 0,
         onNicknameChange = {
@@ -148,20 +152,20 @@ fun ProfileEditScreen(
     }
 }
 
+private val ProfileImages = listOf(
+    R.drawable.profile1,
+    R.drawable.profile2,
+    R.drawable.profile3,
+    R.drawable.profile4,
+    R.drawable.profile5,
+)
+
 @Composable
 private fun ProfileImageOption(
     index: Int,
     selected: Boolean,
     onClick: () -> Unit,
 ) {
-    val alphaList = listOf(
-        0.9f,
-        0.75f,
-        0.6f,
-        0.5f,
-        0.4f,
-    )
-
     Box(
         modifier = Modifier
             .size(62.dp)
@@ -177,12 +181,14 @@ private fun ProfileImageOption(
                 },
             )
             .padding(3.dp)
-            .background(
-                color = MaterialTheme.colorScheme.primaryContainer.copy(
-                    alpha = alphaList[index],
-                ),
-                shape = CircleShape,
-            )
+            .clip(CircleShape)
             .clickable(onClick = onClick),
-    )
+    ) {
+        Image(
+            painter = painterResource(ProfileImages[index]),
+            contentDescription = "프로필 이미지 ${index + 1}",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
+        )
+    }
 }

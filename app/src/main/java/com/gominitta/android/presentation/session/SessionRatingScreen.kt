@@ -34,8 +34,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.gominitta.android.R
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.gominitta.android.ui.components.GominittaButton
+import com.gominitta.android.ui.components.moodCatDrawableRes
 import com.gominitta.android.ui.theme.AccentCream100
 import com.gominitta.android.ui.theme.AccentCream300
 import com.gominitta.android.ui.theme.Body3_14r
@@ -44,21 +45,37 @@ import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.Heading1_24sb
 import com.gominitta.android.ui.theme.Heading3_20m
 import com.gominitta.android.ui.theme.Primary200
-import com.gominitta.android.ui.theme.Title1_20sb
 import kotlin.math.roundToInt
 
 /**
- * 마음 세션 평가 (C104-2) — 세션 완료 → 저장. 0~10 감정 점수를 슬라이더로 입력한다
- * (emotionScoreAfter, 서버 명세와 동일 스케일). 점수 구간(0 / 1~2 / 3~4 / 5~6 / 7~8 / 9~10)에
- * 맞는 고양이 일러스트를 [MoodIllustration] 이 보여준다.
+ * 마음 세션 평가 (C104-2) — 세션 완료 → 저장. 0~10 감정 점수를 슬라이더로 입력해
+ * [sessionId] 세션을 실제로 완료 처리한다(emotionScoreAfter, 서버 명세와 동일 스케일).
+ * 점수 구간(0 / 1~2 / 3~4 / 5~6 / 7~8 / 9~10)에 맞는 고양이 일러스트를 [MoodIllustration]이 보여준다.
  */
 @Composable
 fun SessionRatingScreen(
+    sessionId: Long,
     onSave: () -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: SessionRatingViewModel = hiltViewModel(),
 ) {
     var emotionScore by remember { mutableFloatStateOf(5f) }
 
+    SessionRatingContent(
+        emotionScore = emotionScore,
+        onEmotionScoreChange = { emotionScore = it },
+        onSaveClick = { viewModel.save(sessionId, emotionScore.roundToInt(), onSaved = onSave) },
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun SessionRatingContent(
+    emotionScore: Float,
+    onEmotionScoreChange: (Float) -> Unit,
+    onSaveClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = Color.Transparent,
@@ -74,7 +91,7 @@ fun SessionRatingScreen(
         ) {
             Text(
                 text = "마음 세션",
-                style = Title1_20sb,
+                style = Heading3_20m,
                 color = Gray800,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
@@ -96,13 +113,13 @@ fun SessionRatingScreen(
             Spacer(Modifier.height(24.dp))
             MoodSlider(
                 value = emotionScore,
-                onValueChange = { emotionScore = it },
+                onValueChange = onEmotionScoreChange,
             )
 
             Spacer(Modifier.weight(1f))
             GominittaButton(
                 text = "저장하기",
-                onClick = onSave,
+                onClick = onSaveClick,
                 modifier = Modifier.fillMaxWidth(),
             )
         }
@@ -165,21 +182,11 @@ private fun MoodSliderThumb(label: String, modifier: Modifier = Modifier) {
 @Composable
 private fun MoodIllustration(score: Int) {
     Image(
-        painter = painterResource(score.toMoodCatDrawableRes()),
+        painter = painterResource(moodCatDrawableRes(score)),
         contentDescription = "감정 표현 고양이",
         modifier = Modifier.size(180.dp),
         contentScale = ContentScale.Fit,
     )
-}
-
-
-private fun Int.toMoodCatDrawableRes(): Int = when (coerceIn(0, 10)) {
-    0 -> R.drawable.worry_cat_0
-    1, 2 -> R.drawable.worry_cat_1_2
-    3, 4 -> R.drawable.worry_cat_3_4
-    5, 6 -> R.drawable.worry_cat_5_6
-    7, 8 -> R.drawable.worry_cat_7_8
-    else -> R.drawable.worry_cat_9_10
 }
 
 /** 0~10 (emotionScoreAfter 스케일) 정수 단계별 기분 멘트. */
@@ -205,6 +212,10 @@ private fun Float.toMoodLabel(): String = MoodLabels[roundToInt().coerceIn(0, 10
 @Composable
 private fun SessionRatingScreenPreview() {
     GominittaTheme {
-        SessionRatingScreen(onSave = {})
+        SessionRatingContent(
+            emotionScore = 5f,
+            onEmotionScoreChange = {},
+            onSaveClick = {},
+        )
     }
 }

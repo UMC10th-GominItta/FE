@@ -25,13 +25,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gominitta.android.R
 import com.gominitta.android.ui.components.GominittaButton
 import com.gominitta.android.ui.components.GominittaButtonDefaults
@@ -44,26 +49,28 @@ import com.gominitta.android.ui.theme.Body3_14r
 import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.Heading1_24sb
 import com.gominitta.android.ui.theme.Heading4_18m
-import com.gominitta.android.ui.theme.Primary300
 import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.Title1_20sb
-import com.gominitta.android.ui.theme.White800
+import java.time.LocalDateTime
 
 /**
  * 홈 화면 — 하단 4탭 중 첫 탭. 헤더 + 히어로 카드(걱정 예약) + 오늘의 한 마디 + 다음 마음 세션.
  * 하단 탭 바는 MainScreen 이 제공하므로 여기선 스크롤 콘텐츠만 그린다.
  *
- * 현재 표시 데이터(이름/문구/세션)는 플레이스홀더 — 추후 HomeViewModel + UseCase 로 연결.
- * 장식용 잎 일러스트는 생략. "전체 보기"는 아직 미연결(동작 없음).
+ * "다음 마음 세션"은 [HomeViewModel]이 예정된 세션 중 가장 임박한 것을 실제로 불러와 보여준다.
+ * 이름/오늘의 한 마디는 아직 플레이스홀더. 장식용 잎 일러스트는 생략. "전체 보기"는 아직 미연결(동작 없음).
  */
 @Composable
 fun HomeScreen(
     onNavigateToWorryInput: () -> Unit = {},
-    onNavigateToWorryMemo: () -> Unit = {},
-    onNavigateToSessionDetail: () -> Unit = {},
+    onNavigateToWorryMemo: (Long) -> Unit = {},
+    onNavigateToSessionActive: (Long) -> Unit = {},
     onNavigateToMyPage: () -> Unit = {},
     modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = hiltViewModel(),
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -78,26 +85,20 @@ fun HomeScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "OO님, 반가워요!",
+                text = "고민이따님, 반가워요!",
                 style = Heading1_24sb,
                 color = Primary800,
                 modifier = Modifier.weight(1f),
             )
-            Box(
+            Image(
+                painter = painterResource(R.drawable.profile1),
+                contentDescription = "마이페이지",
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
-                    .background(Primary300)
                     .clickable(onClick = onNavigateToMyPage),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_profile),
-                    contentDescription = "마이페이지",
-                    modifier = Modifier.size(24.dp),
-                    tint = White800,
-                )
-            }
+            )
         }
         Spacer(Modifier.height(4.dp))
 
@@ -195,56 +196,93 @@ fun HomeScreen(
                 )
             },
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(AccentCream100),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_calendar),
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = Primary800,
+            val session = uiState.nextSession
+            if (session != null) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(AccentCream100),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_calendar),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = Primary800,
+                        )
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = session.scheduledStartAt.toSessionCardLabel(),
+                        style = Body3_14r,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.height(8.dp))
                 Text(
-                    text = "5월 27일 수요일 · 10:00 PM",
-                    style = Body3_14r,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = session.worryContent,
+                    style = Body1_16m,
+                    color = Primary800,
                 )
-            }
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = "UMC 프론트가 안 구해지면 어떡하지",
-                style = Body1_16m,
-                color = Primary800,
-            )
-            Spacer(Modifier.height(16.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                GominittaButton(
-                    text = "한 줄 보태기",
-                    onClick = onNavigateToWorryMemo,
-                    modifier = Modifier.weight(1f).height(44.dp),
-                    variant = GominittaButtonVariant.Outlined,
-                    leadingIcon = {
-                        Icon(painterResource(R.drawable.ic_chat), null, Modifier.size(18.dp))
-                    },
-                    contentPadding = GominittaButtonDefaults.CompactContentPadding,
+                Spacer(Modifier.height(16.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    GominittaButton(
+                        text = "한 줄 보태기",
+                        onClick = { onNavigateToWorryMemo(session.id) },
+                        modifier = Modifier.weight(1f).height(44.dp),
+                        variant = GominittaButtonVariant.Outlined,
+                        leadingIcon = {
+                            Icon(painterResource(R.drawable.ic_chat), null, Modifier.size(18.dp))
+                        },
+                        contentPadding = GominittaButtonDefaults.CompactContentPadding,
+                    )
+                    GominittaButton(
+                        text = "세션 시작",
+                        onClick = { onNavigateToSessionActive(session.id) },
+                        modifier = Modifier.weight(1f).height(44.dp),
+                        leadingIcon = {
+                            Icon(painterResource(R.drawable.ic_play), null, Modifier.size(18.dp))
+                        },
+                        contentPadding = GominittaButtonDefaults.CompactContentPadding,
+                    )
+                }
+            } else {
+                Text(
+                    text = "예약된 세션이 없어요.",
+                    style = Body2_15r,
+                    color = Gray400,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
                 )
+                Spacer(Modifier.height(16.dp))
                 GominittaButton(
-                    text = "세션 시작",
-                    onClick = onNavigateToSessionDetail,
-                    modifier = Modifier.weight(1f).height(44.dp),
+                    text = "걱정 예약하기",
+                    onClick = onNavigateToWorryInput,
+                    modifier = Modifier.fillMaxWidth().height(44.dp),
                     leadingIcon = {
-                        Icon(painterResource(R.drawable.ic_play), null, Modifier.size(18.dp))
+                        Icon(painterResource(R.drawable.ic_plus), null, Modifier.size(20.dp))
                     },
                     contentPadding = GominittaButtonDefaults.CompactContentPadding,
                 )
             }
         }
     }
+}
+
+// ---- 날짜 포맷 ---------------------------------------------------------------
+
+private val koreanWeekdays = arrayOf("월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일")
+
+private fun LocalDateTime.toSessionCardLabel(): String {
+    val weekday = koreanWeekdays[dayOfWeek.value - 1]
+    val hour12 = when {
+        hour == 0 -> 12
+        hour > 12 -> hour - 12
+        else -> hour
+    }
+    val amPm = if (hour < 12) "AM" else "PM"
+    val minuteStr = minute.toString().padStart(2, '0')
+    return "${monthValue}월 ${dayOfMonth}일 $weekday · $hour12:$minuteStr $amPm"
 }

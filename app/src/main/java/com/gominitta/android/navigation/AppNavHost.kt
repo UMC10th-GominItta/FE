@@ -118,7 +118,7 @@ fun AppNavHost(
                 onNavigateToWorryInput = { navController.navigate(Routes.WORRY_INPUT) },
                 onNavigateToSessionActive = { sessionId -> navController.navigate(Routes.sessionActiveRoute(sessionId)) },
                 onNavigateToSessionEdit = { sessionId -> navController.navigate(Routes.sessionEditRoute(sessionId)) },
-                onNavigateToWorryMemo = { navController.navigate(Routes.WORRY_MEMO) },
+                onNavigateToWorryMemo = { sessionId -> navController.navigate(Routes.worryMemoRoute(sessionId)) },
                 onNavigateToMyPage = { navController.navigate(Routes.MY_PAGE) },
             )
         }
@@ -246,8 +246,13 @@ fun AppNavHost(
                 onNavigateBack = { navController.popBackStack() },
             )
         }
-        composable(Routes.WORRY_MEMO) {
+        composable(
+            route = Routes.WORRY_MEMO,
+            arguments = listOf(navArgument("sessionId") { type = NavType.LongType }),
+        ) { backStackEntry ->
+            val sessionId = backStackEntry.arguments?.getLong("sessionId") ?: 0L
             WorryMemoScreen(
+                sessionId = sessionId,
                 onNavigateNext = { navController.popBackStack(Routes.MAIN, inclusive = false) },
                 onNavigateBack = { navController.popBackStack() },
             )
@@ -290,16 +295,25 @@ fun AppNavHost(
                 sessionId = sessionId,
                 initialText = sessionRecordText,
                 onNavigateBack = { navController.popBackStack() },
-                onSave = { navController.navigate(Routes.SESSION_COMPLETE) },
+                onSave = { navController.navigate(Routes.sessionCompleteRoute(sessionId)) },
             )
         }
-        composable(Routes.SESSION_COMPLETE) {
+        composable(
+            route = Routes.SESSION_COMPLETE,
+            arguments = listOf(navArgument("sessionId") { type = NavType.LongType }),
+        ) { backStackEntry ->
+            val sessionId = backStackEntry.arguments?.getLong("sessionId") ?: 0L
             SessionCompleteScreen(
-                onNavigateNext = { navController.navigate(Routes.SESSION_RATING) },
+                onNavigateNext = { navController.navigate(Routes.sessionRatingRoute(sessionId)) },
             )
         }
-        composable(Routes.SESSION_RATING) {
+        composable(
+            route = Routes.SESSION_RATING,
+            arguments = listOf(navArgument("sessionId") { type = NavType.LongType }),
+        ) { backStackEntry ->
+            val sessionId = backStackEntry.arguments?.getLong("sessionId") ?: 0L
             SessionRatingScreen(
+                sessionId = sessionId,
                 onSave = { navController.popBackStack(Routes.MAIN, inclusive = false) },
             )
         }
