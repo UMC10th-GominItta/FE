@@ -5,14 +5,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
-class RecipeViewModel @JvmOverloads constructor( // 추가 — viewModel() 리플렉션 생성 대응
-    private val repository: RecipeRepository = DummyRecipeRepository(), // 추가
+class RecipeViewModel @JvmOverloads constructor(
+    private val repository: RecipeRepository = DummyRecipeRepository(),
 ) : ViewModel() {
 
     var uiState by mutableStateOf(RecipeUiState())
         private set
 
-    init { // 추가 — 초기 진입 시 더미 레시피 목록 로드
+    init {
         uiState = uiState.copy(recipes = repository.getRecipes())
     }
 
@@ -30,9 +30,9 @@ class RecipeViewModel @JvmOverloads constructor( // 추가 — viewModel() 리�
             description = description,
             durationMinutes = durationMinutes,
         )
-        repository.addRecipe(newRecipe) // 추가
+        repository.addRecipe(newRecipe)
         uiState = uiState.copy(
-            recipes = repository.getRecipes(), // 변경
+            recipes = repository.getRecipes(),
             createTitle = "",
             createDescription = "",
             createDuration = "",
@@ -41,14 +41,14 @@ class RecipeViewModel @JvmOverloads constructor( // 추가 — viewModel() 리�
 
     fun updateRecipe(recipeId: Long, title: String, description: String, durationMinutes: Int) {
         val updated = RecipeItem(recipeId, title, description, durationMinutes)
-        repository.updateRecipe(updated) // 추가
-        uiState = uiState.copy(recipes = repository.getRecipes()) // 변경
+        repository.updateRecipe(updated)
+        uiState = uiState.copy(recipes = repository.getRecipes())
     }
 
     fun deleteRecipe(recipeId: Long) {
-        repository.deleteRecipe(recipeId) // 추가
+        repository.deleteRecipe(recipeId)
         uiState = uiState.copy(
-            recipes = repository.getRecipes(), // 변경
+            recipes = repository.getRecipes(),
             selectedRecipeId = if (uiState.selectedRecipeId == recipeId) null else uiState.selectedRecipeId,
         )
     }
@@ -58,7 +58,13 @@ class RecipeViewModel @JvmOverloads constructor( // 추가 — viewModel() 리�
     }
 
     fun completeRecipe() {
-        uiState = uiState.copy(runStatus = RecipeRunStatus.Completed)
+        uiState = uiState.copy(
+            runStatus = RecipeRunStatus.Completed,
+            completionSummary = uiState.completionSummary.copy( // 추가 — 완료 통계 누적
+                todayCompletedCount = uiState.completionSummary.todayCompletedCount + 1,
+                totalCompletedCount = uiState.completionSummary.totalCompletedCount + 1,
+            ),
+        )
     }
 
     private fun nextRecipeId(): Long {
