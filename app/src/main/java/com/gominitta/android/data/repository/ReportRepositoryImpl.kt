@@ -3,9 +3,11 @@ package com.gominitta.android.data.repository
 import com.gominitta.android.data.remote.ApiResult
 import com.gominitta.android.data.remote.api.ReportApi
 import com.gominitta.android.data.remote.dto.WorryThemeResponse
+import com.gominitta.android.data.remote.dto.AnxietyGapResponse
 import com.gominitta.android.data.remote.safeApiCall
 import com.gominitta.android.domain.model.report.WorryThemeCount
 import com.gominitta.android.domain.model.report.WorryThemeReport
+import com.gominitta.android.domain.model.report.AnxietyGapReport
 import com.gominitta.android.domain.repository.ReportRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,11 +22,27 @@ class ReportRepositoryImpl @Inject constructor(
             is ApiResult.Error -> result
             is ApiResult.NetworkError -> result
         }
+
+    override suspend fun getAnxietyGap(period: String): ApiResult<AnxietyGapReport> =
+        when (val result = safeApiCall { reportApi.getAnxietyGap(period) }) {
+            is ApiResult.Success -> ApiResult.Success(result.data.toDomain())
+            is ApiResult.Error -> result
+            is ApiResult.NetworkError -> result
+        }
 }
 
 private fun WorryThemeResponse.toDomain(): WorryThemeReport = WorryThemeReport(
     period = period,
     topCategory = topCategory,
     themes = themes.map { WorryThemeCount(category = it.category, count = it.count) },
+    feedback = feedback,
+)
+
+private fun AnxietyGapResponse.toDomain(): AnxietyGapReport = AnxietyGapReport(
+    period = period,
+    beforeScore = beforeScore,
+    afterScore = afterScore,
+    gap = gap,
+    sampleCount = sampleCount,
     feedback = feedback,
 )

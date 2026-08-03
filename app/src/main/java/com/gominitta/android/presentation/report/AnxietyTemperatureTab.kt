@@ -82,7 +82,7 @@ private fun AnxietyDataCard(
         ) {
             ScoreBlock(
                 label = "예약 시",
-                score = data.beforeAverage,
+                score = data.beforeScore,
                 backgroundColor = when {
                     isFlat -> MaterialTheme.colorScheme.tertiary
                     isRising -> MaterialTheme.colorScheme.secondaryContainer
@@ -91,7 +91,7 @@ private fun AnxietyDataCard(
             )
             ScoreBlock(
                 label = "세션 후",
-                score = data.afterAverage,
+                score = data.afterScore,
                 backgroundColor = when {
                     isFlat -> MaterialTheme.colorScheme.tertiary
                     isRising -> MaterialTheme.colorScheme.primary300Token
@@ -121,8 +121,8 @@ private fun AnxietyDataCard(
             fun scoreY(score: Double): Float =
                 (153 - 14 * score.coerceIn(0.0, 10.0)).dp.toPx()
 
-            val start = Offset(3.dp.toPx(), scoreY(data.beforeAverage))
-            val end = Offset(210.dp.toPx(), scoreY(data.afterAverage))
+            val start = Offset(3.dp.toPx(), scoreY(data.beforeScore))
+            val end = Offset(210.dp.toPx(), scoreY(data.afterScore))
             drawLine(graphColor, start, end, strokeWidth = 1.dp.toPx())
             drawCircle(graphColor, 3.dp.toPx(), start)
             drawCircle(graphColor, 3.dp.toPx(), end)
@@ -147,7 +147,7 @@ private fun AnxietyDataCard(
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
-                text = data.summaryText(),
+                text = data.feedback,
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.labelLarge,
                 maxLines = 1,

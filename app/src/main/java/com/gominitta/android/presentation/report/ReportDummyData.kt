@@ -4,9 +4,9 @@ import com.gominitta.android.ui.components.DateRangeOption
 
 /** API 연결 전 기간별 리포트 화면을 확인하기 위한 더미 데이터입니다. */
 internal fun anxietyDummyData(range: DateRangeOption): AnxietyReportData = when (range) {
-    DateRangeOption.LAST_30_DAYS -> AnxietyReportData(6, 8.0, 4.0)
-    DateRangeOption.LAST_2_WEEKS -> AnxietyReportData(3, 4.0, 8.0)
-    DateRangeOption.LAST_60_DAYS -> AnxietyReportData(12, 6.0, 6.0)
+    DateRangeOption.LAST_30_DAYS -> AnxietyReportData("30d", 8.0, 4.0, -4.0, 6, "걱정을 마주하고 마음이 한결 가벼워졌어요.")
+    DateRangeOption.LAST_2_WEEKS -> AnxietyReportData("2w", 4.0, 8.0, 4.0, 3, "아직은 마음에 복잡한 생각들이 남아있네요.")
+    DateRangeOption.LAST_60_DAYS -> AnxietyReportData("60d", 6.0, 6.0, 0.0, 12, "불안 점수가 비슷하게 유지되었어요.")
 }
 
 /** API 연결 전 기간 필터와 8개 걱정 테마 노출을 확인하기 위한 더미 데이터입니다. */

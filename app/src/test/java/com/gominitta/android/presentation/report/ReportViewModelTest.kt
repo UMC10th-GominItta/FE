@@ -3,6 +3,7 @@ package com.gominitta.android.presentation.report
 import com.gominitta.android.data.remote.ApiResult
 import com.gominitta.android.domain.model.report.WorryThemeCount
 import com.gominitta.android.domain.model.report.WorryThemeReport
+import com.gominitta.android.domain.model.report.AnxietyGapReport
 import com.gominitta.android.domain.repository.ReportRepository
 import com.gominitta.android.ui.components.DateRangeOption
 import kotlinx.coroutines.Dispatchers
@@ -43,7 +44,8 @@ class ReportViewModelTest {
         assertEquals(5, state.worryThemeData?.totalCount)
         assertEquals("30d", state.worryThemeData?.period)
         assertEquals(WorryTheme.PRESENTATION, state.worryThemeData?.themes?.last()?.theme)
-        assertEquals(6, state.anxietyData?.matchedSetCount)
+        assertEquals(12, state.anxietyData?.sampleCount)
+        assertEquals(-4.0, state.anxietyData?.gap)
         assertEquals(20, state.timelineData?.totalCount)
     }
 
@@ -53,12 +55,13 @@ class ReportViewModelTest {
         advanceUntilIdle()
 
         viewModel.selectAnxietyRange(DateRangeOption.LAST_2_WEEKS)
+        advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertEquals(DateRangeOption.LAST_30_DAYS, state.worryThemeRange)
         assertEquals(DateRangeOption.LAST_2_WEEKS, state.anxietyRange)
         assertEquals(DateRangeOption.LAST_30_DAYS, state.timelineRange)
-        assertEquals(3, state.anxietyData?.matchedSetCount)
+        assertEquals("2w", state.anxietyData?.period)
     }
 
     private class FakeReportRepository : ReportRepository {
@@ -72,6 +75,18 @@ class ReportViewModelTest {
                         WorryThemeCount(category = "발표", count = 4),
                     ),
                     feedback = "최근에는 진로와 관련된 걱정이 가장 많았어요.",
+                ),
+            )
+
+        override suspend fun getAnxietyGap(period: String): ApiResult<AnxietyGapReport> =
+            ApiResult.Success(
+                AnxietyGapReport(
+                    period = period,
+                    beforeScore = 8.0,
+                    afterScore = 4.0,
+                    gap = -4.0,
+                    sampleCount = 12,
+                    feedback = "걱정을 마주하고 마음이 한결 가벼워졌어요.",
                 ),
             )
     }
