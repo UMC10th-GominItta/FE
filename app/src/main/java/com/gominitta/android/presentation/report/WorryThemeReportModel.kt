@@ -19,12 +19,7 @@ data class WorryThemeReportData(
     val totalCount: Int get() = themes.sumOf { it.count }
 
     /** 걱정 테마 리포트를 표시하기에 전체 걱정 기록 수가 충분한지 여부 */
-    val canRender: Boolean get() = totalCount >= MINIMUM_WORRY_COUNT
-
-    companion object {
-        /** 걱정 테마 리포트를 표시하기 위해 필요한 최소 걱정 기록 수 */
-        const val MINIMUM_WORRY_COUNT = 3
-    }
+    val canRender: Boolean get() = totalCount >= MINIMUM_WORRY_THEME_COUNT
 }
 
 /**
@@ -193,3 +188,4 @@ private fun List<WorryBubblePlacement>.totalOverlap(gap: Float): Float =
 
 private const val RANDOM_LAYOUT_ATTEMPTS = 32
 private const val RANDOM_CANDIDATES_PER_BUBBLE = 1_000
+private const val MINIMUM_WORRY_THEME_COUNT = 3

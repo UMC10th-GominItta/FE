@@ -12,12 +12,7 @@ data class WorryTimelineReportData(
     val levels: List<List<Int>>,
 ) {
     /** 걱정 타임라인을 표시하기에 전체 걱정 기록 수가 충분한지 여부 */
-    val canRender: Boolean get() = totalCount >= MINIMUM_WORRY_COUNT
-
-    companion object {
-        /** 걱정 타임라인을 표시하기 위해 필요한 최소 걱정 기록 수 */
-        const val MINIMUM_WORRY_COUNT = 5
-    }
+    val canRender: Boolean get() = totalCount >= MINIMUM_TIMELINE_COUNT
 }
 
 /**
@@ -63,3 +58,5 @@ internal fun WorryTimelineReportData.feedbackText(): String {
 
 internal const val TIMELINE_TIP =
     "tip. 마음이 자주 흔들리는 시간을 알면, 나에게 필요한 휴식 루틴도 더 잘 보일 수 있어요."
+
+private const val MINIMUM_TIMELINE_COUNT = 5
