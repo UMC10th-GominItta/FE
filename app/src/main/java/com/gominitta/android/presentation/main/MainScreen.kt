@@ -26,7 +26,8 @@ import com.gominitta.android.presentation.recipe.RecipeEditScreen
 import com.gominitta.android.presentation.recipe.RecipeRunScreen
 import com.gominitta.android.presentation.recipe.RecipeViewModel
 import com.gominitta.android.presentation.recipe.RecipeCompleteScreen
-
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.runtime.getValue
 /**
  * 하단 탭 바를 가진 메인 컨테이너.
  *
@@ -56,10 +57,18 @@ fun MainScreen(
 
     val recipeViewModel: RecipeViewModel = viewModel()
     val recipeUiState = recipeViewModel.uiState
-
+    val currentTabRoute by tabNavController.currentBackStackEntryAsState() // 추가
+    val showBottomBar = currentTabRoute?.destination?.route !in setOf( // 변경
+        Routes.RECIPE_RUN,
+        Routes.RECIPE_COMPLETE,
+    )
     Scaffold(
         modifier = modifier,
-        bottomBar = { GominittaBottomBar(tabNavController) },
+        bottomBar = {
+            if (showBottomBar) { // 변경 — RECIPE_COMPLETE 화면에서는 바텀바 숨김
+                GominittaBottomBar(tabNavController)
+            }
+        },
         containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onBackground,
     ) { innerPadding ->
