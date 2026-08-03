@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -80,7 +81,7 @@ private fun WorryTimelineDataCard(
         R.drawable.ic_night,
     )
 
-    GominittaReportCard(modifier = modifier, height = 461.dp) {
+    GominittaReportCard(modifier = modifier, height = null, minHeight = 461.dp) {
         WorryTimelineHeader(selectedRange, onRangeSelected)
 
         Row(
@@ -182,7 +183,9 @@ private fun WorryTimelineDataCard(
         }
 
         Column(
-            modifier = Modifier.offset(x = 16.dp, y = 338.dp).size(303.dp, 107.dp),
+            modifier = Modifier
+                .padding(start = 16.dp, top = 338.dp, end = 16.dp, bottom = 16.dp)
+                .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(

@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
@@ -77,7 +79,7 @@ private fun WorryThemeMapDataCard(
     )
     val dividerColor = MaterialTheme.colorScheme.gray400Token
 
-    GominittaReportCard(modifier = modifier, height = 488.dp) {
+    GominittaReportCard(modifier = modifier, height = null, minHeight = 488.dp) {
         WorryThemeMapCardHeader(selectedRange, onRangeSelected)
 
         rankedThemes.zip(bubblePlacements).forEachIndexed { index, (ranked, placement) ->
@@ -111,15 +113,14 @@ private fun WorryThemeMapDataCard(
 
         Column(
             modifier = Modifier
-                .offset(x = 16.dp, y = 406.dp)
-                .size(width = 303.dp, height = 66.dp),
+                .padding(start = 16.dp, top = 406.dp, end = 16.dp, bottom = 16.dp)
+                .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
                 text = data.feedback,
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.labelLarge,
-                maxLines = 1,
             )
             Text(
                 text = "tip. 어떤 걱정이 자주 찾아오는지 아는 것만으로도,\n마음을 돌보는 첫걸음이 될 수 있어요.",

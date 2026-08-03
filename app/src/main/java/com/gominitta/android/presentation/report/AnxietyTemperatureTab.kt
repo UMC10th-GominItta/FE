@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -73,7 +74,7 @@ private fun AnxietyDataCard(
     val graphColor = MaterialTheme.colorScheme.onSurface
     val dividerColor = MaterialTheme.colorScheme.gray400Token
 
-    GominittaReportCard(modifier = modifier, height = 479.dp) {
+    GominittaReportCard(modifier = modifier, height = null, minHeight = 479.dp) {
         AnxietyCardHeader(selectedRange, onRangeSelected)
 
         Row(
@@ -143,14 +144,15 @@ private fun AnxietyDataCard(
         }
 
         Column(
-            modifier = Modifier.offset(x = 16.dp, y = 378.dp).size(303.dp, 85.dp),
+            modifier = Modifier
+                .padding(start = 16.dp, top = 378.dp, end = 16.dp, bottom = 16.dp)
+                .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
                 text = data.feedback,
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.labelLarge,
-                maxLines = 1,
             )
             Text(
                 text = data.tipText(),
