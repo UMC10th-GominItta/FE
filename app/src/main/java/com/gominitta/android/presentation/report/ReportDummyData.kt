@@ -11,16 +11,18 @@ internal fun anxietyDummyData(range: DateRangeOption): AnxietyReportData = when 
 
 /** API 연결 전 기간 필터와 8개 걱정 테마 노출을 확인하기 위한 더미 데이터입니다. */
 internal fun worryThemeDummyData(range: DateRangeOption): WorryThemeReportData {
-    val percentages = when (range) {
+    val counts = when (range) {
         DateRangeOption.LAST_2_WEEKS -> listOf(29, 21, 17, 13, 8, 6, 4, 2)
         DateRangeOption.LAST_30_DAYS -> listOf(32, 20, 16, 12, 8, 5, 4, 3)
         DateRangeOption.LAST_60_DAYS -> listOf(30, 22, 16, 11, 8, 6, 4, 3)
     }
     return WorryThemeReportData(
-        totalCount = 100,
+        period = range.apiValue,
+        topCategory = WorryTheme.CAREER,
         themes = WorryTheme.entries.mapIndexed { index, theme ->
-            WorryThemeItem(theme, percentages[index])
+            WorryThemeItem(theme, counts[index])
         },
+        feedback = "최근에는 진로와 관련된 걱정이 가장 많았어요.",
     )
 }
 

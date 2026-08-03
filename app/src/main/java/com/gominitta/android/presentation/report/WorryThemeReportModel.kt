@@ -8,12 +8,16 @@ import kotlin.random.Random
  * 선택한 기간의 걱정 기록을 테마별로 요약한 화면 모델입니다.
  *
  * @property totalCount 선택한 기간에 작성된 전체 걱정 기록 수
- * @property themes 각 걱정 테마와 해당 테마가 차지하는 비율 목록
+ * @property themes 각 걱정 테마와 해당 테마의 기록 수 목록
  */
 data class WorryThemeReportData(
-    val totalCount: Int,
+    val period: String,
+    val topCategory: WorryTheme?,
     val themes: List<WorryThemeItem>,
+    val feedback: String,
 ) {
+    val totalCount: Int get() = themes.sumOf { it.count }
+
     /** 걱정 테마 리포트를 표시하기에 전체 걱정 기록 수가 충분한지 여부 */
     val canRender: Boolean get() = totalCount >= MINIMUM_WORRY_COUNT
 
@@ -27,11 +31,11 @@ data class WorryThemeReportData(
  * 걱정 테마 하나의 집계 결과입니다.
  *
  * @property theme 백엔드의 테마 코드를 화면에서 사용하는 [WorryTheme]으로 변환한 값
- * @property percentage 전체 걱정 기록 중 해당 테마가 차지하는 비율(0~100)
+ * @property count 해당 테마의 걱정 기록 수
  */
 data class WorryThemeItem(
     val theme: WorryTheme,
-    val percentage: Int,
+    val count: Int,
 )
 
 /**
@@ -47,7 +51,7 @@ enum class WorryTheme(val label: String) {
     FAMILY("가족"),
     RELATIONSHIP("관계"),
     HEALTH("건강"),
-    ETC("기타"),
+    PRESENTATION("발표"),
 }
 
 /** 테마 비율을 기준으로 정한 버블의 시각적 중요도와 크기 단계입니다. */
@@ -80,30 +84,22 @@ internal data class WorryBubblePlacement(
 /** API 배열 순서를 동률 우선순위로 유지합니다. */
 internal fun WorryThemeReportData.rankedThemes(): List<RankedWorryTheme> {
     val visible = themes
-        .filter { it.percentage > 0 }
-        .sortedWith(compareByDescending<WorryThemeItem> { it.percentage })
-    val shouldPromoteFirst = visible.none { it.percentage >= 30 }
+        .filter { it.count > 0 }
+        .sortedWith(compareByDescending<WorryThemeItem> { it.count })
+    val percentages = visible.associateWith { item ->
+        if (totalCount == 0) 0 else item.count * 100 / totalCount
+    }
+    val shouldPromoteFirst = percentages.values.none { it >= 30 }
 
     return visible.mapIndexed { index, item ->
+        val percentage = percentages.getValue(item)
         val weight = when {
-            item.percentage >= 30 -> WorryThemeWeight.PRIMARY
+            percentage >= 30 -> WorryThemeWeight.PRIMARY
             shouldPromoteFirst && index == 0 -> WorryThemeWeight.PRIMARY
-            item.percentage >= 10 -> WorryThemeWeight.NORMAL
+            percentage >= 10 -> WorryThemeWeight.NORMAL
             else -> WorryThemeWeight.MINOR
         }
         RankedWorryTheme(item, weight)
-    }
-}
-
-internal fun WorryThemeReportData.feedbackText(): String {
-    val visible = themes.filter { it.percentage > 0 }
-    val highest = visible.maxOfOrNull { it.percentage } ?: return ""
-    val leaders = visible.filter { it.percentage == highest }
-    return if (leaders.size == 1) {
-        "최근에는 ${leaders.first().theme.label}과 관련된 걱정이 가장 많았어요."
-    } else {
-        val names = leaders.take(2).joinToString("와 ") { it.theme.label }
-        "최근에는 ${names}에 대한 고민이 깊었네요."
     }
 }
 
@@ -123,7 +119,7 @@ internal fun layoutWorryThemeBubbles(
     val seed = themes.fold(17) { result, ranked ->
         31 * result +
             ranked.item.theme.ordinal * 1_009 +
-            ranked.item.percentage * 37 +
+            ranked.item.count * 37 +
             ranked.weight.ordinal
     }
     var bestLayout: List<WorryBubblePlacement> = emptyList()

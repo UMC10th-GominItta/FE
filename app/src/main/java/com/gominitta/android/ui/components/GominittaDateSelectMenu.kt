@@ -37,11 +37,12 @@ import com.gominitta.android.ui.theme.spacing
 
 enum class DateRangeOption(
     val label: String,
+    val apiValue: String,
     internal val textWidth: Dp,
 ) {
-    LAST_30_DAYS("최근 30일", 56.dp),
-    LAST_2_WEEKS("최근 2주", 47.dp),
-    LAST_60_DAYS("최근 60일", 56.dp),
+    LAST_30_DAYS("최근 30일", "30d", 56.dp),
+    LAST_2_WEEKS("최근 2주", "2w", 47.dp),
+    LAST_60_DAYS("최근 60일", "60d", 56.dp),
 }
 
 @Composable

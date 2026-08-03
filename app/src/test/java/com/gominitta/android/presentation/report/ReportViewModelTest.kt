@@ -1,26 +1,56 @@
 package com.gominitta.android.presentation.report
 
+import com.gominitta.android.data.remote.ApiResult
+import com.gominitta.android.domain.model.report.WorryThemeCount
+import com.gominitta.android.domain.model.report.WorryThemeReport
+import com.gominitta.android.domain.repository.ReportRepository
 import com.gominitta.android.ui.components.DateRangeOption
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ReportViewModelTest {
+    private val dispatcher = StandardTestDispatcher()
+
+    @Before
+    fun setUp() {
+        Dispatchers.setMain(dispatcher)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
 
     @Test
-    fun `initial state contains 30 day dummy reports`() {
-        val state = ReportViewModel().uiState.value
+    fun `initial state loads 30 day worry theme report`() = runTest(dispatcher) {
+        val viewModel = ReportViewModel(FakeReportRepository())
+        advanceUntilIdle()
+        val state = viewModel.uiState.value
 
         assertEquals(DateRangeOption.LAST_30_DAYS, state.worryThemeRange)
         assertEquals(DateRangeOption.LAST_30_DAYS, state.anxietyRange)
         assertEquals(DateRangeOption.LAST_30_DAYS, state.timelineRange)
-        assertEquals(100, state.worryThemeData?.totalCount)
+        assertEquals(5, state.worryThemeData?.totalCount)
+        assertEquals("30d", state.worryThemeData?.period)
+        assertEquals(WorryTheme.PRESENTATION, state.worryThemeData?.themes?.last()?.theme)
         assertEquals(6, state.anxietyData?.matchedSetCount)
         assertEquals(20, state.timelineData?.totalCount)
     }
 
     @Test
-    fun `selecting a range updates only the selected report`() {
-        val viewModel = ReportViewModel()
+    fun `selecting a range updates only the selected report`() = runTest(dispatcher) {
+        val viewModel = ReportViewModel(FakeReportRepository())
+        advanceUntilIdle()
 
         viewModel.selectAnxietyRange(DateRangeOption.LAST_2_WEEKS)
 
@@ -29,5 +59,20 @@ class ReportViewModelTest {
         assertEquals(DateRangeOption.LAST_2_WEEKS, state.anxietyRange)
         assertEquals(DateRangeOption.LAST_30_DAYS, state.timelineRange)
         assertEquals(3, state.anxietyData?.matchedSetCount)
+    }
+
+    private class FakeReportRepository : ReportRepository {
+        override suspend fun getWorryThemes(period: String): ApiResult<WorryThemeReport> =
+            ApiResult.Success(
+                WorryThemeReport(
+                    period = period,
+                    topCategory = "진로",
+                    themes = listOf(
+                        WorryThemeCount(category = "진로", count = 1),
+                        WorryThemeCount(category = "발표", count = 4),
+                    ),
+                    feedback = "최근에는 진로와 관련된 걱정이 가장 많았어요.",
+                ),
+            )
     }
 }

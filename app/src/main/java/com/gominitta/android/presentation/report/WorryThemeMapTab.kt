@@ -83,7 +83,7 @@ private fun WorryThemeMapDataCard(
         rankedThemes.zip(bubblePlacements).forEachIndexed { index, (ranked, placement) ->
             GominittaWorryMapBubble(
                 title = ranked.item.theme.label,
-                value = ranked.item.percentage,
+                value = ranked.item.count,
                 isPrimary = ranked.weight == WorryThemeWeight.PRIMARY,
                 mediumBackgroundColor = mediumColors[index % mediumColors.size],
                 modifier = Modifier.offset(
@@ -116,7 +116,7 @@ private fun WorryThemeMapDataCard(
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
-                text = data.feedbackText(),
+                text = data.feedback,
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.labelLarge,
                 maxLines = 1,
