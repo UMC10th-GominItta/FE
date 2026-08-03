@@ -40,6 +40,7 @@ internal fun WorryTimelineTab(
     onRangeSelected: (DateRangeOption) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    // 걱정 기록이 기준 개수보다 적으면 히트맵 대신 데이터 부족 안내를 표시합니다.
     if (data?.canRender == true) {
         WorryTimelineDataCard(selectedRange, onRangeSelected, data, modifier)
     } else {
@@ -84,6 +85,7 @@ private fun WorryTimelineDataCard(
     GominittaReportCard(modifier = modifier, height = null, minHeight = 461.dp) {
         WorryTimelineHeader(selectedRange, onRangeSelected)
 
+        // 히트맵 열의 기준이 되는 월요일부터 일요일까지의 요일을 표시합니다.
         Row(
             modifier = Modifier.offset(x = 92.dp, y = 83.dp).size(227.dp, 21.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -103,6 +105,7 @@ private fun WorryTimelineDataCard(
         Column(
             modifier = Modifier.offset(x = 16.dp, y = 106.dp).size(303.dp, 196.dp),
         ) {
+            // 아침·오후·저녁·밤 순서로 시간대 정보와 히트맵 한 행을 구성합니다.
             timelineTimeSlots.forEachIndexed { rowIndex, slot ->
                 Row(
                     modifier = Modifier.size(303.dp, 49.dp),
@@ -162,6 +165,7 @@ private fun WorryTimelineDataCard(
 
                     GominittaHeatMap(
                         modifier = Modifier.align(Alignment.CenterVertically),
+                        // 누락된 행은 7일 모두 기록이 없는 상태로 안전하게 표시합니다.
                         levels = data.levels.getOrElse(rowIndex) { List(7) { 0 } },
                     )
                 }
@@ -188,6 +192,7 @@ private fun WorryTimelineDataCard(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
+            // 분석 문구와 팁의 길이에 맞춰 카드 하단 높이가 확장됩니다.
             Text(
                 text = data.feedbackText(),
                 modifier = Modifier.width(303.dp),

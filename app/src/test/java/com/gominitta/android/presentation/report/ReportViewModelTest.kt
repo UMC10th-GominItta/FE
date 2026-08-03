@@ -8,13 +8,17 @@ import com.gominitta.android.domain.repository.ReportRepository
 import com.gominitta.android.ui.components.DateRangeOption
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -64,6 +68,19 @@ class ReportViewModelTest {
         assertEquals("2w", state.anxietyData?.period)
     }
 
+    @Test
+    fun `각 카드의 로딩 상태를 독립적으로 관리한다`() = runTest(dispatcher) {
+        val viewModel = ReportViewModel(SlowWorryThemeRepository())
+
+        runCurrent()
+
+        assertTrue(viewModel.uiState.value.isWorryThemeLoading)
+        assertFalse(viewModel.uiState.value.isAnxietyLoading)
+
+        advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.isWorryThemeLoading)
+    }
+
     private class FakeReportRepository : ReportRepository {
         override suspend fun getWorryThemes(period: String): ApiResult<WorryThemeReport> =
             ApiResult.Success(
@@ -90,4 +107,31 @@ class ReportViewModelTest {
                 ),
             )
     }
+
+    private class SlowWorryThemeRepository : ReportRepository {
+        override suspend fun getWorryThemes(period: String): ApiResult<WorryThemeReport> {
+            delay(1_000)
+            return ApiResult.Success(worryThemeReport(period))
+        }
+
+        override suspend fun getAnxietyGap(period: String): ApiResult<AnxietyGapReport> =
+            ApiResult.Success(anxietyGapReport(period))
+    }
+
 }
+
+private fun worryThemeReport(period: String) = WorryThemeReport(
+    period = period,
+    topCategory = "진로",
+    themes = listOf(WorryThemeCount(category = "진로", count = 1)),
+    feedback = "최근에는 진로와 관련된 걱정이 가장 많았어요.",
+)
+
+private fun anxietyGapReport(period: String) = AnxietyGapReport(
+    period = period,
+    beforeScore = 8.0,
+    afterScore = 4.0,
+    gap = -4.0,
+    sampleCount = 12,
+    feedback = "걱정을 마주하고 마음이 한결 가벼워졌어요.",
+)

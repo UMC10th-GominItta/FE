@@ -42,6 +42,7 @@ internal fun AnxietyTemperatureTab(
     onRangeSelected: (DateRangeOption) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    // 집계 표본이 없으면 그래프 대신 데이터 부족 안내를 표시합니다.
     if (data?.canRender == true) {
         AnxietyDataCard(selectedRange, onRangeSelected, data, modifier)
     } else {
@@ -74,6 +75,7 @@ private fun AnxietyDataCard(
     data: AnxietyReportData,
     modifier: Modifier,
 ) {
+    // 점수 변화 방향에 따라 두 점수 카드의 강조 색상을 결정합니다.
     val isRising = data.state == AnxietyChangeState.INCREASED
     val isFlat = data.state == AnxietyChangeState.MAINTAINED
     val graphColor = MaterialTheme.colorScheme.onSurface
@@ -86,6 +88,7 @@ private fun AnxietyDataCard(
             modifier = Modifier.offset(x = 16.dp, y = 85.dp).size(303.dp, 86.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
+            // 예약 시와 세션 후 점수를 각각 카드와 고양이 일러스트로 표시합니다.
             ScoreBlock(
                 label = "예약 시",
                 score = data.beforeScore,
@@ -112,6 +115,7 @@ private fun AnxietyDataCard(
             modifier = Modifier.offset(x = 20.dp, y = 191.dp).size(15.dp, 160.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            // 그래프의 세로축은 불안 점수 범위인 0~10을 나타냅니다.
             listOf("10", "8", "6", "4", "2", "0").forEach {
                 Text(
                     text = it,
@@ -126,6 +130,7 @@ private fun AnxietyDataCard(
         Canvas(
             modifier = Modifier.offset(x = 69.dp, y = 188.dp).size(213.dp, 156.dp),
         ) {
+            // 점수가 높을수록 위쪽에 오도록 0~10 점수를 그래프 좌표로 변환합니다.
             fun scoreY(score: Double): Float =
                 (153 - 14 * score.coerceIn(0.0, 10.0)).dp.toPx()
 
@@ -156,6 +161,7 @@ private fun AnxietyDataCard(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
+            // 서버 피드백과 프론트 팁의 길이에 맞춰 카드 하단 높이가 확장됩니다.
             Text(
                 text = data.feedback,
                 color = MaterialTheme.colorScheme.onSurface,

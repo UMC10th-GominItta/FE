@@ -36,6 +36,7 @@ internal fun WorryThemeMapTab(
     onRangeSelected: (DateRangeOption) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    // 걱정 기록이 기준 개수보다 적으면 버블 대신 데이터 부족 안내를 표시합니다.
     if (data?.canRender == true) {
         WorryThemeMapDataCard(selectedRange, onRangeSelected, data, modifier)
     } else {
@@ -68,6 +69,7 @@ private fun WorryThemeMapDataCard(
     data: WorryThemeReportData,
     modifier: Modifier,
 ) {
+    // count가 큰 테마부터 시각적 중요도를 정하고 겹치지 않는 좌표를 계산합니다.
     val rankedThemes = data.rankedThemes()
     val bubblePlacements = remember(rankedThemes) {
         layoutWorryThemeBubbles(rankedThemes)
@@ -82,6 +84,7 @@ private fun WorryThemeMapDataCard(
     GominittaReportCard(modifier = modifier, height = null, minHeight = 488.dp) {
         WorryThemeMapCardHeader(selectedRange, onRangeSelected)
 
+        // 계산된 좌표와 크기를 사용해 테마 버블을 카드에 배치합니다.
         rankedThemes.zip(bubblePlacements).forEachIndexed { index, (ranked, placement) ->
             GominittaWorryMapBubble(
                 title = ranked.item.theme.label,
@@ -117,6 +120,7 @@ private fun WorryThemeMapDataCard(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
+            // 서버 피드백과 고정 팁의 길이에 맞춰 카드 하단 높이가 확장됩니다.
             Text(
                 text = data.feedback,
                 color = MaterialTheme.colorScheme.onSurface,

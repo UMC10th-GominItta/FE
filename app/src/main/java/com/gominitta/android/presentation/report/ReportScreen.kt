@@ -54,6 +54,7 @@ fun ReportRoute(
     initialTab: HeartReportTab = HeartReportTab.WORRY_THEME_MAP,
     viewModel: ReportViewModel = hiltViewModel(),
 ) {
+    // ViewModel 상태를 수명주기에 맞춰 구독하고 화면 이벤트를 다시 ViewModel에 전달합니다.
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     ReportScreen(
@@ -77,6 +78,7 @@ fun ReportScreen(
     modifier: Modifier = Modifier,
     initialTab: HeartReportTab = HeartReportTab.WORRY_THEME_MAP,
 ) {
+    // 선택 탭과 카드 목록의 스크롤 위치를 함께 관리합니다.
     var selectedTab by remember { mutableStateOf(initialTab) }
     val listState = rememberLazyListState(
         initialFirstVisibleItemIndex = initialTab.ordinal,
