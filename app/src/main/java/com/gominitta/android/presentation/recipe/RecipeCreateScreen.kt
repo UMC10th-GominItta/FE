@@ -39,8 +39,9 @@ fun RecipeCreateScreen(
     ) -> Unit = { _, _, _ -> },
 ) {
     val displayedRecommendedRecipes = remember(recommendedRecipes) {
-        recommendedRecipes.shuffled().take(3)
+        recommendedRecipes.shuffled().take(3) // 변경 — 필터 없이 27개 전체에서 랜덤
     }
+
     var selectedRecommendedTitle by rememberSaveable {
         mutableStateOf<String?>(null)
     }
@@ -172,34 +173,25 @@ fun RecipeCreateScreen(
     }
 }
 
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun RecommendedRecipeChips(
     recommendedRecipes: List<RecommendedRecipe>,
     selectedTitle: String?,
     onRecommendedRecipeClick: (RecommendedRecipe) -> Unit,
 ) {
-    Column(
+    androidx.compose.foundation.layout.FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        recommendedRecipes
-            .chunked(2)
-            .forEach { rowItems ->
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    rowItems.forEach { recommendedRecipe ->
-                        RecipeRecommendChip(
-                            text = recommendedRecipe.title,
-                            selected =
-                                selectedTitle == recommendedRecipe.title,
-                            onClick = {
-                                onRecommendedRecipeClick(
-                                    recommendedRecipe,
-                                )
-                            },
-                        )
-                    }
-                }
-            }
+        recommendedRecipes.forEach { recommendedRecipe ->
+            RecipeRecommendChip(
+                text = recommendedRecipe.title,
+                selected = selectedTitle == recommendedRecipe.title,
+                onClick = {
+                    onRecommendedRecipeClick(recommendedRecipe)
+                },
+            )
+        }
     }
 }
