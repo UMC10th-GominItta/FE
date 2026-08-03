@@ -1,5 +1,7 @@
 package com.gominitta.android.presentation.report
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,16 +22,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.gominitta.android.R
 import com.gominitta.android.ui.components.DateRangeOption
 import com.gominitta.android.ui.components.GominittaDateSelectMenu
 import com.gominitta.android.ui.components.GominittaReportCard
-import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.gray400Token
 import com.gominitta.android.ui.theme.heading2Token
 import com.gominitta.android.ui.theme.primary300Token
+import com.gominitta.android.ui.theme.White800
+import kotlin.math.roundToInt
 
 @Composable
 internal fun AnxietyTemperatureTab(
@@ -84,6 +89,7 @@ private fun AnxietyDataCard(
             ScoreBlock(
                 label = "예약 시",
                 score = data.beforeScore,
+                illustrationRes = anxietyScoreIllustration(data.beforeScore),
                 backgroundColor = when {
                     isFlat -> MaterialTheme.colorScheme.tertiary
                     isRising -> MaterialTheme.colorScheme.secondaryContainer
@@ -93,6 +99,7 @@ private fun AnxietyDataCard(
             ScoreBlock(
                 label = "세션 후",
                 score = data.afterScore,
+                illustrationRes = anxietyScoreIllustration(data.afterScore),
                 backgroundColor = when {
                     isFlat -> MaterialTheme.colorScheme.tertiary
                     isRising -> MaterialTheme.colorScheme.primary300Token
@@ -167,6 +174,7 @@ private fun AnxietyDataCard(
 private fun ScoreBlock(
     label: String,
     score: Double,
+    @DrawableRes illustrationRes: Int,
     backgroundColor: androidx.compose.ui.graphics.Color,
 ) {
     Row(
@@ -178,8 +186,17 @@ private fun ScoreBlock(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier = Modifier.size(48.dp).background(MaterialTheme.colorScheme.onSecondary),
-        )
+            modifier = Modifier
+                .size(48.dp)
+                .background(White800, CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Image(
+                painter = painterResource(illustrationRes),
+                contentDescription = "$label 불안 점수 일러스트",
+                modifier = Modifier.size(48.dp),
+            )
+        }
         Column(modifier = Modifier.width(62.dp)) {
             Text(
                 text = label,
@@ -203,6 +220,18 @@ private fun ScoreBlock(
             }
         }
     }
+}
+
+@DrawableRes
+internal fun anxietyScoreIllustration(score: Double): Int = when (
+    score.coerceIn(0.0, 10.0).roundToInt()
+) {
+    0 -> R.drawable.worry_cat_0
+    1, 2 -> R.drawable.worry_cat_1_2
+    3, 4 -> R.drawable.worry_cat_3_4
+    5, 6 -> R.drawable.worry_cat_5_6
+    7, 8 -> R.drawable.worry_cat_7_8
+    else -> R.drawable.worry_cat_9_10
 }
 
 @Composable
@@ -236,10 +265,4 @@ private fun BoxScope.AnxietyCardHeader(
         onOptionSelected = onRangeSelected,
         modifier = Modifier.offset(x = 223.dp, y = 16.dp),
     )
-}
-
-@Preview(showBackground = true, widthDp = 375, heightDp = 535)
-@Composable
-private fun AnxietyTemperaturePreview() {
-    GominittaTheme { AnxietyTemperatureTab() }
 }

@@ -1,5 +1,6 @@
 package com.gominitta.android.presentation.report
 
+import com.gominitta.android.R
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -29,6 +30,18 @@ class AnxietyReportModelTest {
             "+ 1.5점 상승",
             report(beforeScore = 5.0, afterScore = 6.5, gap = 1.5).badgeText,
         )
+    }
+
+    @Test
+    fun `평균 점수를 가장 가까운 구간의 고양이 일러스트로 매핑한다`() {
+        assertEquals(R.drawable.worry_cat_0, anxietyScoreIllustration(0.0))
+        assertEquals(R.drawable.worry_cat_1_2, anxietyScoreIllustration(1.6))
+        assertEquals(R.drawable.worry_cat_3_4, anxietyScoreIllustration(3.4))
+        assertEquals(R.drawable.worry_cat_5_6, anxietyScoreIllustration(5.5))
+        assertEquals(R.drawable.worry_cat_7_8, anxietyScoreIllustration(7.8))
+        assertEquals(R.drawable.worry_cat_9_10, anxietyScoreIllustration(9.2))
+        assertEquals(R.drawable.worry_cat_0, anxietyScoreIllustration(-1.0))
+        assertEquals(R.drawable.worry_cat_9_10, anxietyScoreIllustration(11.0))
     }
 
     private fun report(
