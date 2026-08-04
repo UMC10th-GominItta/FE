@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -37,7 +38,7 @@ import com.gominitta.android.ui.theme.Body2_15r
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.Primary800
-import com.gominitta.android.ui.theme.Title1_20sb
+import com.gominitta.android.ui.theme.Heading3_20m
 
 /**
  * 마음 세션 기록 확인 (C103 "인식 내용 확인 및 텍스트 수정 영역", 확정 디자인) —
@@ -64,6 +65,7 @@ fun SessionDetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
                 .imePadding()
                 .padding(horizontal = 20.dp)
                 .padding(top = 12.dp, bottom = 24.dp),
@@ -80,7 +82,7 @@ fun SessionDetailScreen(
                 )
                 Text(
                     text = "마음 세션",
-                    style = Title1_20sb,
+                    style = Heading3_20m,
                     color = Gray800,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.align(Alignment.Center),
