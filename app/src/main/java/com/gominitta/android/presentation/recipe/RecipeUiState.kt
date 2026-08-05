@@ -50,6 +50,15 @@ data class RecommendedRecipe(
 )
 
 /**
+ * D102-2 레시피 완료 화면에서 사용하는 완료 통계.
+ * 서버 API(GET /api/v1/recipe-logs/summary) 응답 필드명과 동일하게 맞춰둠.
+ */
+data class RecipeCompletionSummary( // 추가
+    val todayCompletedCount: Int = 0,
+    val totalCompletedCount: Int = 0,
+)
+
+/**
  * 마음 레시피 화면 전체에서 사용할 UI 상태.
  *
  * 이번 주 목표는 단순 UI 구현이므로:
@@ -65,7 +74,8 @@ data class RecipeUiState(
     val remainingSeconds: Int = 0,
     val createTitle: String = "",
     val createDescription: String = "",
-    val createDuration: String = ""
+    val createDuration: String = "",
+    val completionSummary: RecipeCompletionSummary = RecipeCompletionSummary() // 추가
 ) {
     /**
      * 현재 선택된 레시피.

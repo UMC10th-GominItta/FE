@@ -89,32 +89,75 @@ fun RecipeRunScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
+            // 변경 — 타이머만 표시. 버튼은 아래에서 화면 하단 고정으로 별도 렌더링.
             when (runStatus) {
                 RecipeRunStatus.Ready -> {
-                    RecipeReadyContent(
-                        totalSeconds = totalSeconds,
-                        onStartClick = {
-                            remainingSeconds = totalSeconds
-                            runStatus = RecipeRunStatus.Running
-                        },
+                    RecipeRunTimerCircle(
+                        mainText = formatSeconds(totalSeconds),
+                        subText = "준비되면 시작해요",
+                        progress = 0f,
                     )
                 }
 
                 RecipeRunStatus.Running -> {
-                    RecipeRunningContent(
-                        remainingSeconds = remainingSeconds,
-                        totalSeconds = totalSeconds,
+                    val progress =
+                        if (totalSeconds == 0) {
+                            1f
+                        } else {
+                            (totalSeconds - remainingSeconds).toFloat() /
+                                    totalSeconds.toFloat()
+                        }
+
+                    RecipeRunTimerCircle(
+                        mainText = formatSeconds(remainingSeconds),
+                        subText = "",
+                        progress = progress,
                     )
                 }
 
                 RecipeRunStatus.Completed -> {
-                    RecipeCompletedContent(
-                        onFinishClick = onFinishClick,
+                    RecipeRunTimerCircle(
+                        mainText = "완료",
+                        subText = "",
+                        progress = 1f,
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.weight(1f)) // 변경 — 버튼을 화면 하단으로 밀어냄
+
+            // 변경 — 시작하기/완료하기 버튼, 화면 하단 44dp
+            when (runStatus) {
+                RecipeRunStatus.Ready -> {
+                    RecipeRunPrimaryButton(
+                        text = "시작하기",
+                        enabled = true,
+                        onClick = {
+                            remainingSeconds = totalSeconds
+                            runStatus = RecipeRunStatus.Running
+                        },
+                        modifier = Modifier.padding(bottom = 44.dp),
+                    )
+                }
+
+                RecipeRunStatus.Running -> {
+                    RecipeRunPrimaryButton(
+                        text = "완료하기",
+                        enabled = false,
+                        onClick = {},
+                        modifier = Modifier.padding(bottom = 44.dp),
+                    )
+                }
+
+                RecipeRunStatus.Completed -> {
+                    RecipeRunPrimaryButton(
+                        text = "완료하기",
+                        enabled = true,
+                        onClick = onFinishClick,
+                        modifier = Modifier.padding(bottom = 44.dp),
+                    )
+                }
+            }
         }
     }
 }
@@ -209,101 +252,13 @@ private fun DenseDashedDivider(
     ) {
         drawLine(
             color = Color(0xFFA3A3A3),
-            start = Offset(
-                x = 0f,
-                y = 0f,
-            ),
-            end = Offset(
-                x = size.width,
-                y = 0f,
-            ),
+            start = Offset(x = 0f, y = 0f),
+            end = Offset(x = size.width, y = 0f),
             strokeWidth = 0.5.dp.toPx(),
             pathEffect = PathEffect.dashPathEffect(
-                intervals = floatArrayOf(
-                    2.dp.toPx(),
-                    2.dp.toPx(),
-                ),
+                intervals = floatArrayOf(2.dp.toPx(), 2.dp.toPx()),
                 phase = 0f,
             ),
-        )
-    }
-}
-
-@Composable
-private fun RecipeReadyContent(
-    totalSeconds: Int,
-    onStartClick: () -> Unit,
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        RecipeRunTimerCircle(
-            mainText = formatSeconds(totalSeconds),
-            subText = "준비되면 시작해요",
-            progress = 0f,
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        RecipeRunPrimaryButton(
-            text = "시작하기",
-            onClick = onStartClick,
-            enabled = true,
-        )
-    }
-}
-
-@Composable
-private fun RecipeRunningContent(
-    remainingSeconds: Int,
-    totalSeconds: Int,
-) {
-    val progress =
-        if (totalSeconds == 0) {
-            1f
-        } else {
-            (totalSeconds - remainingSeconds).toFloat() /
-                    totalSeconds.toFloat()
-        }
-
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        RecipeRunTimerCircle(
-            mainText = formatSeconds(remainingSeconds),
-            subText = "",
-            progress = progress,
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        RecipeRunPrimaryButton(
-            text = "완료하기",
-            onClick = {},
-            enabled = false,
-        )
-    }
-}
-
-@Composable
-private fun RecipeCompletedContent(
-    onFinishClick: () -> Unit,
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        RecipeRunTimerCircle(
-            mainText = "완료",
-            subText = "",
-            progress = 1f,
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        RecipeRunPrimaryButton(
-            text = "완료하기",
-            onClick = onFinishClick,
-            enabled = true,
         )
     }
 }
@@ -320,27 +275,17 @@ private fun RecipeRunTimerCircle(
         contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(
-            progress = progress.coerceIn(
-                minimumValue = 0f,
-                maximumValue = 1f,
-            ),
+            progress = progress.coerceIn(minimumValue = 0f, maximumValue = 1f),
             modifier = Modifier.fillMaxSize(),
             color = Color(0xFFD0C1AB),
             trackColor = Color(0xFFECDFCE),
             strokeWidth = 18.dp,
         )
 
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = mainText,
-                fontSize =
-                    if (mainText == "완료") {
-                        42.sp
-                    } else {
-                        44.sp
-                    },
+                fontSize = if (mainText == "완료") 42.sp else 44.sp,
                 lineHeight = 62.sp,
                 fontWeight = FontWeight.Normal,
                 letterSpacing = (-0.88).sp,
@@ -392,24 +337,13 @@ private fun RecipeRunPrimaryButton(
             lineHeight = 22.sp,
             fontWeight = FontWeight.Medium,
             letterSpacing = (-0.32).sp,
-            color =
-                if (enabled) {
-                    Color(0xFF404040)
-                } else {
-                    Color(0xFFA6A6A6)
-                },
+            color = if (enabled) Color(0xFF404040) else Color(0xFFA6A6A6),
         )
     }
 }
 
-private fun formatSeconds(
-    seconds: Int,
-): String {
+private fun formatSeconds(seconds: Int): String {
     val minutes = seconds / 60
     val remainingSeconds = seconds % 60
-
-    return "%d:%02d".format(
-        minutes,
-        remainingSeconds,
-    )
+    return "%d:%02d".format(minutes, remainingSeconds)
 }
