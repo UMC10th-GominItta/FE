@@ -4,16 +4,35 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.gominitta.android.domain.usecase.CreateRecipeUseCase
+import com.gominitta.android.domain.usecase.DeleteRecipeUseCase
+import com.gominitta.android.domain.usecase.GetRecipeSummaryUseCase
+import com.gominitta.android.domain.usecase.GetRecipesUseCase
+import com.gominitta.android.domain.usecase.UpdateRecipeUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class RecipeViewModel @JvmOverloads constructor(
-    private val repository: RecipeRepository = DummyRecipeRepository(),
+@HiltViewModel
+class RecipeViewModel @Inject constructor(
+    private val getRecipesUseCase: GetRecipesUseCase,
+    private val createRecipeUseCase: CreateRecipeUseCase,
+    private val updateRecipeUseCase: UpdateRecipeUseCase,
+    private val deleteRecipeUseCase: DeleteRecipeUseCase,
+    private val getRecipeSummaryUseCase: GetRecipeSummaryUseCase,
 ) : ViewModel() {
 
     var uiState by mutableStateOf(RecipeUiState())
         private set
 
     init {
-        uiState = uiState.copy(recipes = repository.getRecipes())
+        viewModelScope.launch {
+            uiState = uiState.copy(
+                recipes = getRecipesUseCase().map { it.toUiItem() },
+                completionSummary = getRecipeSummaryUseCase().toUi(),
+            )
+        }
     }
 
     fun selectRecipe(recipeId: Long) {
@@ -24,33 +43,39 @@ class RecipeViewModel @JvmOverloads constructor(
     }
 
     fun createRecipe(title: String, description: String, durationMinutes: Int) {
-        val newRecipe = RecipeItem(
-            id = nextRecipeId(),
-            title = title,
-            description = description,
-            durationMinutes = durationMinutes,
-        )
-        repository.addRecipe(newRecipe)
-        uiState = uiState.copy(
-            recipes = repository.getRecipes(),
-            createTitle = "",
-            createDescription = "",
-            createDuration = "",
-        )
+        viewModelScope.launch {
+            val newRecipe = RecipeItem(
+                id = nextRecipeId(),
+                title = title,
+                description = description,
+                durationMinutes = durationMinutes,
+            )
+            createRecipeUseCase(newRecipe.toDomain())
+            uiState = uiState.copy(
+                recipes = getRecipesUseCase().map { it.toUiItem() },
+                createTitle = "",
+                createDescription = "",
+                createDuration = "",
+            )
+        }
     }
 
     fun updateRecipe(recipeId: Long, title: String, description: String, durationMinutes: Int) {
-        val updated = RecipeItem(recipeId, title, description, durationMinutes)
-        repository.updateRecipe(updated)
-        uiState = uiState.copy(recipes = repository.getRecipes())
+        viewModelScope.launch {
+            val updated = RecipeItem(recipeId, title, description, durationMinutes)
+            updateRecipeUseCase(updated.toDomain())
+            uiState = uiState.copy(recipes = getRecipesUseCase().map { it.toUiItem() })
+        }
     }
 
     fun deleteRecipe(recipeId: Long) {
-        repository.deleteRecipe(recipeId)
-        uiState = uiState.copy(
-            recipes = repository.getRecipes(),
-            selectedRecipeId = if (uiState.selectedRecipeId == recipeId) null else uiState.selectedRecipeId,
-        )
+        viewModelScope.launch {
+            deleteRecipeUseCase(recipeId)
+            uiState = uiState.copy(
+                recipes = getRecipesUseCase().map { it.toUiItem() },
+                selectedRecipeId = if (uiState.selectedRecipeId == recipeId) null else uiState.selectedRecipeId,
+            )
+        }
     }
 
     fun startRecipe() {
@@ -58,9 +83,11 @@ class RecipeViewModel @JvmOverloads constructor(
     }
 
     fun completeRecipe() {
+        // TODO: 완료 API(레시피_완료.md, PATCH /api/v1/recipe-logs/{id}) 연동 시
+        //       CompleteRecipeUseCase로 교체 예정. 지금은 로컬 통계만 누적.
         uiState = uiState.copy(
             runStatus = RecipeRunStatus.Completed,
-            completionSummary = uiState.completionSummary.copy( // 추가 — 완료 통계 누적
+            completionSummary = uiState.completionSummary.copy(
                 todayCompletedCount = uiState.completionSummary.todayCompletedCount + 1,
                 totalCompletedCount = uiState.completionSummary.totalCompletedCount + 1,
             ),

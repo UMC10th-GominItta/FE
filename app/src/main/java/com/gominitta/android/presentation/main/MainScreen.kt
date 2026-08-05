@@ -28,6 +28,7 @@ import com.gominitta.android.presentation.recipe.RecipeViewModel
 import com.gominitta.android.presentation.recipe.RecipeCompleteScreen
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 /**
  * 하단 탭 바를 가진 메인 컨테이너.
  *
@@ -55,7 +56,7 @@ fun MainScreen(
         }
     }
 
-    val recipeViewModel: RecipeViewModel = viewModel()
+    val recipeViewModel: RecipeViewModel = hiltViewModel()
     val recipeUiState = recipeViewModel.uiState
     val currentTabRoute by tabNavController.currentBackStackEntryAsState() // 추가
     val showBottomBar = currentTabRoute?.destination?.route !in setOf( // 변경
