@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 
 class FavoriteTimeViewModel @JvmOverloads constructor(
-    private val repository: MyPageRepository = DummyMyPageRepository(),
+    private val repository: MyPageRepository = DummyMyPageRepository,
 ) : ViewModel() {
 
     val favoriteTimes = mutableStateListOf<FavoriteTimeUiModel>().apply {

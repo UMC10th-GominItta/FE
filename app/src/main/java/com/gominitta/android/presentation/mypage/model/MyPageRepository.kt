@@ -8,9 +8,13 @@ interface MyPageRepository {
     fun getNickname(): String
     fun getEmail(): String
     fun getFavoriteTimes(): List<FavoriteTimeUiModel>
+    fun getProfileImageIndex(): Int
+    fun setProfileImageIndex(index: Int)
 }
 
-class DummyMyPageRepository : MyPageRepository {
+object DummyMyPageRepository : MyPageRepository {
+
+    private var profileImageIndex: Int = ProfileImages.DEFAULT_INDEX
 
     override fun getNickname(): String = "00님"
 
@@ -36,4 +40,10 @@ class DummyMyPageRepository : MyPageRepository {
             endTime = TimeValue(hour = 11, minute = 0, isPm = true),
         ),
     )
+
+    override fun getProfileImageIndex(): Int = profileImageIndex
+
+    override fun setProfileImageIndex(index: Int) {
+        profileImageIndex = index
+    }
 }
