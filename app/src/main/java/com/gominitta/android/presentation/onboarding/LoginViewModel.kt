@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gominitta.android.data.auth.KakaoLoginClient
 import com.gominitta.android.data.auth.LoginCancelledException
+import com.gominitta.android.domain.usecase.LoginWithKakaoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val kakaoLoginClient: KakaoLoginClient,
+    private val loginWithKakao: LoginWithKakaoUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -34,7 +36,7 @@ class LoginViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, errorMessage = null) }
             try {
                 val token = kakaoLoginClient.login(context)
-                // TODO: 백엔드에 token.accessToken 전송 → JWT 수신·저장
+                loginWithKakao(token.accessToken)
                 _uiState.update { it.copy(isLoading = false) }
                 _loginSuccess.send(Unit)
             } catch (e: LoginCancelledException) {
