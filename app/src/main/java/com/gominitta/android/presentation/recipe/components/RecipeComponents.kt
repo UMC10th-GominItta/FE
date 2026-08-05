@@ -380,7 +380,7 @@ fun RecipeRecommendChip(
         ),
     ) {
         Box(
-            modifier = Modifier.padding(horizontal = 18.dp),
+            modifier = Modifier.padding(horizontal = 18.dp), // widthIn 제거 — 텍스트 길이만큼 자연스럽게 사이즈
             contentAlignment = Alignment.Center,
         ) {
             Text(
@@ -390,6 +390,7 @@ fun RecipeRecommendChip(
                 fontWeight = FontWeight.Medium,
                 letterSpacing = (-0.32).sp,
                 color = Color(0xFF534B42),
+                // maxLines/overflow 제거 — 이제 애초에 긴 제목은 후보에서 빠지므로 불필요
             )
         }
     }

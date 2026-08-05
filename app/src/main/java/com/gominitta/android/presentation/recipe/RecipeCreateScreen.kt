@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -40,6 +41,10 @@ fun RecipeCreateScreen(
         durationMinutes: Int,
     ) -> Unit = { _, _, _ -> },
 ) {
+    val displayedRecommendedRecipes = remember(recommendedRecipes) {
+        recommendedRecipes.shuffled().take(3) // 변경 — 필터 없이 27개 전체에서 랜덤
+    }
+
     var selectedRecommendedTitle by rememberSaveable {
         mutableStateOf<String?>(null)
     }
@@ -107,7 +112,7 @@ fun RecipeCreateScreen(
             Spacer(modifier = Modifier.height(10.dp))
 
             RecommendedRecipeChips(
-                recommendedRecipes = recommendedRecipes,
+                recommendedRecipes = displayedRecommendedRecipes,
                 selectedTitle = selectedRecommendedTitle,
                 onRecommendedRecipeClick = { recommendedRecipe ->
                     selectedRecommendedTitle = recommendedRecipe.title
@@ -192,34 +197,25 @@ fun RecipeCreateScreen(
     }
 }
 
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun RecommendedRecipeChips(
     recommendedRecipes: List<RecommendedRecipe>,
     selectedTitle: String?,
     onRecommendedRecipeClick: (RecommendedRecipe) -> Unit,
 ) {
-    Column(
+    androidx.compose.foundation.layout.FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        recommendedRecipes
-            .chunked(2)
-            .forEach { rowItems ->
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    rowItems.forEach { recommendedRecipe ->
-                        RecipeRecommendChip(
-                            text = recommendedRecipe.title,
-                            selected =
-                                selectedTitle == recommendedRecipe.title,
-                            onClick = {
-                                onRecommendedRecipeClick(
-                                    recommendedRecipe,
-                                )
-                            },
-                        )
-                    }
-                }
-            }
+        recommendedRecipes.forEach { recommendedRecipe ->
+            RecipeRecommendChip(
+                text = recommendedRecipe.title,
+                selected = selectedTitle == recommendedRecipe.title,
+                onClick = {
+                    onRecommendedRecipeClick(recommendedRecipe)
+                },
+            )
+        }
     }
 }
