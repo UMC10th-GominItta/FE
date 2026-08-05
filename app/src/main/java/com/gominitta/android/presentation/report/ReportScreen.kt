@@ -25,10 +25,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.gominitta.android.R
 import com.gominitta.android.ui.components.DateRangeOption
 import com.gominitta.android.ui.components.GominittaHeartReportButton
 import com.gominitta.android.ui.components.HeartReportTab
@@ -132,7 +134,7 @@ fun ReportScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "마음 리포트",
+                    text = stringResource(R.string.report_title),
                     modifier = Modifier.fillMaxWidth(),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.heading3Token,

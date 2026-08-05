@@ -19,8 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.gominitta.android.R
 import com.gominitta.android.ui.components.DateRangeOption
 import com.gominitta.android.ui.components.GominittaDateSelectMenu
 import com.gominitta.android.ui.components.GominittaReportCard
@@ -53,7 +55,7 @@ private fun WorryThemeMapEmptyCard(
     GominittaReportCard(modifier = modifier, height = 453.dp) {
         WorryThemeMapCardHeader(selectedRange, onRangeSelected)
         Text(
-            text = "아직 리포트를 분석하기에 걱정 기록이 조금 부족해요.\n세션을 조금 더 진행해 볼까요?",
+            text = stringResource(R.string.report_empty_message),
             modifier = Modifier.offset(x = 50.dp, y = 190.dp).width(235.dp),
             color = MaterialTheme.colorScheme.gray400Token,
             style = MaterialTheme.typography.bodyLarge,
@@ -131,7 +133,7 @@ private fun WorryThemeMapDataCard(
                 style = MaterialTheme.typography.labelLarge,
             )
             Text(
-                text = "tip. 어떤 걱정이 자주 찾아오는지 아는 것만으로도,\n마음을 돌보는 첫걸음이 될 수 있어요.",
+                text = stringResource(R.string.report_worry_theme_tip),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium,
             )
@@ -154,14 +156,14 @@ private fun BoxScope.WorryThemeMapCardHeader(
             contentAlignment = Alignment.CenterStart,
         ) {
             Text(
-                text = "걱정 테마 지도",
+                text = stringResource(R.string.report_tab_worry_theme),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.heading2Token,
                 maxLines = 1,
             )
         }
         Text(
-            text = "요즘 예약한 걱정들의 키워드들이에요",
+            text = stringResource(R.string.report_worry_theme_subtitle),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyLarge,
             maxLines = 1,

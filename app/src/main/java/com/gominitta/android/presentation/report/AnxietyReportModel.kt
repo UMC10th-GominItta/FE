@@ -42,15 +42,6 @@ data class AnxietyReportData(
 /** 세션 전후 불안 점수 평균의 변화 방향입니다. */
 enum class AnxietyChangeState { DECREASED, MAINTAINED, INCREASED }
 
-internal fun AnxietyReportData.tipText(): String =
-    if (state == AnxietyChangeState.DECREASED) {
-        "tip. 기록을 돌아보면, 걱정을 마주한 뒤 감정이 차분해지는 패턴이 보여요. " +
-            "이 흐름을 기억하며, 앞으로도 나를 믿어보세요."
-    } else {
-        "tip. 불안을 완벽하게 없애지 못했어도, 내 마음을 들여다본 것만으로도 큰 시작이에요. " +
-            "지금 나에게 가장 필요한 ‘마음 레시피’를 찾고, 실천하며 잠시 쉬어가 보세요."
-    }
-
 internal fun Double.displayScore(): String {
     val rounded = roundToInt()
     return if (abs(this - rounded) < 0.001) rounded.toString() else "%.1f".format(this)

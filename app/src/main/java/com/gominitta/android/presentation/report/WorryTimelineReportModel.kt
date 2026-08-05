@@ -1,5 +1,8 @@
 package com.gominitta.android.presentation.report
 
+import androidx.annotation.StringRes
+import com.gominitta.android.R
+
 /**
  * 선택한 기간의 걱정 기록을 요일과 시간대별 히트맵 단계로 요약한 화면 모델입니다.
  *
@@ -23,18 +26,15 @@ data class WorryTimelineReportData(
  * @property range 해당 시간대에 포함되는 시간 범위 안내 문구
  */
 internal data class TimelineTimeSlot(
-    val label: String,
-    val range: String,
+    @param:StringRes val labelRes: Int,
+    @param:StringRes val rangeRes: Int,
 )
 
 internal val timelineTimeSlots = listOf(
-    TimelineTimeSlot("아침", "06-12시"),
-    TimelineTimeSlot("오후", "12-18시"),
-    TimelineTimeSlot("저녁", "18-24시"),
-    TimelineTimeSlot("밤", "00-06시"),
+    TimelineTimeSlot(R.string.report_time_morning, R.string.report_time_morning_range),
+    TimelineTimeSlot(R.string.report_time_afternoon, R.string.report_time_afternoon_range),
+    TimelineTimeSlot(R.string.report_time_evening, R.string.report_time_evening_range),
+    TimelineTimeSlot(R.string.report_time_dawn, R.string.report_time_dawn_range),
 )
-
-internal const val TIMELINE_TIP =
-    "tip. 마음이 자주 흔들리는 시간을 알면, 나에게 필요한 휴식 루틴도 더 잘 보일 수 있어요."
 
 private const val MINIMUM_TIMELINE_COUNT = 5L

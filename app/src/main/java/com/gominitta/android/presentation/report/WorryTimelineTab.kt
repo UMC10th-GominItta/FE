@@ -21,6 +21,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -57,7 +59,7 @@ private fun WorryTimelineEmptyCard(
     GominittaReportCard(modifier = modifier, height = 453.dp) {
         WorryTimelineHeader(selectedRange, onRangeSelected)
         Text(
-            text = "아직 리포트를 분석하기에 걱정 기록이 조금 부족해요.\n세션을 조금 더 진행해 볼까요?",
+            text = stringResource(R.string.report_empty_message),
             modifier = Modifier.offset(x = 50.dp, y = 190.dp).width(235.dp),
             color = MaterialTheme.colorScheme.gray400Token,
             style = MaterialTheme.typography.bodyLarge,
@@ -90,7 +92,7 @@ private fun WorryTimelineDataCard(
             modifier = Modifier.offset(x = 92.dp, y = 83.dp).size(227.dp, 21.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            listOf("월", "화", "수", "목", "금", "토", "일").forEach { day ->
+            stringArrayResource(R.array.report_weekday_labels).forEach { day ->
                 Text(
                     text = day,
                     modifier = Modifier.size(29.dp, 21.dp),
@@ -145,7 +147,7 @@ private fun WorryTimelineDataCard(
                                 modifier = Modifier.size(16.dp),
                             )
                             Text(
-                                text = slot.label,
+                                text = stringResource(slot.labelRes),
                                 modifier = Modifier.size(26.dp, 21.dp),
                                 color = MaterialTheme.colorScheme.onSurface,
                                 style = MaterialTheme.typography.bodyLarge,
@@ -154,7 +156,7 @@ private fun WorryTimelineDataCard(
                             )
                         }
                         Text(
-                            text = slot.range,
+                            text = stringResource(slot.rangeRes),
                             modifier = Modifier.size(58.dp, 20.dp),
                             color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.bodyMedium,
@@ -200,7 +202,7 @@ private fun WorryTimelineDataCard(
                 style = MaterialTheme.typography.labelLarge,
             )
             Text(
-                text = TIMELINE_TIP,
+                text = stringResource(R.string.report_timeline_tip),
                 modifier = Modifier.width(303.dp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium,
@@ -222,14 +224,14 @@ private fun BoxScope.WorryTimelineHeader(
             contentAlignment = Alignment.CenterStart,
         ) {
             Text(
-                text = "걱정 타임라인",
+                text = stringResource(R.string.report_tab_worry_timeline),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.heading2Token,
                 maxLines = 1,
             )
         }
         Text(
-            text = "걱정이 자주 찾아오는 요일과 시간대에요.",
+            text = stringResource(R.string.report_timeline_subtitle),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyLarge,
             maxLines = 1,

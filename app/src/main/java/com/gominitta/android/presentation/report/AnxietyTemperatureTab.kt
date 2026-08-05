@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gominitta.android.R
@@ -59,7 +60,7 @@ private fun AnxietyEmptyCard(
     GominittaReportCard(modifier = modifier, height = 453.dp) {
         AnxietyCardHeader(selectedRange, onRangeSelected)
         Text(
-            text = "아직 리포트를 분석하기에 걱정 기록이 조금 부족해요.\n세션을 조금 더 진행해 볼까요?",
+            text = stringResource(R.string.report_empty_message),
             modifier = Modifier.offset(x = 50.dp, y = 190.dp).width(235.dp),
             color = MaterialTheme.colorScheme.gray400Token,
             style = MaterialTheme.typography.bodyLarge,
@@ -90,7 +91,7 @@ private fun AnxietyDataCard(
         ) {
             // 예약 시와 세션 후 점수를 각각 카드와 고양이 일러스트로 표시합니다.
             ScoreBlock(
-                label = "예약 시",
+                label = stringResource(R.string.report_anxiety_before),
                 score = data.beforeScore,
                 illustrationRes = anxietyScoreIllustration(data.beforeScore),
                 backgroundColor = when {
@@ -100,7 +101,7 @@ private fun AnxietyDataCard(
                 },
             )
             ScoreBlock(
-                label = "세션 후",
+                label = stringResource(R.string.report_anxiety_after),
                 score = data.afterScore,
                 illustrationRes = anxietyScoreIllustration(data.afterScore),
                 backgroundColor = when {
@@ -168,7 +169,13 @@ private fun AnxietyDataCard(
                 style = MaterialTheme.typography.labelLarge,
             )
             Text(
-                text = data.tipText(),
+                text = stringResource(
+                    if (data.state == AnxietyChangeState.DECREASED) {
+                        R.string.report_anxiety_tip_decreased
+                    } else {
+                        R.string.report_anxiety_tip_default
+                    },
+                ),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium,
             )
@@ -199,7 +206,10 @@ private fun ScoreBlock(
         ) {
             Image(
                 painter = painterResource(illustrationRes),
-                contentDescription = "$label 불안 점수 일러스트",
+                contentDescription = stringResource(
+                    R.string.report_anxiety_illustration_description,
+                    label,
+                ),
                 modifier = Modifier.size(48.dp),
             )
         }
@@ -218,7 +228,7 @@ private fun ScoreBlock(
                     maxLines = 1,
                 )
                 Text(
-                    text = "/ 10",
+                    text = stringResource(R.string.report_score_scale),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
@@ -253,14 +263,14 @@ private fun BoxScope.AnxietyCardHeader(
             contentAlignment = Alignment.CenterStart,
         ) {
             Text(
-                text = "불안 온도차",
+                text = stringResource(R.string.report_tab_anxiety_gap),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.heading2Token,
                 maxLines = 1,
             )
         }
         Text(
-            text = "걱정 예약 시와 마음 세션 후 변화에요.",
+            text = stringResource(R.string.report_anxiety_subtitle),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyLarge,
             maxLines = 1,
