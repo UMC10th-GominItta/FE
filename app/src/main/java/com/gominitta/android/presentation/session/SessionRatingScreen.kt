@@ -1,6 +1,5 @@
 package com.gominitta.android.presentation.session
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -29,13 +28,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.gominitta.android.R
+import com.gominitta.android.presentation.mypage.model.DummyMyPageRepository
 import com.gominitta.android.ui.components.GominittaButton
+import com.gominitta.android.ui.components.MoodCharacterIllustration
 import com.gominitta.android.ui.theme.AccentCream100
 import com.gominitta.android.ui.theme.AccentCream300
 import com.gominitta.android.ui.theme.Body3_14r
@@ -58,6 +56,7 @@ fun SessionRatingScreen(
     modifier: Modifier = Modifier,
 ) {
     var emotionScore by remember { mutableFloatStateOf(5f) }
+    val profileIndex = remember { DummyMyPageRepository.getProfileImageIndex() }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -89,7 +88,11 @@ fun SessionRatingScreen(
             )
             Spacer(Modifier.weight(1f))
 
-            MoodIllustration(score = emotionScore.roundToInt())
+            MoodCharacterIllustration(
+                score = emotionScore.roundToInt(),
+                profileIndex = profileIndex,
+                modifier = Modifier.size(180.dp),
+            )
 
             Spacer(Modifier.height(32.dp))
             Text(text = emotionScore.toMoodLabel(), style = Heading1_24sb, color = Gray800, textAlign = TextAlign.Center)
@@ -160,26 +163,6 @@ private fun MoodSliderThumb(label: String, modifier: Modifier = Modifier) {
     ) {
         Text(text = label, style = Body3_14r, color = Gray800)
     }
-}
-
-@Composable
-private fun MoodIllustration(score: Int) {
-    Image(
-        painter = painterResource(score.toMoodCatDrawableRes()),
-        contentDescription = "감정 표현 고양이",
-        modifier = Modifier.size(180.dp),
-        contentScale = ContentScale.Fit,
-    )
-}
-
-
-private fun Int.toMoodCatDrawableRes(): Int = when (coerceIn(0, 10)) {
-    0 -> R.drawable.worry_cat_0
-    1, 2 -> R.drawable.worry_cat_1_2
-    3, 4 -> R.drawable.worry_cat_3_4
-    5, 6 -> R.drawable.worry_cat_5_6
-    7, 8 -> R.drawable.worry_cat_7_8
-    else -> R.drawable.worry_cat_9_10
 }
 
 /** 0~10 (emotionScoreAfter 스케일) 정수 단계별 기분 멘트. */
