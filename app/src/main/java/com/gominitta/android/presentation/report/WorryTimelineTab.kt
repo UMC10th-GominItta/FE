@@ -194,7 +194,7 @@ private fun WorryTimelineDataCard(
         ) {
             // 분석 문구와 팁의 길이에 맞춰 카드 하단 높이가 확장됩니다.
             Text(
-                text = data.feedbackText(),
+                text = data.feedback,
                 modifier = Modifier.width(303.dp),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.labelLarge,

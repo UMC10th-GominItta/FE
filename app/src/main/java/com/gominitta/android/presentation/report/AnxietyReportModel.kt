@@ -16,7 +16,7 @@ data class AnxietyReportData(
     val beforeScore: Double,
     val afterScore: Double,
     val gap: Double,
-    val sampleCount: Int,
+    val sampleCount: Long,
     val feedback: String,
 ) {
     /** 집계된 세션이 하나라도 있으면 불안 온도차 리포트를 표시합니다. */

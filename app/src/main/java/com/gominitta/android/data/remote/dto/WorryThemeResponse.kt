@@ -13,5 +13,5 @@ data class WorryThemeResponse(
 @Serializable
 data class WorryThemeCountResponse(
     val category: String,
-    val count: Int,
+    val count: Long,
 )

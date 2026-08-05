@@ -7,26 +7,24 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class AnxietyGapResponseTest {
+class WorryTimelineResponseTest {
     private val json = Json { ignoreUnknownKeys = true }
 
     @Test
     fun `명세의 성공 응답을 역직렬화한다`() {
-        val response = json.decodeFromString<ApiResponse<AnxietyGapResponse>>(SUCCESS_RESPONSE)
+        val response = json.decodeFromString<ApiResponse<WorryTimelineResponse>>(SUCCESS_RESPONSE)
 
         assertTrue(response.success)
-        assertEquals("200", response.code)
         assertEquals("30d", response.data?.period)
-        assertEquals(8L, response.data?.beforeScore)
-        assertEquals(4L, response.data?.afterScore)
-        assertEquals(-4L, response.data?.gap)
-        assertEquals(12L, response.data?.sampleCount)
-        assertEquals("걱정을 마주하고 마음이 한결 가벼워졌어요.", response.data?.feedback)
+        assertEquals(3, response.data?.cells?.size)
+        assertEquals(6L, response.data?.cells?.get(1)?.count)
+        assertEquals(ReportDayOfWeekResponse.THU, response.data?.peaks?.first()?.dayOfWeek)
+        assertEquals(ReportTimeSlotResponse.EVENING, response.data?.peaks?.first()?.timeSlot)
     }
 
     @Test
     fun `명세의 오류 응답을 역직렬화한다`() {
-        val response = json.decodeFromString<ApiResponse<AnxietyGapResponse>>(ERROR_RESPONSE)
+        val response = json.decodeFromString<ApiResponse<WorryTimelineResponse>>(ERROR_RESPONSE)
 
         assertFalse(response.success)
         assertEquals("REPORT_400", response.code)
@@ -42,11 +40,16 @@ class AnxietyGapResponseTest {
               "message": "요청이 성공했습니다.",
               "data": {
                 "period": "30d",
-                "beforeScore": 8,
-                "afterScore": 4,
-                "gap": -4,
-                "sampleCount": 12,
-                "feedback": "걱정을 마주하고 마음이 한결 가벼워졌어요."
+                "cells": [
+                  { "dayOfWeek": "MON", "timeSlot": "MORNING", "count": 1 },
+                  { "dayOfWeek": "THU", "timeSlot": "EVENING", "count": 6 },
+                  { "dayOfWeek": "SUN", "timeSlot": "DAWN", "count": 5 }
+                ],
+                "peaks": [
+                  { "dayOfWeek": "THU", "timeSlot": "EVENING" },
+                  { "dayOfWeek": "SUN", "timeSlot": "DAWN" }
+                ],
+                "feedback": "목요일 저녁 시간대와 일요일 밤 시간대에 걱정 기록이 많았어요."
               }
             }
         """.trimIndent()

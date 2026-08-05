@@ -16,7 +16,7 @@ data class WorryThemeReportData(
     val themes: List<WorryThemeItem>,
     val feedback: String,
 ) {
-    val totalCount: Int get() = themes.sumOf { it.count }
+    val totalCount: Long get() = themes.sumOf { it.count }
 
     /** 걱정 테마 리포트를 표시하기에 전체 걱정 기록 수가 충분한지 여부 */
     val canRender: Boolean get() = totalCount >= MINIMUM_WORRY_THEME_COUNT
@@ -30,7 +30,7 @@ data class WorryThemeReportData(
  */
 data class WorryThemeItem(
     val theme: WorryTheme,
-    val count: Int,
+    val count: Long,
 )
 
 /**
@@ -82,7 +82,7 @@ internal fun WorryThemeReportData.rankedThemes(): List<RankedWorryTheme> {
         .filter { it.count > 0 }
         .sortedWith(compareByDescending<WorryThemeItem> { it.count })
     val percentages = visible.associateWith { item ->
-        if (totalCount == 0) 0 else item.count * 100 / totalCount
+        if (totalCount == 0L) 0L else item.count * 100L / totalCount
     }
     val shouldPromoteFirst = percentages.values.none { it >= 30 }
 
@@ -114,7 +114,7 @@ internal fun layoutWorryThemeBubbles(
     val seed = themes.fold(17) { result, ranked ->
         31 * result +
             ranked.item.theme.ordinal * 1_009 +
-            ranked.item.count * 37 +
+            ranked.item.count.hashCode() * 37 +
             ranked.weight.ordinal
     }
     var bestLayout: List<WorryBubblePlacement> = emptyList()
@@ -188,4 +188,4 @@ private fun List<WorryBubblePlacement>.totalOverlap(gap: Float): Float =
 
 private const val RANDOM_LAYOUT_ATTEMPTS = 32
 private const val RANDOM_CANDIDATES_PER_BUBBLE = 1_000
-private const val MINIMUM_WORRY_THEME_COUNT = 3
+private const val MINIMUM_WORRY_THEME_COUNT = 3L

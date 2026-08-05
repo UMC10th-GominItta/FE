@@ -8,8 +8,9 @@ package com.gominitta.android.presentation.report
  * 각 값은 0~4이며, 행은 아침·오후·저녁·밤, 열은 월요일부터 일요일 순서입니다.
  */
 data class WorryTimelineReportData(
-    val totalCount: Int,
+    val totalCount: Long,
     val levels: List<List<Int>>,
+    val feedback: String,
 ) {
     /** 걱정 타임라인을 표시하기에 전체 걱정 기록 수가 충분한지 여부 */
     val canRender: Boolean get() = totalCount >= MINIMUM_TIMELINE_COUNT
@@ -33,30 +34,7 @@ internal val timelineTimeSlots = listOf(
     TimelineTimeSlot("밤", "00-06시"),
 )
 
-private val dayLabels = listOf(
-    "월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일",
-)
-
-internal fun WorryTimelineReportData.feedbackText(): String {
-    val peaks = levels.flatMapIndexed { timeIndex, row ->
-        row.mapIndexedNotNull { dayIndex, level ->
-            if (level == 4 && timeIndex in timelineTimeSlots.indices && dayIndex in dayLabels.indices) {
-                "${dayLabels[dayIndex]} ${timelineTimeSlots[timeIndex].label} " +
-                    "시간대(${timelineTimeSlots[timeIndex].range})"
-            } else {
-                null
-            }
-        }
-    }.take(2)
-
-    return when (peaks.size) {
-        0 -> ""
-        1 -> "${peaks.first()}에\n걱정 기록이 많았어요."
-        else -> "${peaks[0]}와\n${peaks[1]}에\n걱정 기록이 많았어요."
-    }
-}
-
 internal const val TIMELINE_TIP =
     "tip. 마음이 자주 흔들리는 시간을 알면, 나에게 필요한 휴식 루틴도 더 잘 보일 수 있어요."
 
-private const val MINIMUM_TIMELINE_COUNT = 5
+private const val MINIMUM_TIMELINE_COUNT = 5L

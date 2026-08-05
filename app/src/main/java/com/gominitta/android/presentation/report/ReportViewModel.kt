@@ -5,6 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.gominitta.android.data.remote.ApiResult
 import com.gominitta.android.domain.model.report.AnxietyGapReport
 import com.gominitta.android.domain.model.report.WorryThemeReport
+import com.gominitta.android.domain.model.report.ReportDayOfWeek
+import com.gominitta.android.domain.model.report.ReportTimeSlot
+import com.gominitta.android.domain.model.report.WorryTimelineReport
 import com.gominitta.android.domain.repository.ReportRepository
 import com.gominitta.android.ui.components.DateRangeOption
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,8 +22,7 @@ import kotlinx.coroutines.launch
 /**
  * 마음 리포트의 기간 선택과 카드별 데이터를 관리합니다.
  *
- * 걱정 테마 지도와 불안 온도차는 서버에서 조회하고, 아직 명세가 확정되지 않은
- * 걱정 타임라인은 기간이 바뀔 때 더미 데이터를 갱신합니다.
+ * 세 리포트를 서버에서 독립적으로 조회하고 카드별 기간·로딩·오류 상태를 관리합니다.
  */
 @HiltViewModel
 class ReportViewModel @Inject constructor(
@@ -35,7 +37,7 @@ class ReportViewModel @Inject constructor(
             anxietyRange = initialRange,
             anxietyData = null,
             timelineRange = initialRange,
-            timelineData = worryTimelineDummyData(initialRange),
+            timelineData = null,
         ),
     )
 
@@ -45,11 +47,13 @@ class ReportViewModel @Inject constructor(
     // 카드별 요청을 구분해 기간이 변경된 카드의 요청만 취소합니다.
     private var worryThemeJob: Job? = null
     private var anxietyJob: Job? = null
+    private var timelineJob: Job? = null
 
     // 화면 진입 시 기본 기간인 최근 30일 데이터를 조회합니다.
     init {
         loadWorryThemes(initialRange)
         loadAnxietyReport(initialRange)
+        loadWorryTimeline(initialRange)
     }
 
     // 선택 기간을 화면에 반영한 뒤 해당 기간의 고민 테마를 다시 조회합니다.
@@ -136,12 +140,41 @@ class ReportViewModel @Inject constructor(
         }
     }
 
-    // 타임라인 API 확정 전까지 선택 기간에 맞는 더미 데이터를 표시합니다.
     fun selectTimelineRange(range: DateRangeOption) {
         _uiState.update {
             it.copy(
                 timelineRange = range,
-                timelineData = worryTimelineDummyData(range),
+                timelineErrorMessage = null,
+            )
+        }
+        loadWorryTimeline(range)
+    }
+
+    private fun loadWorryTimeline(range: DateRangeOption) {
+        timelineJob?.cancel()
+        timelineJob = viewModelScope.launch {
+            _uiState.update {
+                it.copy(isTimelineLoading = true, timelineErrorMessage = null)
+            }
+
+            reportRepository.getWorryTimeline(range.apiValue).handle(
+                onSuccess = { report ->
+                    _uiState.update {
+                        it.copy(
+                            timelineData = report.toUiModel(),
+                            isTimelineLoading = false,
+                        )
+                    }
+                },
+                onError = { message ->
+                    _uiState.update {
+                        it.copy(
+                            timelineData = null,
+                            isTimelineLoading = false,
+                            timelineErrorMessage = message,
+                        )
+                    }
+                },
             )
         }
     }
@@ -176,12 +209,44 @@ private fun WorryThemeReport.toUiModel(): WorryThemeReportData = WorryThemeRepor
 // 서버의 불안 온도차 모델을 화면 표시용 모델로 변환합니다.
 private fun AnxietyGapReport.toUiModel(): AnxietyReportData = AnxietyReportData(
     period = period,
-    beforeScore = beforeScore,
-    afterScore = afterScore,
-    gap = gap,
+    beforeScore = beforeScore.toDouble(),
+    afterScore = afterScore.toDouble(),
+    gap = gap.toDouble(),
     sampleCount = sampleCount,
     feedback = feedback,
 )
+
+private fun WorryTimelineReport.toUiModel(): WorryTimelineReportData {
+    val cellCounts = cells.groupingBy { it.dayOfWeek to it.timeSlot }
+        .fold(0L) { total, cell -> total + cell.count }
+    val timeSlots = listOf(
+        ReportTimeSlot.MORNING,
+        ReportTimeSlot.AFTERNOON,
+        ReportTimeSlot.EVENING,
+        ReportTimeSlot.DAWN,
+    )
+    val days = listOf(
+        ReportDayOfWeek.MON,
+        ReportDayOfWeek.TUE,
+        ReportDayOfWeek.WED,
+        ReportDayOfWeek.THU,
+        ReportDayOfWeek.FRI,
+        ReportDayOfWeek.SAT,
+        ReportDayOfWeek.SUN,
+    )
+
+    return WorryTimelineReportData(
+        totalCount = cells.sumOf { it.count },
+        levels = timeSlots.map { timeSlot ->
+            days.map { day ->
+                cellCounts[day to timeSlot].orEmptyCount().coerceIn(0L, 4L).toInt()
+            }
+        },
+        feedback = feedback,
+    )
+}
+
+private fun Long?.orEmptyCount(): Long = this ?: 0L
 
 // 서버 카테고리 문자열을 화면에서 사용하는 8개 테마로 변환합니다.
 private fun String.toWorryTheme(): WorryTheme? = WorryTheme.entries.firstOrNull { theme ->

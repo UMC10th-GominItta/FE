@@ -19,4 +19,6 @@ data class ReportUiState(
     val anxietyErrorMessage: String? = null,
     val timelineRange: DateRangeOption = DateRangeOption.LAST_30_DAYS,
     val timelineData: WorryTimelineReportData? = null,
+    val isTimelineLoading: Boolean = false,
+    val timelineErrorMessage: String? = null,
 )

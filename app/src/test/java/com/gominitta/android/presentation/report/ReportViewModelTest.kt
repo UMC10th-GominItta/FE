@@ -4,6 +4,11 @@ import com.gominitta.android.data.remote.ApiResult
 import com.gominitta.android.domain.model.report.WorryThemeCount
 import com.gominitta.android.domain.model.report.WorryThemeReport
 import com.gominitta.android.domain.model.report.AnxietyGapReport
+import com.gominitta.android.domain.model.report.ReportDayOfWeek
+import com.gominitta.android.domain.model.report.ReportTimeSlot
+import com.gominitta.android.domain.model.report.WorryTimelineCell
+import com.gominitta.android.domain.model.report.WorryTimelinePeak
+import com.gominitta.android.domain.model.report.WorryTimelineReport
 import com.gominitta.android.domain.repository.ReportRepository
 import com.gominitta.android.ui.components.DateRangeOption
 import kotlinx.coroutines.Dispatchers
@@ -45,12 +50,15 @@ class ReportViewModelTest {
         assertEquals(DateRangeOption.LAST_30_DAYS, state.worryThemeRange)
         assertEquals(DateRangeOption.LAST_30_DAYS, state.anxietyRange)
         assertEquals(DateRangeOption.LAST_30_DAYS, state.timelineRange)
-        assertEquals(5, state.worryThemeData?.totalCount)
+        assertEquals(5L, state.worryThemeData?.totalCount)
         assertEquals("30d", state.worryThemeData?.period)
         assertEquals(WorryTheme.PRESENTATION, state.worryThemeData?.themes?.last()?.theme)
-        assertEquals(12, state.anxietyData?.sampleCount)
+        assertEquals(12L, state.anxietyData?.sampleCount)
         assertEquals(-4.0, state.anxietyData?.gap)
-        assertEquals(20, state.timelineData?.totalCount)
+        assertEquals(20L, state.timelineData?.totalCount)
+        assertEquals(1, state.timelineData?.levels?.get(0)?.get(0))
+        assertEquals(4, state.timelineData?.levels?.get(2)?.get(3))
+        assertEquals(4, state.timelineData?.levels?.get(3)?.get(6))
     }
 
     @Test
@@ -99,13 +107,16 @@ class ReportViewModelTest {
             ApiResult.Success(
                 AnxietyGapReport(
                     period = period,
-                    beforeScore = 8.0,
-                    afterScore = 4.0,
-                    gap = -4.0,
+                    beforeScore = 8,
+                    afterScore = 4,
+                    gap = -4,
                     sampleCount = 12,
                     feedback = "걱정을 마주하고 마음이 한결 가벼워졌어요.",
                 ),
             )
+
+        override suspend fun getWorryTimeline(period: String): ApiResult<WorryTimelineReport> =
+            ApiResult.Success(worryTimelineReport(period))
     }
 
     private class SlowWorryThemeRepository : ReportRepository {
@@ -116,6 +127,9 @@ class ReportViewModelTest {
 
         override suspend fun getAnxietyGap(period: String): ApiResult<AnxietyGapReport> =
             ApiResult.Success(anxietyGapReport(period))
+
+        override suspend fun getWorryTimeline(period: String): ApiResult<WorryTimelineReport> =
+            ApiResult.Success(worryTimelineReport(period))
     }
 
 }
@@ -129,9 +143,23 @@ private fun worryThemeReport(period: String) = WorryThemeReport(
 
 private fun anxietyGapReport(period: String) = AnxietyGapReport(
     period = period,
-    beforeScore = 8.0,
-    afterScore = 4.0,
-    gap = -4.0,
+    beforeScore = 8,
+    afterScore = 4,
+    gap = -4,
     sampleCount = 12,
     feedback = "걱정을 마주하고 마음이 한결 가벼워졌어요.",
+)
+
+private fun worryTimelineReport(period: String) = WorryTimelineReport(
+    period = period,
+    cells = listOf(
+        WorryTimelineCell(ReportDayOfWeek.MON, ReportTimeSlot.MORNING, 1),
+        WorryTimelineCell(ReportDayOfWeek.THU, ReportTimeSlot.EVENING, 6),
+        WorryTimelineCell(ReportDayOfWeek.SUN, ReportTimeSlot.DAWN, 13),
+    ),
+    peaks = listOf(
+        WorryTimelinePeak(ReportDayOfWeek.THU, ReportTimeSlot.EVENING),
+        WorryTimelinePeak(ReportDayOfWeek.SUN, ReportTimeSlot.DAWN),
+    ),
+    feedback = "목요일 저녁 시간대와 일요일 밤 시간대에 걱정 기록이 많았어요.",
 )

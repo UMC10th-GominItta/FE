@@ -48,7 +48,7 @@ class AnxietyReportModelTest {
         beforeScore: Double = 8.0,
         afterScore: Double = 4.0,
         gap: Double = afterScore - beforeScore,
-        sampleCount: Int = 2,
+        sampleCount: Long = 2,
     ) = AnxietyReportData(
         period = "30d",
         beforeScore = beforeScore,

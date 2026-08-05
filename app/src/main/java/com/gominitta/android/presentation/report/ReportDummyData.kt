@@ -20,7 +20,7 @@ internal fun worryThemeDummyData(range: DateRangeOption): WorryThemeReportData {
         period = range.apiValue,
         topCategory = WorryTheme.CAREER,
         themes = WorryTheme.entries.mapIndexed { index, theme ->
-            WorryThemeItem(theme, counts[index])
+            WorryThemeItem(theme, counts[index].toLong())
         },
         feedback = "최근에는 진로와 관련된 걱정이 가장 많았어요.",
     )
@@ -36,6 +36,7 @@ internal fun worryTimelineDummyData(range: DateRangeOption): WorryTimelineReport
             listOf(1, 2, 3, 4, 3, 2, 1),
             listOf(0, 1, 2, 3, 2, 2, 4),
         ),
+        feedback = "목요일 저녁 시간대(18-24시)와\n일요일 밤 시간대(00-06시)에\n걱정 기록이 많았어요.",
     )
     DateRangeOption.LAST_2_WEEKS -> WorryTimelineReportData(
         totalCount = 10,
@@ -45,6 +46,7 @@ internal fun worryTimelineDummyData(range: DateRangeOption): WorryTimelineReport
             listOf(1, 2, 3, 3, 4, 2, 1),
             listOf(0, 1, 2, 2, 3, 1, 1),
         ),
+        feedback = "최근 2주 동안 걱정이 자주 찾아온 시간대를 확인해 보세요.",
     )
     DateRangeOption.LAST_60_DAYS -> WorryTimelineReportData(
         totalCount = 40,
@@ -54,5 +56,6 @@ internal fun worryTimelineDummyData(range: DateRangeOption): WorryTimelineReport
             listOf(2, 3, 3, 4, 4, 3, 2),
             listOf(1, 2, 3, 3, 3, 2, 2),
         ),
+        feedback = "최근 60일 동안 걱정이 자주 찾아온 시간대를 확인해 보세요.",
     )
 }
