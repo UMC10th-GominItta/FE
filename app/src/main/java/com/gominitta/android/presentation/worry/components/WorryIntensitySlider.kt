@@ -25,7 +25,7 @@ import com.gominitta.android.ui.theme.Primary400
 import com.gominitta.android.ui.theme.White800
 import kotlin.math.roundToInt
 
-/** 불안도(1~10) 선택용 커스텀 슬라이더 — 캡슐형 트랙 + 값 라벨을 보여주는 원형 썸. */
+/** 불안도(0~10) 선택용 커스텀 슬라이더 — 캡슐형 트랙 + 값 라벨을 보여주는 원형 썸. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WorryIntensitySlider(
@@ -39,8 +39,8 @@ fun WorryIntensitySlider(
         value = value.toFloat(),
         onValueChange = { onValueChange(it.roundToInt()) },
         modifier = modifier,
-        valueRange = 1f..10f,
-        steps = 8,
+        valueRange = 0f..10f,
+        steps = 9,
         thumb = {
             Box(
                 modifier = Modifier
