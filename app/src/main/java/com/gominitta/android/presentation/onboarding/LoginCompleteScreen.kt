@@ -11,10 +11,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.gominitta.android.ui.theme.Gray600
 import com.gominitta.android.ui.theme.Heading1_24sb
 import com.gominitta.android.ui.theme.Heading4_18m
@@ -28,7 +31,10 @@ import kotlinx.coroutines.delay
 fun LoginCompleteScreen(
     onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: LoginCompleteViewModel = hiltViewModel(),
 ) {
+    val nickname by viewModel.nickname.collectAsState()
+
     LaunchedEffect(Unit) {
         delay(1500)
         onNavigateToHome()
@@ -48,7 +54,7 @@ fun LoginCompleteScreen(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("로그인 완료!", style = Heading4_18m, color = Gray600)
                 Spacer(Modifier.height(8.dp))
-                Text("OO님, 환영해요!", style = Heading1_24sb, color = Primary800)
+                Text("${nickname.ifBlank { "OO" }}님, 환영해요!", style = Heading1_24sb, color = Primary800)
             }
         }
     }
