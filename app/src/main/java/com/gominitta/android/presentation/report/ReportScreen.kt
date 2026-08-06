@@ -31,7 +31,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.gominitta.android.BuildConfig
 import com.gominitta.android.R
 import com.gominitta.android.ui.components.DateRangeOption
 import com.gominitta.android.ui.components.GominittaHeartReportButton
@@ -85,31 +84,6 @@ fun ReportScreen(
         initialFirstVisibleItemIndex = initialTab.ordinal,
     )
     val coroutineScope = rememberCoroutineScope()
-    val worryThemeDebugData = remember(
-        uiState.worryThemeRange,
-        uiState.worryThemeErrorMessage,
-    ) {
-        if (BuildConfig.DEBUG && uiState.worryThemeErrorMessage != null) {
-            randomWorryThemeDummyData(uiState.worryThemeRange)
-        } else {
-            null
-        }
-    }
-    val anxietyDebugData = remember(uiState.anxietyRange, uiState.anxietyErrorMessage) {
-        if (BuildConfig.DEBUG && uiState.anxietyErrorMessage != null) {
-            randomAnxietyDummyData(uiState.anxietyRange)
-        } else {
-            null
-        }
-    }
-    val timelineDebugData = remember(uiState.timelineRange, uiState.timelineErrorMessage) {
-        if (BuildConfig.DEBUG && uiState.timelineErrorMessage != null) {
-            randomWorryTimelineDummyData(uiState.timelineRange)
-        } else {
-            null
-        }
-    }
-
     // 현재 뷰포트 안에서 노출 면적이 가장 큰 카드를 찾아 상단 탭 상태와 동기화합니다.
     LaunchedEffect(listState) {
         snapshotFlow {
@@ -175,21 +149,21 @@ fun ReportScreen(
             item(key = HeartReportTab.WORRY_THEME_MAP) {
                 WorryThemeMapTab(
                     selectedRange = uiState.worryThemeRange,
-                    data = uiState.worryThemeData ?: worryThemeDebugData,
+                    data = uiState.worryThemeData,
                     onRangeSelected = onWorryThemeRangeSelected,
                 )
             }
             item(key = HeartReportTab.ANXIETY_TEMPERATURE) {
                 AnxietyTemperatureTab(
                     selectedRange = uiState.anxietyRange,
-                    data = uiState.anxietyData ?: anxietyDebugData,
+                    data = uiState.anxietyData,
                     onRangeSelected = onAnxietyRangeSelected,
                 )
             }
             item(key = HeartReportTab.WORRY_TIMELINE) {
                 WorryTimelineTab(
                     selectedRange = uiState.timelineRange,
-                    data = uiState.timelineData ?: timelineDebugData,
+                    data = uiState.timelineData,
                     onRangeSelected = onTimelineRangeSelected,
                 )
             }
