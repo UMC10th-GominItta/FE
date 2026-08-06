@@ -58,12 +58,14 @@ import com.gominitta.android.ui.theme.Body2_15r
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.Heading3_20m
 import com.gominitta.android.ui.theme.Primary200
-
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.gominitta.android.presentation.mypage.model.FavoriteTimeViewModel
 @Composable
 fun FavoriteTimeRoute(
-    favoriteTimes: SnapshotStateList<FavoriteTimeUiModel>,
     onBackClick: () -> Unit,
     onAddClick: () -> Unit,
+    viewModel: FavoriteTimeViewModel = hiltViewModel(),
 ) {
     var editingTime by remember {
         mutableStateOf<FavoriteTimeUiModel?>(null)
@@ -73,7 +75,7 @@ fun FavoriteTimeRoute(
     var sheetTopY by remember { mutableStateOf(0f) }
 
     FavoriteTimeScreen(
-        favoriteTimes = favoriteTimes,
+        favoriteTimes = viewModel.favoriteTimes,
         isEditing = editingTime != null,
         sheetTopY = sheetTopY,
         onBackClick = onBackClick,
@@ -90,14 +92,11 @@ fun FavoriteTimeRoute(
                 editingTime = null
             },
             onSaveClick = { updated ->
-                val index = favoriteTimes.indexOfFirst { it.id == updated.id }
-                if (index >= 0) {
-                    favoriteTimes[index] = updated
-                }
+                viewModel.update(updated)
                 editingTime = null
             },
             onDeleteClick = {
-                favoriteTimes.removeAll { it.id == target.id }
+                viewModel.remove(target)
                 editingTime = null
             },
             onSheetPositioned = { sheetTopY = it },

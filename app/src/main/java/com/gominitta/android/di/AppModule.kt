@@ -9,8 +9,11 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
-import com.gominitta.android.presentation.mypage.model.DummyMyPageRepository
-import com.gominitta.android.presentation.mypage.model.MyPageRepository
+
+import com.gominitta.android.data.repository.DummyUserRepository
+import com.gominitta.android.data.repository.DummyFavoriteTimeRepository
+import com.gominitta.android.domain.repository.UserRepository
+import com.gominitta.android.domain.repository.FavoriteTimeRepository
 /**
  * Application-scoped Hilt module.
  *
@@ -36,9 +39,16 @@ abstract class AppModule {
     abstract fun bindSessionRepository(
         fake: FakeSessionRepository,
     ): SessionRepository
+
     @Binds
     @Singleton
-    abstract fun bindMyPageRepository(
-        dummy: DummyMyPageRepository,
-    ): MyPageRepository
+    abstract fun bindUserRepository(
+        dummy: DummyUserRepository,
+    ): UserRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFavoriteTimeRepository(
+        dummy: DummyFavoriteTimeRepository,
+    ): FavoriteTimeRepository
 }

@@ -21,6 +21,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +40,11 @@ fun ProfileEditRoute(
     onSaved: () -> Unit,
 ) {
     val viewModel: ProfileEditViewModel = hiltViewModel()
+
+    LaunchedEffect(viewModel.isSaved) {
+        if (viewModel.isSaved) onSaved()
+    }
+
     ProfileEditScreen(
         nickname = viewModel.nickname,
         initialNickname = viewModel.initialNickname,
@@ -46,14 +52,10 @@ fun ProfileEditRoute(
         saveEnabled = viewModel.nickname.isNotBlank() || viewModel.selectedProfileIndex != ProfileImages.DEFAULT_INDEX,
         onNicknameChange = viewModel::onNicknameChange,
         onProfileSelected = viewModel::onProfileSelected,
-        onSaveClick = {
-            viewModel.save()
-            onSaved()
-        },
+        onSaveClick = viewModel::save,
         onBackClick = onBackClick,
     )
 }
-
 @Composable
 fun ProfileEditScreen(
     nickname: String,
