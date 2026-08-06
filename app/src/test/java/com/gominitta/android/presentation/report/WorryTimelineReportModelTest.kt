@@ -8,39 +8,18 @@ import org.junit.Test
 class WorryTimelineReportModelTest {
     @Test
     fun `걱정 데이터가 5건 이상일 때만 렌더링한다`() {
-        assertFalse(WorryTimelineReportData(4, emptyList()).canRender)
-        assertTrue(WorryTimelineReportData(5, emptyList()).canRender)
+        assertFalse(WorryTimelineReportData(4, emptyList(), "").canRender)
+        assertTrue(WorryTimelineReportData(5, emptyList(), "").canRender)
     }
 
     @Test
-    fun `Level 4 셀을 최대 두 개까지 피드백에 표시한다`() {
+    fun `서버 피드백을 그대로 보관한다`() {
         val data = WorryTimelineReportData(
             totalCount = 5,
-            levels = listOf(
-                listOf(0, 0, 0, 0, 0, 0, 0),
-                listOf(0, 0, 0, 0, 0, 0, 0),
-                listOf(0, 0, 0, 4, 0, 0, 0),
-                listOf(0, 0, 0, 0, 0, 0, 4),
-            ),
+            levels = emptyList(),
+            feedback = "서버가 만든 피드백",
         )
 
-        assertEquals(
-            "목요일 저녁 시간대(18-24시)와\n" +
-                "일요일 밤 시간대(00-06시)에\n" +
-                "걱정 기록이 많았어요.",
-            data.feedbackText(),
-        )
-    }
-
-    @Test
-    fun `Level 4 셀이 하나이면 한 시간대만 표시한다`() {
-        val data = WorryTimelineReportData(
-            totalCount = 5,
-            levels = listOf(listOf(4, 0, 0, 0, 0, 0, 0)),
-        )
-        assertEquals(
-            "월요일 아침 시간대(06-12시)에\n걱정 기록이 많았어요.",
-            data.feedbackText(),
-        )
+        assertEquals("서버가 만든 피드백", data.feedback)
     }
 }
