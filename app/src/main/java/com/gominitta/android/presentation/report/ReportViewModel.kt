@@ -41,7 +41,6 @@ class ReportViewModel @Inject constructor(
         ),
     )
 
-    // 화면 상태는 내부에서만 변경하고 UI에는 읽기 전용으로 제공합니다.
     val uiState: StateFlow<ReportUiState> = _uiState.asStateFlow()
 
     // 카드별 요청을 구분해 기간이 변경된 카드의 요청만 취소합니다.
@@ -49,14 +48,12 @@ class ReportViewModel @Inject constructor(
     private var anxietyJob: Job? = null
     private var timelineJob: Job? = null
 
-    // 화면 진입 시 기본 기간인 최근 30일 데이터를 조회합니다.
     init {
-        loadWorryThemes(initialRange)
-        loadAnxietyReport(initialRange)
-        loadWorryTimeline(initialRange)
+        loadWorryThemeReport(initialRange)
+        loadAnxietyGapReport(initialRange)
+        loadWorryTimelineReport(initialRange)
     }
 
-    // 선택 기간을 화면에 반영한 뒤 해당 기간의 고민 테마를 다시 조회합니다.
     fun selectWorryThemeRange(range: DateRangeOption) {
         _uiState.update {
             it.copy(
@@ -64,10 +61,10 @@ class ReportViewModel @Inject constructor(
                 worryThemeErrorMessage = null,
             )
         }
-        loadWorryThemes(range)
+        loadWorryThemeReport(range)
     }
 
-    private fun loadWorryThemes(range: DateRangeOption) {
+    private fun loadWorryThemeReport(range: DateRangeOption) {
         // 기간을 빠르게 바꿔도 이전 응답이 최신 선택을 덮어쓰지 않도록 기존 요청을 취소합니다.
         worryThemeJob?.cancel()
         worryThemeJob = viewModelScope.launch {
@@ -75,7 +72,6 @@ class ReportViewModel @Inject constructor(
                 it.copy(isWorryThemeLoading = true, worryThemeErrorMessage = null)
             }
 
-            // 서버 응답을 고민 테마 데이터 또는 오류 상태로 반영합니다.
             reportRepository.getWorryThemes(range.apiValue).handle(
                 onSuccess = { report ->
                     _uiState.update {
@@ -98,7 +94,6 @@ class ReportViewModel @Inject constructor(
         }
     }
 
-    // 선택 기간을 화면에 반영한 뒤 해당 기간의 불안 온도차를 다시 조회합니다.
     fun selectAnxietyRange(range: DateRangeOption) {
         _uiState.update {
             it.copy(
@@ -106,10 +101,10 @@ class ReportViewModel @Inject constructor(
                 anxietyErrorMessage = null,
             )
         }
-        loadAnxietyReport(range)
+        loadAnxietyGapReport(range)
     }
 
-    private fun loadAnxietyReport(range: DateRangeOption) {
+    private fun loadAnxietyGapReport(range: DateRangeOption) {
         // 각 카드의 요청을 독립적으로 취소해 다른 카드의 로딩 상태에 영향을 주지 않습니다.
         anxietyJob?.cancel()
         anxietyJob = viewModelScope.launch {
@@ -117,7 +112,6 @@ class ReportViewModel @Inject constructor(
                 it.copy(isAnxietyLoading = true, anxietyErrorMessage = null)
             }
 
-            // 서버 응답을 불안 온도차 데이터 또는 오류 상태로 반영합니다.
             reportRepository.getAnxietyGap(range.apiValue).handle(
                 onSuccess = { report ->
                     _uiState.update {
@@ -147,10 +141,10 @@ class ReportViewModel @Inject constructor(
                 timelineErrorMessage = null,
             )
         }
-        loadWorryTimeline(range)
+        loadWorryTimelineReport(range)
     }
 
-    private fun loadWorryTimeline(range: DateRangeOption) {
+    private fun loadWorryTimelineReport(range: DateRangeOption) {
         timelineJob?.cancel()
         timelineJob = viewModelScope.launch {
             _uiState.update {
