@@ -31,6 +31,16 @@ android {
         manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = kakaoNativeAppKey
     }
 
+    signingConfigs {
+        // 팀 공용 디버그 키스토어 — 모두 같은 키 해시로 빌드해 카카오 로그인 키 해시를 한 번만 등록하면 됨.
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
