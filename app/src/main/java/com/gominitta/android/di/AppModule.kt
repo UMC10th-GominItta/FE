@@ -4,7 +4,6 @@ import com.gominitta.android.data.repository.DummyRecipeRepository
 import com.gominitta.android.data.repository.FakeSampleRepository
 import com.gominitta.android.data.repository.FakeSessionRepository
 import com.gominitta.android.data.repository.ReportRepositoryImpl
-import com.gominitta.android.data.repository.DummyUserRepository
 import com.gominitta.android.data.repository.DummyFavoriteTimeRepository
 import com.gominitta.android.domain.repository.RecipeRepository
 import com.gominitta.android.domain.repository.SampleRepository
@@ -50,11 +49,6 @@ abstract class AppModule {
         repository: ReportRepositoryImpl,
     ): ReportRepository
 
-    @Binds
-    @Singleton
-    abstract fun bindUserRepository(
-        dummy: DummyUserRepository,
-    ): UserRepository
 
     @Binds
     @Singleton
