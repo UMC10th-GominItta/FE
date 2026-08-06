@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
@@ -51,7 +52,6 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun ReportRoute(
-    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     initialTab: HeartReportTab = HeartReportTab.WORRY_THEME_MAP,
     viewModel: ReportViewModel = hiltViewModel(),
@@ -64,7 +64,6 @@ fun ReportRoute(
         onWorryThemeRangeSelected = viewModel::selectWorryThemeRange,
         onAnxietyRangeSelected = viewModel::selectAnxietyRange,
         onTimelineRangeSelected = viewModel::selectTimelineRange,
-        onNavigateBack = onNavigateBack,
         modifier = modifier,
         initialTab = initialTab,
     )
@@ -76,7 +75,6 @@ fun ReportScreen(
     onWorryThemeRangeSelected: (DateRangeOption) -> Unit,
     onAnxietyRangeSelected: (DateRangeOption) -> Unit,
     onTimelineRangeSelected: (DateRangeOption) -> Unit,
-    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     initialTab: HeartReportTab = HeartReportTab.WORRY_THEME_MAP,
 ) {
@@ -90,17 +88,7 @@ fun ReportScreen(
     // 현재 뷰포트 안에서 노출 면적이 가장 큰 카드를 찾아 상단 탭 상태와 동기화합니다.
     LaunchedEffect(listState) {
         snapshotFlow {
-            val layoutInfo = listState.layoutInfo
-            val viewportStart = layoutInfo.viewportStartOffset
-            val viewportEnd = layoutInfo.viewportEndOffset
-
-            layoutInfo.visibleItemsInfo
-                .maxByOrNull { item ->
-                    val visibleStart = maxOf(item.offset, viewportStart)
-                    val visibleEnd = minOf(item.offset + item.size, viewportEnd)
-                    (visibleEnd - visibleStart).coerceAtLeast(0)
-                }
-                ?.index
+            listState.layoutInfo.mostVisibleItemIndex()
         }
             .distinctUntilChanged()
             .collect { visibleIndex ->
@@ -127,20 +115,13 @@ fun ReportScreen(
                 .padding(horizontal = 20.dp),
             contentAlignment = Alignment.Center,
         ) {
-            Box(
-                modifier = Modifier
-                    .width(271.dp)
-                    .height(28.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = stringResource(R.string.report_title),
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.heading3Token,
-                    textAlign = TextAlign.Center,
-                )
-            }
+            Text(
+                text = stringResource(R.string.report_title),
+                modifier = Modifier.width(271.dp),
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.heading3Token,
+                textAlign = TextAlign.Center,
+            )
         }
 
         Spacer(Modifier.height(16.dp))
@@ -214,7 +195,20 @@ private fun ReportScreenPreview() {
             onWorryThemeRangeSelected = {},
             onAnxietyRangeSelected = {},
             onTimelineRangeSelected = {},
-            onNavigateBack = {},
         )
     }
+}
+
+/** 현재 뷰포트에서 실제로 노출된 세로 길이가 가장 큰 카드의 목록 인덱스를 반환합니다. */
+private fun LazyListLayoutInfo.mostVisibleItemIndex(): Int? {
+    val viewportStart = viewportStartOffset
+    val viewportEnd = viewportEndOffset
+
+    return visibleItemsInfo
+        .maxByOrNull { item ->
+            val visibleStart = maxOf(item.offset, viewportStart)
+            val visibleEnd = minOf(item.offset + item.size, viewportEnd)
+            (visibleEnd - visibleStart).coerceAtLeast(0)
+        }
+        ?.index
 }

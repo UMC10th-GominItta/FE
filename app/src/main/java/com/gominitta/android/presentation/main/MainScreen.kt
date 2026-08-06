@@ -171,7 +171,7 @@ fun MainScreen(
                 }
             }
             composable(Routes.REPORT) {
-                ReportRoute(onNavigateBack = {})
+                ReportRoute()
             }
         }
     }
