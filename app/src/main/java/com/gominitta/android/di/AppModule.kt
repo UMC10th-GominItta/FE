@@ -1,7 +1,9 @@
 package com.gominitta.android.di
 
+import com.gominitta.android.data.repository.DummyRecipeRepository
 import com.gominitta.android.data.repository.FakeSampleRepository
 import com.gominitta.android.data.repository.FakeSessionRepository
+import com.gominitta.android.domain.repository.RecipeRepository
 import com.gominitta.android.domain.repository.SampleRepository
 import com.gominitta.android.domain.repository.SessionRepository
 import dagger.Binds
@@ -41,4 +43,11 @@ abstract class AppModule {
     abstract fun bindMyPageRepository(
         dummy: DummyMyPageRepository,
     ): MyPageRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindRecipeRepository(
+        dummy: DummyRecipeRepository,
+    ): RecipeRepository
+
 }
