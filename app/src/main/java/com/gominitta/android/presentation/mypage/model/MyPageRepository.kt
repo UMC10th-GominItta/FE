@@ -1,9 +1,8 @@
 package com.gominitta.android.presentation.mypage.model
 
-/**
- * 마이페이지(유저 정보 + 즐겨찾는 시간) 데이터 소스를 추상화하는 Repository.
- * 지금은 더미데이터만 반환하며, 나중에 실제 API 연동 시 구현체만 교체하면 된다.
- */
+import javax.inject.Inject
+import javax.inject.Singleton
+
 interface MyPageRepository {
     fun getNickname(): String
     fun getEmail(): String
@@ -12,7 +11,8 @@ interface MyPageRepository {
     fun setProfileImageIndex(index: Int)
 }
 
-object DummyMyPageRepository : MyPageRepository {
+@Singleton
+class DummyMyPageRepository @Inject constructor() : MyPageRepository {
 
     private var profileImageIndex: Int = ProfileImages.DEFAULT_INDEX
 

@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.gominitta.android.R
 import com.gominitta.android.presentation.recipe.components.RecipePrimaryButton
 import com.gominitta.android.ui.theme.Gray400
@@ -34,14 +35,14 @@ import com.gominitta.android.ui.theme.Gray800
 
 @Composable
 fun RecipeCompleteScreen(
-    summary: RecipeCompletionSummary,
     onFinishClick: () -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: RecipeCompleteViewModel = hiltViewModel(),
 ) {
+    val summary = viewModel.summary   // 기존 summary 파라미터 대체
+
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 20.dp),
+        modifier = modifier.fillMaxSize().padding(horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(170.dp))

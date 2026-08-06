@@ -1,7 +1,8 @@
 package com.gominitta.android.presentation.main
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -24,8 +25,18 @@ import androidx.compose.material3.Text
 import com.gominitta.android.presentation.recipe.RecipeCreateScreen
 import com.gominitta.android.presentation.recipe.RecipeEditScreen
 import com.gominitta.android.presentation.recipe.RecipeRunScreen
-import com.gominitta.android.presentation.recipe.RecipeViewModel
-
+import com.gominitta.android.presentation.recipe.RecipeCompleteScreen
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.gominitta.android.presentation.recipe.RecipeCenterViewModel
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import androidx.navigation.navArgument
+import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 /**
  * 하단 탭 바를 가진 메인 컨테이너.
  *
@@ -53,9 +64,11 @@ fun MainScreen(
         }
     }
 
-    val recipeViewModel: RecipeViewModel = viewModel()
-    val recipeUiState = recipeViewModel.uiState
-
+    val currentTabRoute by tabNavController.currentBackStackEntryAsState() // 추가
+    val showBottomBar = currentTabRoute?.destination?.route !in setOf( // 변경
+        Routes.RECIPE_RUN,
+        Routes.RECIPE_COMPLETE,
+    )
     Scaffold(
         modifier = modifier,
         bottomBar = { GominittaBottomBar(tabNavController) },
@@ -66,10 +79,11 @@ fun MainScreen(
             navController = tabNavController,
             startDestination = Routes.HOME,
             modifier = Modifier.padding(innerPadding),
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None },
-            popEnterTransition = { EnterTransition.None },
-            popExitTransition = { ExitTransition.None },
+            // 화면 전환 시 배경 투명 화면들이 겹쳐 보이는 "잔상" 방지용 짧은 크로스페이드.
+            enterTransition = { fadeIn(tween(150)) },
+            exitTransition = { fadeOut(tween(150)) },
+            popEnterTransition = { fadeIn(tween(150)) },
+            popExitTransition = { fadeOut(tween(150)) },
         ) {
             composable(Routes.HOME) {
                 HomeScreen(
@@ -89,22 +103,32 @@ fun MainScreen(
                 )
             }
             composable(Routes.RECIPE) {
+                val recipeCenterViewModel: RecipeCenterViewModel = hiltViewModel()
+                val lifecycleOwner = LocalLifecycleOwner.current
+
+                DisposableEffect(lifecycleOwner) {
+                    val observer = LifecycleEventObserver { _, event ->
+                        if (event == Lifecycle.Event.ON_RESUME) {
+                            recipeCenterViewModel.refresh()
+                        }
+                    }
+                    lifecycleOwner.lifecycle.addObserver(observer)
+                    onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+                }
                 RecipeCenterScreen(
-                    recipes = recipeUiState.recipes,
+                    recipes = recipeCenterViewModel.recipes,
                     onNavigateBack = { if (cameFromSession) onNavigateBackToSession() },
                     onCreateClick = {
                         tabNavController.navigate(Routes.RECIPE_CREATE)
                     },
                     onRecipeClick = { recipeId ->
-                        recipeViewModel.selectRecipe(recipeId)
-                        tabNavController.navigate(Routes.RECIPE_RUN)
+                        tabNavController.navigate(Routes.recipeRunRoute(recipeId))
                     },
                     onEditClick = { recipeId ->
-                        recipeViewModel.selectRecipe(recipeId)
-                        tabNavController.navigate(Routes.RECIPE_EDIT)
+                        tabNavController.navigate(Routes.recipeEditRoute(recipeId))
                     },
                     onDeleteClick = { recipeId ->
-                        recipeViewModel.deleteRecipe(recipeId)
+                        recipeCenterViewModel.deleteRecipe(recipeId)
                     },
                 )
             }
@@ -114,62 +138,42 @@ fun MainScreen(
                     onNavigateBack = {
                         tabNavController.popBackStack()
                     },
-                    onRegisterClick = { title, description, durationMinutes ->
-                        recipeViewModel.createRecipe(
-                            title = title,
-                            description = description,
-                            durationMinutes = durationMinutes,
-                        )
+                )
+            }
+
+            composable(
+                route = Routes.RECIPE_RUN,
+                arguments = listOf(navArgument("recipeId") { type = NavType.LongType }),
+            ) {
+                RecipeRunScreen(
+                    onNavigateBack = {
+                        tabNavController.popBackStack()
+                    },
+                    onFinishClick = {
+                        tabNavController.navigate(Routes.RECIPE_COMPLETE)
+                    },
+                )
+            }
+
+            composable(
+                route = Routes.RECIPE_EDIT,
+                arguments = listOf(navArgument("recipeId") { type = NavType.LongType }),
+            ) {
+                RecipeEditScreen(
+                    onNavigateBack = {
                         tabNavController.popBackStack()
                     },
                 )
             }
 
-            composable(Routes.RECIPE_RUN) {
-                val selectedRecipe = recipeUiState.selectedRecipe
-
-                if (selectedRecipe != null) {
-                    RecipeRunScreen(
-                        recipe = selectedRecipe,
-                        onNavigateBack = {
-                            tabNavController.popBackStack()
-                        },
-                        onFinishClick = {
-                            tabNavController.popBackStack()
-                        },
-                    )
-                } else {
-                    Text(text = "선택된 레시피가 없습니다.")
-                }
+            composable(Routes.RECIPE_COMPLETE) {
+                RecipeCompleteScreen(
+                    onFinishClick = {
+                        tabNavController.popBackStack(Routes.RECIPE, inclusive = false)
+                    },
+                )
             }
 
-            composable(Routes.RECIPE_EDIT) {
-                val selectedRecipe = recipeUiState.selectedRecipe
-
-                if (selectedRecipe != null) {
-                    RecipeEditScreen(
-                        recipe = selectedRecipe,
-                        onNavigateBack = {
-                            tabNavController.popBackStack()
-                        },
-                        onDeleteClick = { recipeId ->
-                            recipeViewModel.deleteRecipe(recipeId)
-                            tabNavController.popBackStack()
-                        },
-                        onCompleteClick = { recipeId, title, description, durationMinutes ->
-                            recipeViewModel.updateRecipe(
-                                recipeId = recipeId,
-                                title = title,
-                                description = description,
-                                durationMinutes = durationMinutes,
-                            )
-                            tabNavController.popBackStack()
-                        },
-                    )
-                } else {
-                    Text(text = "선택된 레시피가 없습니다.")
-                }
-            }
             composable(Routes.REPORT) {
                 ReportRoute()
             }

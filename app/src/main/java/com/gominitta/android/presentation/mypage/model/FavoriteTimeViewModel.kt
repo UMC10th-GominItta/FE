@@ -2,9 +2,12 @@ package com.gominitta.android.presentation.mypage.model
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class FavoriteTimeViewModel @JvmOverloads constructor(
-    private val repository: MyPageRepository = DummyMyPageRepository,
+@HiltViewModel
+class FavoriteTimeViewModel @Inject constructor(
+    private val repository: MyPageRepository,
 ) : ViewModel() {
 
     val favoriteTimes = mutableStateListOf<FavoriteTimeUiModel>().apply {

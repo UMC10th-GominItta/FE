@@ -29,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +42,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.gominitta.android.R
 import com.gominitta.android.presentation.mypage.components.FavoriteTimeCard
 import com.gominitta.android.presentation.mypage.components.MyPagePrimaryButton
@@ -53,66 +53,24 @@ import com.gominitta.android.presentation.mypage.model.TimeValue
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.Primary200
 
-enum class EditingField { START, END }
-
 @Composable
 fun FavoriteTimeAddRoute(
     onBackClick: () -> Unit,
     onSaved: (FavoriteTimeUiModel) -> Unit,
+    viewModel: FavoriteTimeAddViewModel = hiltViewModel(),
 ) {
-    var title by rememberSaveable {
-        mutableStateOf("")
-    }
-
-    var startTime by remember {
-        mutableStateOf(
-            TimeValue(hour = 9, minute = 0, isPm = true),
-        )
-    }
-
-    var endTime by remember {
-        mutableStateOf(
-            TimeValue(hour = 10, minute = 0, isPm = true),
-        )
-    }
-
-    var editingField by remember {
-        mutableStateOf<EditingField?>(null)
-    }
-
     FavoriteTimeAddScreen(
-        title = title,
-        startTime = startTime,
-        endTime = endTime,
-        editingField = editingField,
-        onTitleChange = {
-            title = it.take(20)
-        },
-        onStartTimeClick = {
-            editingField = EditingField.START
-        },
-        onEndTimeClick = {
-            editingField = EditingField.END
-        },
-        onTimeChange = { updated ->
-            when (editingField) {
-                EditingField.START -> startTime = updated
-                EditingField.END -> endTime = updated
-                null -> Unit
-            }
-        },
-        onTimePickerDismiss = {
-            editingField = null
-        },
+        title = viewModel.title,
+        startTime = viewModel.startTime,
+        endTime = viewModel.endTime,
+        editingField = viewModel.editingField,
+        onTitleChange = viewModel::onTitleChange,
+        onStartTimeClick = viewModel::onStartTimeClick,
+        onEndTimeClick = viewModel::onEndTimeClick,
+        onTimeChange = viewModel::onTimeChange,
+        onTimePickerDismiss = viewModel::onTimePickerDismiss,
         onSaveClick = {
-            onSaved(
-                FavoriteTimeUiModel(
-                    id = System.currentTimeMillis(),
-                    title = title.trim(),
-                    startTime = startTime,
-                    endTime = endTime,
-                ),
-            )
+            onSaved(viewModel.toUiModel())
         },
         onBackClick = onBackClick,
     )
