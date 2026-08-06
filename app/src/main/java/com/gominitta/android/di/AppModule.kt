@@ -9,9 +9,7 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
-
-import com.gominitta.android.data.repository.DummyUserRepository
-import com.gominitta.android.data.repository.DummyFavoriteTimeRepository
+import com.gominitta.android.data.repository.FavoriteTimeRepositoryImpl
 import com.gominitta.android.domain.repository.UserRepository
 import com.gominitta.android.domain.repository.FavoriteTimeRepository
 /**
@@ -40,15 +38,10 @@ abstract class AppModule {
         fake: FakeSessionRepository,
     ): SessionRepository
 
-    @Binds
-    @Singleton
-    abstract fun bindUserRepository(
-        dummy: DummyUserRepository,
-    ): UserRepository
 
     @Binds
     @Singleton
     abstract fun bindFavoriteTimeRepository(
-        dummy: DummyFavoriteTimeRepository,
-    ): FavoriteTimeRepository
+        impl: FavoriteTimeRepositoryImpl,
+        ): FavoriteTimeRepository
 }
