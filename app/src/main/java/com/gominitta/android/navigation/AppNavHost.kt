@@ -5,14 +5,17 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.gominitta.android.presentation.SessionViewModel
 import com.gominitta.android.presentation.main.MainScreen
 import com.gominitta.android.presentation.mypage.MyPageScreen
 import com.gominitta.android.presentation.onboarding.LoginCompleteScreen
@@ -49,6 +52,15 @@ fun AppNavHost(
     navController: NavHostController = rememberNavController(),
     startDestination: String = Routes.ONBOARDING,
 ) {
+    val sessionViewModel: SessionViewModel = hiltViewModel()
+    LaunchedEffect(Unit) {
+        sessionViewModel.sessionExpired.collect {
+            navController.navigate(Routes.LOGIN) {
+                popUpTo(navController.graph.id) { inclusive = true }
+            }
+        }
+    }
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
