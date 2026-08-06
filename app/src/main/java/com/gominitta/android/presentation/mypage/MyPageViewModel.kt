@@ -1,11 +1,13 @@
 package com.gominitta.android.presentation.mypage
 
 import androidx.lifecycle.ViewModel
-import com.gominitta.android.presentation.mypage.model.DummyMyPageRepository
 import com.gominitta.android.presentation.mypage.model.MyPageRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class MyPageViewModel @JvmOverloads constructor(
-    private val repository: MyPageRepository = DummyMyPageRepository,
+@HiltViewModel
+class MyPageViewModel @Inject constructor(
+    private val repository: MyPageRepository,
 ) : ViewModel() {
     val nickname: String get() = repository.getNickname()
     val email: String get() = repository.getEmail()

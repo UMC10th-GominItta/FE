@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
@@ -25,10 +26,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.gominitta.android.R
 import com.gominitta.android.ui.components.DateRangeOption
 import com.gominitta.android.ui.components.GominittaHeartReportButton
 import com.gominitta.android.ui.components.HeartReportTab
@@ -49,11 +52,11 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun ReportRoute(
-    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     initialTab: HeartReportTab = HeartReportTab.WORRY_THEME_MAP,
-    viewModel: ReportViewModel = viewModel(),
+    viewModel: ReportViewModel = hiltViewModel(),
 ) {
+    // ViewModel 상태를 수명주기에 맞춰 구독하고 화면 이벤트를 다시 ViewModel에 전달합니다.
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     ReportScreen(
@@ -61,7 +64,6 @@ fun ReportRoute(
         onWorryThemeRangeSelected = viewModel::selectWorryThemeRange,
         onAnxietyRangeSelected = viewModel::selectAnxietyRange,
         onTimelineRangeSelected = viewModel::selectTimelineRange,
-        onNavigateBack = onNavigateBack,
         modifier = modifier,
         initialTab = initialTab,
     )
@@ -73,30 +75,19 @@ fun ReportScreen(
     onWorryThemeRangeSelected: (DateRangeOption) -> Unit,
     onAnxietyRangeSelected: (DateRangeOption) -> Unit,
     onTimelineRangeSelected: (DateRangeOption) -> Unit,
-    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     initialTab: HeartReportTab = HeartReportTab.WORRY_THEME_MAP,
 ) {
+    // 선택 탭과 카드 목록의 스크롤 위치를 함께 관리합니다.
     var selectedTab by remember { mutableStateOf(initialTab) }
     val listState = rememberLazyListState(
         initialFirstVisibleItemIndex = initialTab.ordinal,
     )
     val coroutineScope = rememberCoroutineScope()
-
     // 현재 뷰포트 안에서 노출 면적이 가장 큰 카드를 찾아 상단 탭 상태와 동기화합니다.
     LaunchedEffect(listState) {
         snapshotFlow {
-            val layoutInfo = listState.layoutInfo
-            val viewportStart = layoutInfo.viewportStartOffset
-            val viewportEnd = layoutInfo.viewportEndOffset
-
-            layoutInfo.visibleItemsInfo
-                .maxByOrNull { item ->
-                    val visibleStart = maxOf(item.offset, viewportStart)
-                    val visibleEnd = minOf(item.offset + item.size, viewportEnd)
-                    (visibleEnd - visibleStart).coerceAtLeast(0)
-                }
-                ?.index
+            listState.layoutInfo.mostVisibleItemIndex()
         }
             .distinctUntilChanged()
             .collect { visibleIndex ->
@@ -123,20 +114,13 @@ fun ReportScreen(
                 .padding(horizontal = 20.dp),
             contentAlignment = Alignment.Center,
         ) {
-            Box(
-                modifier = Modifier
-                    .width(271.dp)
-                    .height(28.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = "마음 리포트",
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.heading3Token,
-                    textAlign = TextAlign.Center,
-                )
-            }
+            Text(
+                text = stringResource(R.string.report_title),
+                modifier = Modifier.width(271.dp),
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.heading3Token,
+                textAlign = TextAlign.Center,
+            )
         }
 
         Spacer(Modifier.height(16.dp))
@@ -210,7 +194,20 @@ private fun ReportScreenPreview() {
             onWorryThemeRangeSelected = {},
             onAnxietyRangeSelected = {},
             onTimelineRangeSelected = {},
-            onNavigateBack = {},
         )
     }
+}
+
+/** 현재 뷰포트에서 실제로 노출된 세로 길이가 가장 큰 카드의 목록 인덱스를 반환합니다. */
+private fun LazyListLayoutInfo.mostVisibleItemIndex(): Int? {
+    val viewportStart = viewportStartOffset
+    val viewportEnd = viewportEndOffset
+
+    return visibleItemsInfo
+        .maxByOrNull { item ->
+            val visibleStart = maxOf(item.offset, viewportStart)
+            val visibleEnd = minOf(item.offset + item.size, viewportEnd)
+            (visibleEnd - visibleStart).coerceAtLeast(0)
+        }
+        ?.index
 }

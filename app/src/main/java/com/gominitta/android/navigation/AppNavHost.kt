@@ -1,7 +1,6 @@
 package com.gominitta.android.navigation
 
 import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -40,7 +39,7 @@ import com.gominitta.android.presentation.mypage.ProfileEditRoute
 import com.gominitta.android.presentation.mypage.WithdrawScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gominitta.android.presentation.mypage.model.FavoriteTimeViewModel
-
+import androidx.hilt.navigation.compose.hiltViewModel
 
 /**
  * Root navigation graph — the ONLY place holding the top-level [NavHostController].
@@ -66,10 +65,11 @@ fun AppNavHost(
         navController = navController,
         startDestination = startDestination,
         modifier = modifier,
-        enterTransition = { EnterTransition.None },
-        exitTransition = { ExitTransition.None },
-        popEnterTransition = { EnterTransition.None },
-        popExitTransition = { ExitTransition.None },
+        // 화면 전환 시 배경 투명 화면들이 겹쳐 보이는 "잔상" 방지용 짧은 크로스페이드.
+        enterTransition = { fadeIn(tween(150)) },
+        exitTransition = { fadeOut(tween(150)) },
+        popEnterTransition = { fadeIn(tween(150)) },
+        popExitTransition = { fadeOut(tween(150)) },
     ) {
 
         // ── 온보딩 · 인증 ──
@@ -148,7 +148,7 @@ fun AppNavHost(
             )
         }
         composable(Routes.MY_PAGE_FAVORITE_TIME) {
-            val viewModel: FavoriteTimeViewModel = viewModel()   // Hilt 쓰면 hiltViewModel()
+            val viewModel: FavoriteTimeViewModel = hiltViewModel() // Hilt 쓰면 hiltViewModel()
             FavoriteTimeRoute(
                 favoriteTimes = viewModel.favoriteTimes,
                 onBackClick = { navController.popBackStack() },

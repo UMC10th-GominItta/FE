@@ -41,7 +41,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gominitta.android.R
 import com.gominitta.android.presentation.mypage.components.MyPageOutlinedButton
 import com.gominitta.android.presentation.mypage.components.MyPagePrimaryButton
@@ -56,7 +55,7 @@ import com.gominitta.android.ui.theme.Gray600
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Title1_20sb
-
+import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun MyPageRoute(
     onBackClick: () -> Unit,
@@ -66,8 +65,7 @@ fun MyPageRoute(
     onWithdrawClick: () -> Unit,
     onLogoutConfirmed: () -> Unit,
 ) {
-    val viewModel: MyPageViewModel = viewModel()
-
+    val viewModel: MyPageViewModel = hiltViewModel()
     var showLogoutSheet by rememberSaveable { mutableStateOf(false) }
     var sheetTopY by remember { mutableStateOf(0f) }
 

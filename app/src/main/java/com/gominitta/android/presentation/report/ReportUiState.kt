@@ -11,10 +11,14 @@ import com.gominitta.android.ui.components.DateRangeOption
 data class ReportUiState(
     val worryThemeRange: DateRangeOption = DateRangeOption.LAST_30_DAYS,
     val worryThemeData: WorryThemeReportData? = null,
+    val isWorryThemeLoading: Boolean = false,
+    val worryThemeErrorMessage: String? = null,
     val anxietyRange: DateRangeOption = DateRangeOption.LAST_30_DAYS,
     val anxietyData: AnxietyReportData? = null,
+    val isAnxietyLoading: Boolean = false,
+    val anxietyErrorMessage: String? = null,
     val timelineRange: DateRangeOption = DateRangeOption.LAST_30_DAYS,
     val timelineData: WorryTimelineReportData? = null,
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null,
+    val isTimelineLoading: Boolean = false,
+    val timelineErrorMessage: String? = null,
 )

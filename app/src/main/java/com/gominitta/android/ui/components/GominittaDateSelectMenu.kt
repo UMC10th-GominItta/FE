@@ -1,5 +1,6 @@
 package com.gominitta.android.ui.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -36,12 +38,13 @@ import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.spacing
 
 enum class DateRangeOption(
-    val label: String,
+    @param:StringRes val labelRes: Int,
+    val apiValue: String,
     internal val textWidth: Dp,
 ) {
-    LAST_30_DAYS("최근 30일", 56.dp),
-    LAST_2_WEEKS("최근 2주", 47.dp),
-    LAST_60_DAYS("최근 60일", 56.dp),
+    LAST_30_DAYS(R.string.report_period_30_days, "30d", 56.dp),
+    LAST_2_WEEKS(R.string.report_period_14_days, "2w", 47.dp),
+    LAST_60_DAYS(R.string.report_period_60_days, "60d", 56.dp),
 }
 
 @Composable
@@ -148,7 +151,7 @@ private fun DateSelectMenuItem(
                     contentAlignment = Alignment.CenterEnd,
                 ) {
                     Text(
-                        text = option.label,
+                        text = stringResource(option.labelRes),
                         modifier = Modifier.width(option.textWidth),
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyMedium,
@@ -159,7 +162,7 @@ private fun DateSelectMenuItem(
                 }
             } else {
                 Text(
-                    text = option.label,
+                    text = stringResource(option.labelRes),
                     modifier = Modifier.width(option.textWidth),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodyMedium,
@@ -175,7 +178,10 @@ private fun DateSelectMenuItem(
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.ic_back),
-                        contentDescription = if (arrowPointsUp) "기간 메뉴 닫기" else "기간 메뉴 열기",
+                        contentDescription = stringResource(
+                            if (arrowPointsUp) R.string.report_period_menu_close
+                            else R.string.report_period_menu_open,
+                        ),
                         modifier = Modifier
                             .size(MaterialTheme.spacing.md)
                             .rotate(if (arrowPointsUp) 90f else -90f),

@@ -1,7 +1,8 @@
 package com.gominitta.android.presentation.main
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -70,11 +71,7 @@ fun MainScreen(
     )
     Scaffold(
         modifier = modifier,
-        bottomBar = {
-            if (showBottomBar) { // 변경 — RECIPE_COMPLETE 화면에서는 바텀바 숨김
-                GominittaBottomBar(tabNavController)
-            }
-        },
+        bottomBar = { GominittaBottomBar(tabNavController) },
         containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onBackground,
     ) { innerPadding ->
@@ -82,10 +79,11 @@ fun MainScreen(
             navController = tabNavController,
             startDestination = Routes.HOME,
             modifier = Modifier.padding(innerPadding),
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None },
-            popEnterTransition = { EnterTransition.None },
-            popExitTransition = { ExitTransition.None },
+            // 화면 전환 시 배경 투명 화면들이 겹쳐 보이는 "잔상" 방지용 짧은 크로스페이드.
+            enterTransition = { fadeIn(tween(150)) },
+            exitTransition = { fadeOut(tween(150)) },
+            popEnterTransition = { fadeIn(tween(150)) },
+            popExitTransition = { fadeOut(tween(150)) },
         ) {
             composable(Routes.HOME) {
                 HomeScreen(
@@ -177,7 +175,7 @@ fun MainScreen(
             }
 
             composable(Routes.REPORT) {
-                ReportRoute(onNavigateBack = {})
+                ReportRoute()
             }
         }
     }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -20,6 +21,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,6 +42,7 @@ internal fun WorryTimelineTab(
     onRangeSelected: (DateRangeOption) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    // 걱정 기록이 기준 개수보다 적으면 히트맵 대신 데이터 부족 안내를 표시합니다.
     if (data?.canRender == true) {
         WorryTimelineDataCard(selectedRange, onRangeSelected, data, modifier)
     } else {
@@ -55,7 +59,7 @@ private fun WorryTimelineEmptyCard(
     GominittaReportCard(modifier = modifier, height = 453.dp) {
         WorryTimelineHeader(selectedRange, onRangeSelected)
         Text(
-            text = "아직 리포트를 분석하기에 걱정 기록이 조금 부족해요.\n세션을 조금 더 진행해 볼까요?",
+            text = stringResource(R.string.report_empty_message),
             modifier = Modifier.offset(x = 50.dp, y = 190.dp).width(235.dp),
             color = MaterialTheme.colorScheme.gray400Token,
             style = MaterialTheme.typography.bodyLarge,
@@ -80,14 +84,15 @@ private fun WorryTimelineDataCard(
         R.drawable.ic_night,
     )
 
-    GominittaReportCard(modifier = modifier, height = 461.dp) {
+    GominittaReportCard(modifier = modifier, height = null, minHeight = 461.dp) {
         WorryTimelineHeader(selectedRange, onRangeSelected)
 
+        // 히트맵 열의 기준이 되는 월요일부터 일요일까지의 요일을 표시합니다.
         Row(
             modifier = Modifier.offset(x = 92.dp, y = 83.dp).size(227.dp, 21.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            listOf("월", "화", "수", "목", "금", "토", "일").forEach { day ->
+            stringArrayResource(R.array.report_weekday_labels).forEach { day ->
                 Text(
                     text = day,
                     modifier = Modifier.size(29.dp, 21.dp),
@@ -102,6 +107,7 @@ private fun WorryTimelineDataCard(
         Column(
             modifier = Modifier.offset(x = 16.dp, y = 106.dp).size(303.dp, 196.dp),
         ) {
+            // 아침·오후·저녁·밤 순서로 시간대 정보와 히트맵 한 행을 구성합니다.
             timelineTimeSlots.forEachIndexed { rowIndex, slot ->
                 Row(
                     modifier = Modifier.size(303.dp, 49.dp),
@@ -141,7 +147,7 @@ private fun WorryTimelineDataCard(
                                 modifier = Modifier.size(16.dp),
                             )
                             Text(
-                                text = slot.label,
+                                text = stringResource(slot.labelRes),
                                 modifier = Modifier.size(26.dp, 21.dp),
                                 color = MaterialTheme.colorScheme.onSurface,
                                 style = MaterialTheme.typography.bodyLarge,
@@ -150,7 +156,7 @@ private fun WorryTimelineDataCard(
                             )
                         }
                         Text(
-                            text = slot.range,
+                            text = stringResource(slot.rangeRes),
                             modifier = Modifier.size(58.dp, 20.dp),
                             color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.bodyMedium,
@@ -161,6 +167,7 @@ private fun WorryTimelineDataCard(
 
                     GominittaHeatMap(
                         modifier = Modifier.align(Alignment.CenterVertically),
+                        // 누락된 행은 7일 모두 기록이 없는 상태로 안전하게 표시합니다.
                         levels = data.levels.getOrElse(rowIndex) { List(7) { 0 } },
                     )
                 }
@@ -182,17 +189,20 @@ private fun WorryTimelineDataCard(
         }
 
         Column(
-            modifier = Modifier.offset(x = 16.dp, y = 338.dp).size(303.dp, 107.dp),
+            modifier = Modifier
+                .padding(start = 16.dp, top = 338.dp, end = 16.dp, bottom = 16.dp)
+                .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
+            // 분석 문구와 팁의 길이에 맞춰 카드 하단 높이가 확장됩니다.
             Text(
-                text = data.feedbackText(),
+                text = data.feedback,
                 modifier = Modifier.width(303.dp),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.labelLarge,
             )
             Text(
-                text = TIMELINE_TIP,
+                text = stringResource(R.string.report_timeline_tip),
                 modifier = Modifier.width(303.dp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium,
@@ -214,14 +224,14 @@ private fun BoxScope.WorryTimelineHeader(
             contentAlignment = Alignment.CenterStart,
         ) {
             Text(
-                text = "걱정 타임라인",
+                text = stringResource(R.string.report_tab_worry_timeline),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.heading2Token,
                 maxLines = 1,
             )
         }
         Text(
-            text = "걱정이 자주 찾아오는 요일과 시간대에요.",
+            text = stringResource(R.string.report_timeline_subtitle),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyLarge,
             maxLines = 1,

@@ -27,7 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.gominitta.android.presentation.mypage.components.MyPagePrimaryButton
 import com.gominitta.android.presentation.mypage.components.MyPageTopBar
 import com.gominitta.android.presentation.mypage.model.ProfileImages
@@ -38,8 +38,7 @@ fun ProfileEditRoute(
     onBackClick: () -> Unit,
     onSaved: () -> Unit,
 ) {
-    val viewModel: ProfileEditViewModel = viewModel()
-
+    val viewModel: ProfileEditViewModel = hiltViewModel()
     ProfileEditScreen(
         nickname = viewModel.nickname,
         initialNickname = viewModel.initialNickname,
