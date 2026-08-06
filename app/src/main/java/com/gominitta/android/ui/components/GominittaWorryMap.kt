@@ -29,16 +29,17 @@ import com.gominitta.android.ui.theme.heading4Token
 fun GominittaWorryMapBubble(
     title: String,
     value: Int,
+    isPrimary: Boolean = false,
     modifier: Modifier = Modifier,
     mediumBackgroundColor: Color? = null,
 ) {
     when {
-        value >= 50 -> GominittaWorryMapLargeBubble(
+        isPrimary || value >= 30 -> GominittaWorryMapLargeBubble(
             title = title,
             percentage = "$value%",
             modifier = modifier,
         )
-        value >= 25 -> GominittaWorryMapMediumBubble(
+        value >= 10 -> GominittaWorryMapMediumBubble(
             title = title,
             percentage = "$value%",
             backgroundColor = mediumBackgroundColor ?: MaterialTheme.colorScheme.outline,

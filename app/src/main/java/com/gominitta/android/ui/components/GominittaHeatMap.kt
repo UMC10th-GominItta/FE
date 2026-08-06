@@ -13,25 +13,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.primary300Token
-import kotlin.math.ceil
 
 @Composable
 fun GominittaHeatMap(
     modifier: Modifier = Modifier,
-    frequencies: List<Int> = listOf(0, 1, 2, 3, 4, 1, 1),
-    maxFrequency: Int = frequencies.maxOrNull() ?: 0,
+    levels: List<Int> = listOf(0, 1, 2, 3, 4, 1, 1),
 ) {
     val shape = MaterialTheme.shapes.small
-    val levels = frequencies.take(7).map { frequency ->
-        if (frequency <= 0 || maxFrequency <= 0) {
-            0
-        } else {
-            ceil(frequency.toDouble() / maxFrequency * 4)
-                .toInt()
-                .coerceIn(1, 4)
-        }
-    }
-    val colors = levels.map { level ->
+    val visibleLevels = levels.take(7).map { it.coerceIn(0, 4) }
+    val colors = visibleLevels.map { level ->
         when (level.coerceIn(0, 4)) {
             0 -> MaterialTheme.colorScheme.surface
             1 -> MaterialTheme.colorScheme.secondaryContainer
@@ -51,7 +41,7 @@ fun GominittaHeatMap(
                     .size(width = 29.dp, height = 44.dp)
                     .background(color = color, shape = shape)
                     .then(
-                        if (levels.getOrNull(index) == 0) {
+                        if (visibleLevels.getOrNull(index) == 0) {
                             Modifier.border(
                                 width = 1.dp,
                                 color = MaterialTheme.colorScheme.secondaryContainer,

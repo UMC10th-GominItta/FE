@@ -27,6 +27,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.gominitta.android.ui.components.DateRangeOption
 import com.gominitta.android.ui.components.GominittaHeartReportButton
 import com.gominitta.android.ui.components.HeartReportTab
 import com.gominitta.android.ui.theme.GominittaTheme
@@ -42,14 +45,37 @@ import kotlinx.coroutines.launch
  * 탭을 누르면 해당 카드로 이동하며, 사용자가 직접 스크롤할 때는 화면에 가장 많이
  * 노출된 카드에 맞춰 탭의 Active 상태를 갱신합니다.
  *
- * 실제 API 연결 전까지 [worryThemeHasData]로 테마 지도의 데이터 유무 화면을 전환합니다.
+ * 화면 상태와 기간 변경 이벤트는 [ReportViewModel]을 사용하는 [ReportRoute]에서 전달합니다.
  */
 @Composable
-fun ReportScreen(
+fun ReportRoute(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     initialTab: HeartReportTab = HeartReportTab.WORRY_THEME_MAP,
-    worryThemeHasData: Boolean = true,
+    viewModel: ReportViewModel = viewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    ReportScreen(
+        uiState = uiState,
+        onWorryThemeRangeSelected = viewModel::selectWorryThemeRange,
+        onAnxietyRangeSelected = viewModel::selectAnxietyRange,
+        onTimelineRangeSelected = viewModel::selectTimelineRange,
+        onNavigateBack = onNavigateBack,
+        modifier = modifier,
+        initialTab = initialTab,
+    )
+}
+
+@Composable
+fun ReportScreen(
+    uiState: ReportUiState,
+    onWorryThemeRangeSelected: (DateRangeOption) -> Unit,
+    onAnxietyRangeSelected: (DateRangeOption) -> Unit,
+    onTimelineRangeSelected: (DateRangeOption) -> Unit,
+    onNavigateBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    initialTab: HeartReportTab = HeartReportTab.WORRY_THEME_MAP,
 ) {
     var selectedTab by remember { mutableStateOf(initialTab) }
     val listState = rememberLazyListState(
@@ -137,13 +163,25 @@ fun ReportScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             item(key = HeartReportTab.WORRY_THEME_MAP) {
-                WorryThemeMapTab(hasData = worryThemeHasData)
+                WorryThemeMapTab(
+                    selectedRange = uiState.worryThemeRange,
+                    data = uiState.worryThemeData,
+                    onRangeSelected = onWorryThemeRangeSelected,
+                )
             }
             item(key = HeartReportTab.ANXIETY_TEMPERATURE) {
-                AnxietyTemperatureTab()
+                AnxietyTemperatureTab(
+                    selectedRange = uiState.anxietyRange,
+                    data = uiState.anxietyData,
+                    onRangeSelected = onAnxietyRangeSelected,
+                )
             }
             item(key = HeartReportTab.WORRY_TIMELINE) {
-                WorryTimelineTab()
+                WorryTimelineTab(
+                    selectedRange = uiState.timelineRange,
+                    data = uiState.timelineData,
+                    onRangeSelected = onTimelineRangeSelected,
+                )
             }
         }
     }
@@ -159,6 +197,20 @@ fun ReportScreen(
 @Composable
 private fun ReportScreenPreview() {
     GominittaTheme {
-        ReportScreen(onNavigateBack = {})
+        val range = DateRangeOption.LAST_30_DAYS
+        ReportScreen(
+            uiState = ReportUiState(
+                worryThemeRange = range,
+                worryThemeData = worryThemeDummyData(range),
+                anxietyRange = range,
+                anxietyData = anxietyDummyData(range),
+                timelineRange = range,
+                timelineData = worryTimelineDummyData(range),
+            ),
+            onWorryThemeRangeSelected = {},
+            onAnxietyRangeSelected = {},
+            onTimelineRangeSelected = {},
+            onNavigateBack = {},
+        )
     }
 }
