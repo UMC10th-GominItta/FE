@@ -19,3 +19,21 @@ fun Int.toProfileImageUrl(): String = when (this) {
     4 -> "cat5"
     else -> "cat3"
 }
+
+fun String.toAppProfileImageUrl(): String = when (this) {
+    "CHARACTER_1" -> "cat1"
+    "CHARACTER_2" -> "cat2"
+    "CHARACTER_3" -> "cat3"
+    "CHARACTER_4" -> "cat4"
+    "CHARACTER_5" -> "cat5"
+    else -> "cat3"
+}
+
+fun String.toServerProfileIcon(): String = when (this) {
+    "cat1" -> "CHARACTER_1"
+    "cat2" -> "CHARACTER_2"
+    "cat3" -> "CHARACTER_3"
+    "cat4" -> "CHARACTER_4"
+    "cat5" -> "CHARACTER_5"
+    else -> "CHARACTER_3"
+}
