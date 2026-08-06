@@ -1,3 +1,40 @@
 <resources>
     <string name="app_name">Gominitta</string>
+
+    <string name="report_title">마음 리포트</string>
+    <string name="report_tab_worry_theme">걱정 테마 지도</string>
+    <string name="report_tab_anxiety_gap">불안 온도차</string>
+    <string name="report_tab_worry_timeline">걱정 타임라인</string>
+    <string name="report_empty_message">아직 리포트를 분석하기에 걱정 기록이 조금 부족해요.\n세션을 조금 더 진행해 볼까요?</string>
+
+    <string name="report_worry_theme_subtitle">요즘 예약한 걱정들의 키워드들이에요</string>
+    <string name="report_worry_theme_tip">tip. 어떤 걱정이 자주 찾아오는지 아는 것만으로도,\n마음을 돌보는 첫걸음이 될 수 있어요.</string>
+
+    <string name="report_anxiety_subtitle">걱정 예약 시와 마음 세션 후 변화에요.</string>
+    <string name="report_anxiety_before">예약 시</string>
+    <string name="report_anxiety_after">세션 후</string>
+    <string name="report_anxiety_illustration_description">%1$s 불안 점수 일러스트</string>
+    <string name="report_score_scale">/ 10</string>
+    <string name="report_anxiety_tip_decreased">tip. 기록을 돌아보면, 걱정을 마주한 뒤 감정이 차분해지는 패턴이 보여요. 이 흐름을 기억하며, 앞으로도 나를 믿어보세요.</string>
+    <string name="report_anxiety_tip_default">tip. 불안을 완벽하게 없애지 못했어도, 내 마음을 들여다본 것만으로도 큰 시작이에요. 지금 나에게 가장 필요한 ‘마음 레시피’를 찾고, 실천하며 잠시 쉬어가 보세요.</string>
+
+    <string name="report_timeline_subtitle">걱정이 자주 찾아오는 요일과 시간대에요.</string>
+    <string name="report_timeline_tip">tip. 마음이 자주 흔들리는 시간을 알면, 나에게 필요한 휴식 루틴도 더 잘 보일 수 있어요.</string>
+    <string name="report_time_morning">아침</string>
+    <string name="report_time_afternoon">오후</string>
+    <string name="report_time_evening">저녁</string>
+    <string name="report_time_dawn">밤</string>
+    <string name="report_time_morning_range">06-12시</string>
+    <string name="report_time_afternoon_range">12-18시</string>
+    <string name="report_time_evening_range">18-24시</string>
+    <string name="report_time_dawn_range">00-06시</string>
+    <string-array name="report_weekday_labels">
+        <item>월</item><item>화</item><item>수</item><item>목</item><item>금</item><item>토</item><item>일</item>
+    </string-array>
+
+    <string name="report_period_14_days">최근 2주</string>
+    <string name="report_period_30_days">최근 30일</string>
+    <string name="report_period_60_days">최근 60일</string>
+    <string name="report_period_menu_open">기간 메뉴 열기</string>
+    <string name="report_period_menu_close">기간 메뉴 닫기</string>
 </resources>

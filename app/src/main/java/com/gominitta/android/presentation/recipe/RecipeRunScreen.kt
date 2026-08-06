@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -35,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.gominitta.android.presentation.recipe.components.RecipeScreenScaffold
 import kotlinx.coroutines.delay
 
@@ -42,30 +42,13 @@ import kotlinx.coroutines.delay
 fun RecipeRunScreen(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
-    recipe: RecipeItem = sampleRecipes.first(),
     onFinishClick: () -> Unit = {},
+    viewModel: RecipeRunViewModel = hiltViewModel(),
 ) {
-    val totalSeconds = recipe.durationMinutes * 60
+    val recipe = viewModel.recipe
 
-    var runStatus by rememberSaveable {
-        mutableStateOf(RecipeRunStatus.Ready)
-    }
-
-    var remainingSeconds by rememberSaveable(recipe.id) {
-        mutableIntStateOf(totalSeconds)
-    }
-
-    LaunchedEffect(runStatus) {
-        if (runStatus == RecipeRunStatus.Running) {
-            while (remainingSeconds > 0) {
-                delay(1000L)
-                remainingSeconds -= 1
-            }
-
-            if (remainingSeconds <= 0) {
-                runStatus = RecipeRunStatus.Completed
-            }
-        }
+    LaunchedEffect(viewModel.isFinished) {
+        if (viewModel.isFinished) onFinishClick()
     }
 
     RecipeScreenScaffold(
@@ -73,6 +56,33 @@ fun RecipeRunScreen(
         onNavigateBack = onNavigateBack,
         modifier = modifier,
     ) { innerPadding ->
+        if (recipe == null) {
+            Box(
+                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+            return@RecipeScreenScaffold
+        }
+
+        val totalSeconds = recipe.durationMinutes * 60
+        var remainingSeconds by rememberSaveable(recipe.id) {
+            mutableIntStateOf(totalSeconds)
+        }
+
+        LaunchedEffect(viewModel.runStatus) {
+            if (viewModel.runStatus == RecipeRunStatus.Running) {
+                while (remainingSeconds > 0) {
+                    delay(1000L)
+                    remainingSeconds -= 1
+                }
+                if (remainingSeconds <= 0) {
+                    viewModel.onTimerFinished()
+                }
+            }
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -82,15 +92,11 @@ fun RecipeRunScreen(
         ) {
             Spacer(modifier = Modifier.height(4.dp))
 
-            RecipeRunInfoCard(
-                recipe = recipe,
-                modifier = Modifier.fillMaxWidth(),
-            )
+            RecipeRunInfoCard(recipe = recipe, modifier = Modifier.fillMaxWidth())
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 변경 — 타이머만 표시. 버튼은 아래에서 화면 하단 고정으로 별도 렌더링.
-            when (runStatus) {
+            when (viewModel.runStatus) {
                 RecipeRunStatus.Ready -> {
                     RecipeRunTimerCircle(
                         mainText = formatSeconds(totalSeconds),
@@ -98,48 +104,34 @@ fun RecipeRunScreen(
                         progress = 0f,
                     )
                 }
-
                 RecipeRunStatus.Running -> {
-                    val progress =
-                        if (totalSeconds == 0) {
-                            1f
-                        } else {
-                            (totalSeconds - remainingSeconds).toFloat() /
-                                    totalSeconds.toFloat()
-                        }
-
+                    val progress = if (totalSeconds == 0) 1f else
+                        (totalSeconds - remainingSeconds).toFloat() / totalSeconds.toFloat()
                     RecipeRunTimerCircle(
                         mainText = formatSeconds(remainingSeconds),
                         subText = "",
                         progress = progress,
                     )
                 }
-
                 RecipeRunStatus.Completed -> {
-                    RecipeRunTimerCircle(
-                        mainText = "완료",
-                        subText = "",
-                        progress = 1f,
-                    )
+                    RecipeRunTimerCircle(mainText = "완료", subText = "", progress = 1f)
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f)) // 변경 — 버튼을 화면 하단으로 밀어냄
+            Spacer(modifier = Modifier.weight(1f))
 
-            // 변경 — 시작하기/완료하기 버튼, 화면 하단 44dp
-            when (runStatus) {
+            when (viewModel.runStatus) {
                 RecipeRunStatus.Ready -> {
                     RecipeRunPrimaryButton(
                         text = "시작하기",
                         enabled = true,
                         onClick = {
                             remainingSeconds = totalSeconds
-                            runStatus = RecipeRunStatus.Running
+                            viewModel.startRun()
                         },
                         modifier = Modifier.padding(bottom = 44.dp),
                     )
                 }
-
                 RecipeRunStatus.Running -> {
                     RecipeRunPrimaryButton(
                         text = "완료하기",
@@ -148,12 +140,11 @@ fun RecipeRunScreen(
                         modifier = Modifier.padding(bottom = 44.dp),
                     )
                 }
-
                 RecipeRunStatus.Completed -> {
                     RecipeRunPrimaryButton(
                         text = "완료하기",
                         enabled = true,
-                        onClick = onFinishClick,
+                        onClick = viewModel::onFinishClick,
                         modifier = Modifier.padding(bottom = 44.dp),
                     )
                 }
@@ -163,10 +154,7 @@ fun RecipeRunScreen(
 }
 
 @Composable
-private fun RecipeRunInfoCard(
-    recipe: RecipeItem,
-    modifier: Modifier = Modifier,
-) {
+private fun RecipeRunInfoCard(recipe: RecipeItem, modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier.height(267.dp),
         shape = RoundedCornerShape(24.dp),
@@ -174,19 +162,11 @@ private fun RecipeRunInfoCard(
         shadowElevation = 0.dp,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(
-                    horizontal = 24.dp,
-                    vertical = 36.dp,
-                ),
+            modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 36.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-            RecipeDurationBadge(
-                text = "${recipe.durationMinutes}분 소요",
-            )
-
+            RecipeDurationBadge(text = "${recipe.durationMinutes}분 소요")
             Text(
                 text = recipe.title,
                 fontSize = 22.sp,
@@ -196,11 +176,7 @@ private fun RecipeRunInfoCard(
                 textAlign = TextAlign.Center,
                 color = Color.Black,
             )
-
-            DenseDashedDivider(
-                modifier = Modifier.widthIn(max = 202.dp),
-            )
-
+            DenseDashedDivider(modifier = Modifier.widthIn(max = 202.dp))
             Text(
                 text = recipe.description,
                 fontSize = 15.sp,
@@ -215,18 +191,12 @@ private fun RecipeRunInfoCard(
 }
 
 @Composable
-private fun RecipeDurationBadge(
-    text: String,
-    modifier: Modifier = Modifier,
-) {
+private fun RecipeDurationBadge(text: String, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(999.dp))
             .background(Color(0xFFFBEACB))
-            .padding(
-                horizontal = 16.dp,
-                vertical = 8.dp,
-            ),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
@@ -242,23 +212,14 @@ private fun RecipeDurationBadge(
 }
 
 @Composable
-private fun DenseDashedDivider(
-    modifier: Modifier = Modifier,
-) {
-    Canvas(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(1.dp),
-    ) {
+private fun DenseDashedDivider(modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier.fillMaxWidth().height(1.dp)) {
         drawLine(
             color = Color(0xFFA3A3A3),
-            start = Offset(x = 0f, y = 0f),
-            end = Offset(x = size.width, y = 0f),
+            start = Offset(0f, 0f),
+            end = Offset(size.width, 0f),
             strokeWidth = 0.5.dp.toPx(),
-            pathEffect = PathEffect.dashPathEffect(
-                intervals = floatArrayOf(2.dp.toPx(), 2.dp.toPx()),
-                phase = 0f,
-            ),
+            pathEffect = PathEffect.dashPathEffect(floatArrayOf(2.dp.toPx(), 2.dp.toPx()), 0f),
         )
     }
 }
@@ -270,18 +231,14 @@ private fun RecipeRunTimerCircle(
     progress: Float,
     modifier: Modifier = Modifier,
 ) {
-    Box(
-        modifier = modifier.size(207.dp),
-        contentAlignment = Alignment.Center,
-    ) {
+    Box(modifier = modifier.size(207.dp), contentAlignment = Alignment.Center) {
         CircularProgressIndicator(
-            progress = progress.coerceIn(minimumValue = 0f, maximumValue = 1f),
+            progress = progress.coerceIn(0f, 1f),
             modifier = Modifier.fillMaxSize(),
             color = Color(0xFFD0C1AB),
             trackColor = Color(0xFFECDFCE),
             strokeWidth = 18.dp,
         )
-
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = mainText,
@@ -292,10 +249,8 @@ private fun RecipeRunTimerCircle(
                 textAlign = TextAlign.Center,
                 color = Color.Black,
             )
-
             if (subText.isNotBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
-
                 Text(
                     text = subText,
                     fontSize = 15.sp,
@@ -320,9 +275,7 @@ private fun RecipeRunPrimaryButton(
     Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier
-            .fillMaxWidth()
-            .height(56.dp),
+        modifier = modifier.fillMaxWidth().height(56.dp),
         shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFFFBEACB),

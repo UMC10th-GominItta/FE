@@ -9,43 +9,33 @@ import kotlin.math.hypot
 class WorryThemeReportModelTest {
     @Test
     fun `3건 미만이면 차트를 렌더링하지 않는다`() {
-        assertFalse(WorryThemeReportData(totalCount = 2, themes = emptyList()).canRender)
-        assertTrue(WorryThemeReportData(totalCount = 3, themes = emptyList()).canRender)
+        assertFalse(report(WorryThemeItem(WorryTheme.CAREER, 2)).canRender)
+        assertTrue(report(WorryThemeItem(WorryTheme.CAREER, 3)).canRender)
     }
 
     @Test
     fun `모든 비율이 30퍼센트 미만이면 첫 최상위 테마만 승격한다`() {
-        val data = WorryThemeReportData(
-            totalCount = 10,
-            themes = listOf(
+        val data = report(
                 WorryThemeItem(WorryTheme.CAREER, 25),
                 WorryThemeItem(WorryTheme.STUDY, 25),
-                WorryThemeItem(WorryTheme.HEALTH, 0),
-            ),
+                WorryThemeItem(WorryTheme.HEALTH, 20),
+                WorryThemeItem(WorryTheme.MONEY, 15),
+                WorryThemeItem(WorryTheme.FAMILY, 10),
+                WorryThemeItem(WorryTheme.PRESENTATION, 5),
         )
 
         val ranked = data.rankedThemes()
 
-        assertEquals(2, ranked.size)
+        assertEquals(6, ranked.size)
         assertEquals(WorryThemeWeight.PRIMARY, ranked[0].weight)
         assertEquals(WorryThemeWeight.NORMAL, ranked[1].weight)
     }
 
     @Test
-    fun `공동 1위이면 두 테마를 피드백에 표시한다`() {
-        val data = WorryThemeReportData(
-            totalCount = 10,
-            themes = listOf(
-                WorryThemeItem(WorryTheme.CAREER, 40),
-                WorryThemeItem(WorryTheme.STUDY, 40),
-                WorryThemeItem(WorryTheme.ETC, 20),
-            ),
-        )
+    fun `서버 피드백을 그대로 보관한다`() {
+        val data = report(feedback = "서버가 만든 피드백")
 
-        assertEquals(
-            "최근에는 진로와 학업에 대한 고민이 깊었네요.",
-            data.feedbackText(),
-        )
+        assertEquals("서버가 만든 피드백", data.feedback)
     }
 
     @Test
@@ -98,4 +88,14 @@ class WorryThemeReportModelTest {
             layoutWorryThemeBubbles(first) != layoutWorryThemeBubbles(second),
         )
     }
+
+    private fun report(
+        vararg themes: WorryThemeItem,
+        feedback: String = "",
+    ) = WorryThemeReportData(
+        period = "30d",
+        topCategory = themes.maxByOrNull { it.count }?.theme,
+        themes = themes.toList(),
+        feedback = feedback,
+    )
 }

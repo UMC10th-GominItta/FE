@@ -50,9 +50,9 @@ import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.Gray600
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.GominittaTheme
+import com.gominitta.android.ui.theme.Heading3_20m
 import com.gominitta.android.ui.theme.Heading4_18m
 import com.gominitta.android.ui.theme.Primary800
-import com.gominitta.android.ui.theme.Title1_20sb
 import java.time.LocalDateTime
 
 /**
@@ -140,10 +140,10 @@ private fun SessionListContent(
         item {
             Text(
                 text = "마음 세션",
-                style = Title1_20sb,
+                style = Heading3_20m,
                 color = Gray800,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth(),
             )
         }
 
@@ -243,7 +243,7 @@ private fun SessionCard(
                 Text(
                     text = session.scheduledStartAt.toSessionCardLabel(),
                     style = Body3_14r,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Gray800,
                 )
             }
             Text(
