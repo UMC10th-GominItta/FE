@@ -6,24 +6,23 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gominitta.android.domain.usecase.CompleteRecipeUseCase
+import com.gominitta.android.domain.usecase.CompleteRecipeLogUseCase
 import com.gominitta.android.domain.usecase.GetRecipeUseCase
+import com.gominitta.android.domain.usecase.StartRecipeLogUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * D102 레시피 실행 화면 전용 ViewModel.
- * recipeId는 route("reciperun/{recipeId}")에서 SavedStateHandle로 받는다.
- */
 @HiltViewModel
 class RecipeRunViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getRecipeUseCase: GetRecipeUseCase,
-    private val completeRecipeUseCase: CompleteRecipeUseCase,
+    private val startRecipeLogUseCase: StartRecipeLogUseCase,
+    private val completeRecipeLogUseCase: CompleteRecipeLogUseCase,
 ) : ViewModel() {
 
     private val recipeId: Long = checkNotNull(savedStateHandle["recipeId"])
+    private var recipeLogId: Long? = null
 
     var recipe by mutableStateOf<RecipeItem?>(null)
         private set
@@ -37,6 +36,7 @@ class RecipeRunViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             recipe = getRecipeUseCase(recipeId).toUiItem()
+            recipeLogId = startRecipeLogUseCase(recipeId)
         }
     }
 
@@ -49,8 +49,9 @@ class RecipeRunViewModel @Inject constructor(
     }
 
     fun onFinishClick() {
+        val logId = recipeLogId ?: return
         viewModelScope.launch {
-            completeRecipeUseCase(recipeId)
+            completeRecipeLogUseCase(logId)
             isFinished = true
         }
     }

@@ -1,11 +1,11 @@
 package com.gominitta.android.di
 
-import com.gominitta.android.data.repository.DummyRecipeRepository
 import com.gominitta.android.data.repository.FakeSampleRepository
 import com.gominitta.android.data.repository.FakeSessionRepository
 import com.gominitta.android.domain.repository.RecipeRepository
 import com.gominitta.android.domain.repository.SampleRepository
 import com.gominitta.android.domain.repository.SessionRepository
+import com.gominitta.android.data.repository.RealRecipeRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -41,7 +41,7 @@ abstract class AppModule {
     @Binds
     @Singleton
     abstract fun bindRecipeRepository(
-        dummy: DummyRecipeRepository,
+        real: RealRecipeRepository,
     ): RecipeRepository
 
 }
