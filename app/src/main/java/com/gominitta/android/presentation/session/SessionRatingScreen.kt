@@ -42,7 +42,6 @@ import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.Heading1_24sb
 import com.gominitta.android.ui.theme.Heading3_20m
 import com.gominitta.android.ui.theme.Primary200
-import com.gominitta.android.ui.theme.Title1_20sb
 import kotlin.math.roundToInt
 
 /**
@@ -73,7 +72,7 @@ fun SessionRatingScreen(
         ) {
             Text(
                 text = "마음 세션",
-                style = Title1_20sb,
+                style = Heading3_20m,
                 color = Gray800,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),

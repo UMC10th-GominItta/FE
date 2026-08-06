@@ -45,10 +45,13 @@ object Routes {
 
 
     //recipe 상세 루트
-    const val RECIPE_RUN = "reciperun"
+    const val RECIPE_RUN = "reciperun/{recipeId}"        // 변경
     const val RECIPE_CREATE = "recipecreate"
-    const val RECIPE_EDIT = "recipeedit"
-    const val RECIPE_COMPLETE = "recipecomplete" // 추가
+    const val RECIPE_EDIT = "recipeedit/{recipeId}"      // 변경
+    const val RECIPE_COMPLETE = "recipecomplete"
+
+    fun recipeRunRoute(recipeId: Long) = "reciperun/$recipeId"    // 추가
+    fun recipeEditRoute(recipeId: Long) = "recipeedit/$recipeId"
 
     // Template: parameterised route
     // const val ITEM_DETAIL = "item_detail/{itemId}"
