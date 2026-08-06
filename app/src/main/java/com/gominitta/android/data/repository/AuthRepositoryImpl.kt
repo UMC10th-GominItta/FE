@@ -18,7 +18,7 @@ class AuthRepositoryImpl @Inject constructor(
         val result = safeApiCall { authApi.loginWithKakao(KakaoLoginRequest(kakaoAccessToken)) }
         val data = when (result) {
             is ApiResult.Success -> result.data
-            is ApiResult.Error -> throw IllegalStateException(result.message)
+            is ApiResult.Error -> throw IllegalStateException("[${result.code}] ${result.message}")
             is ApiResult.NetworkError -> throw result.cause
         }
         tokenStore.saveTokens(data.accessToken, data.refreshToken)

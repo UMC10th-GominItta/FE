@@ -26,6 +26,8 @@ Thumbs.db
 # Keystore files — never commit signing keys
 *.jks
 *.keystore
+# 예외: 팀 공용 디버그 키스토어만 커밋 (배포 서명에 못 쓰는 debug 전용 키)
+!app/debug.keystore
 
 # Navigation SafeArgs generated code (if added later)
 app/src/main/java/com/gominitta/android/navigation/generated/

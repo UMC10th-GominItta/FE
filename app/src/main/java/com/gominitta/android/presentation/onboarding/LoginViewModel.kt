@@ -6,6 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.gominitta.android.data.auth.KakaoLoginClient
 import com.gominitta.android.data.auth.LoginCancelledException
 import com.gominitta.android.domain.usecase.LoginWithKakaoUseCase
+import com.kakao.sdk.common.model.ApiError
+import com.kakao.sdk.common.model.AuthError
+import com.kakao.sdk.common.model.ClientError
+import com.kakao.sdk.common.model.KakaoSdkError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
@@ -44,12 +48,24 @@ class LoginViewModel @Inject constructor(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false, errorMessage = "로그인에 실패했어요. 다시 시도해주세요.") }
+                _uiState.update {
+                    it.copy(isLoading = false, errorMessage = "로그인 실패 (${loginErrorDetail(e)})")
+                }
             }
         }
     }
 
     fun errorShown() {
         _uiState.update { it.copy(errorMessage = null) }
+    }
+
+    private fun loginErrorDetail(e: Throwable): String = when (e) {
+        is AuthError -> "AuthError statusCode=${e.statusCode} reason=${e.reason} " +
+            "error=${e.response.error} description=${e.response.errorDescription}"
+        is ApiError -> "ApiError statusCode=${e.statusCode} reason=${e.reason} " +
+            "code=${e.response.code} msg=${e.response.msg}"
+        is ClientError -> "ClientError reason=${e.reason} msg=${e.msg}"
+        is KakaoSdkError -> e.msg
+        else -> e.message ?: e::class.simpleName ?: "Unknown"
     }
 }
