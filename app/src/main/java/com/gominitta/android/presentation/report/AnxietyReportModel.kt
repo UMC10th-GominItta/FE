@@ -30,13 +30,6 @@ data class AnxietyReportData(
             else -> AnxietyChangeState.MAINTAINED
         }
 
-    /** 불안 점수의 변화량과 증감 상태를 사용자에게 보여주는 배지 문구 */
-    val badgeText: String
-        get() = when (state) {
-            AnxietyChangeState.DECREASED -> "- ${abs(gap).displayScore()}점 감소"
-            AnxietyChangeState.INCREASED -> "+ ${gap.displayScore()}점 상승"
-            AnxietyChangeState.MAINTAINED -> "유지"
-        }
 }
 
 /** 세션 전후 불안 점수 평균의 변화 방향입니다. */

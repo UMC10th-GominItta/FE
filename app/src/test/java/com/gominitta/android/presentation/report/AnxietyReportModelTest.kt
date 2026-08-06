@@ -14,10 +14,9 @@ class AnxietyReportModelTest {
     }
 
     @Test
-    fun `세션 후 점수가 낮으면 감소 상태와 배지를 만든다`() {
+    fun `세션 후 점수가 낮으면 감소 상태로 분류한다`() {
         val data = report(beforeScore = 8.0, afterScore = 4.0, gap = -4.0)
         assertEquals(AnxietyChangeState.DECREASED, data.state)
-        assertEquals("- 4점 감소", data.badgeText)
     }
 
     @Test
@@ -27,8 +26,8 @@ class AnxietyReportModelTest {
             report(beforeScore = 6.0, afterScore = 6.0, gap = 0.0).state,
         )
         assertEquals(
-            "+ 1.5점 상승",
-            report(beforeScore = 5.0, afterScore = 6.5, gap = 1.5).badgeText,
+            AnxietyChangeState.INCREASED,
+            report(beforeScore = 5.0, afterScore = 6.5, gap = 1.5).state,
         )
     }
 

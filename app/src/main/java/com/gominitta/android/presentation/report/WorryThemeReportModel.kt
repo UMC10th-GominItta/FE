@@ -55,11 +55,13 @@ internal enum class WorryThemeWeight { PRIMARY, NORMAL, MINOR }
 /**
  * 비율순으로 정렬된 걱정 테마와 화면에서 사용할 버블 중요도를 묶은 모델입니다.
  *
- * @property item 화면에 표시할 테마와 비율
+ * @property item 화면에 표시할 테마와 기록 수
+ * @property percentage 전체 기록에서 해당 테마가 차지하는 정수 비율
  * @property weight 테마 비율을 기준으로 계산한 버블 중요도
  */
 internal data class RankedWorryTheme(
     val item: WorryThemeItem,
+    val percentage: Int,
     val weight: WorryThemeWeight,
 )
 
@@ -87,14 +89,14 @@ internal fun WorryThemeReportData.rankedThemes(): List<RankedWorryTheme> {
     val shouldPromoteFirst = percentages.values.none { it >= 30 }
 
     return visible.mapIndexed { index, item ->
-        val percentage = percentages.getValue(item)
+        val percentage = percentages.getValue(item).toInt()
         val weight = when {
             percentage >= 30 -> WorryThemeWeight.PRIMARY
             shouldPromoteFirst && index == 0 -> WorryThemeWeight.PRIMARY
             percentage >= 10 -> WorryThemeWeight.NORMAL
             else -> WorryThemeWeight.MINOR
         }
-        RankedWorryTheme(item, weight)
+        RankedWorryTheme(item, percentage, weight)
     }
 }
 
