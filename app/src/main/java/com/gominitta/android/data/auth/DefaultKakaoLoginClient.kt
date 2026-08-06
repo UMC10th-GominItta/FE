@@ -22,6 +22,7 @@ class DefaultKakaoLoginClient @Inject constructor() : KakaoLoginClient {
                             continuation.resumeWithException(LoginCancelledException())
                         }
                         error != null -> {
+                            android.util.Log.w("KakaoLogin", "KakaoTalk login failed, fallback to account", error)
                             UserApiClient.instance.loginWithKakaoAccount(context) { accountToken, accountError ->
                                 if (accountError != null) {
                                     continuation.resumeWithException(accountError)
