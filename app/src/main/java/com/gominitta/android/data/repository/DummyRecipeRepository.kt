@@ -28,8 +28,12 @@ class DummyRecipeRepository @Inject constructor() : RecipeRepository {
 
     override suspend fun getRecommendedRecipes(): List<Recipe> = recipes.take(3)
 
+
+    private var nextId = 3L   // 추가
+    private var todayCompletedCount = 0L
+    private var totalCompletedCount = 0L
     override suspend fun addRecipe(recipe: Recipe) {
-        recipes.add(recipe)
+        recipes.add(recipe.copy(id = nextId++))   // 변경 — 넘어온 id 무시하고 새로 발급
     }
 
     override suspend fun updateRecipe(recipe: Recipe) {
@@ -42,5 +46,12 @@ class DummyRecipeRepository @Inject constructor() : RecipeRepository {
     }
 
     override suspend fun getRecipeSummary(): RecipeSummary =
-        RecipeSummary(todayCompletedCount = 1, totalCompletedCount = 3)
+        RecipeSummary(todayCompletedCount, totalCompletedCount)
+    override suspend fun getRecipe(recipeId: Long): Recipe =
+        recipes.first { it.id == recipeId }
+    override suspend fun completeRecipe(recipeId: Long): RecipeSummary {
+        todayCompletedCount += 1
+        totalCompletedCount += 1
+        return RecipeSummary(todayCompletedCount, totalCompletedCount)
+    }
 }
