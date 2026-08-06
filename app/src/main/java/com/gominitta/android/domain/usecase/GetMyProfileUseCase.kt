@@ -4,8 +4,8 @@ import com.gominitta.android.domain.model.UserProfile
 import com.gominitta.android.domain.repository.UserRepository
 import javax.inject.Inject
 
-class GetUserProfileUseCase @Inject constructor(
-    private val repository: UserRepository,
+class GetMyProfileUseCase @Inject constructor(
+    private val userRepository: UserRepository,
 ) {
-    suspend operator fun invoke(): UserProfile = repository.getMyProfile()
+    suspend operator fun invoke(): UserProfile = userRepository.getMyProfile()
 }

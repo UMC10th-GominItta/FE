@@ -1,6 +1,6 @@
 package com.gominitta.android.data.repository
 
-import com.gominitta.android.domain.model.mypage.User
+import com.gominitta.android.domain.model.UserProfile
 import com.gominitta.android.domain.repository.UserRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -12,7 +12,7 @@ class DummyUserRepository @Inject constructor() : UserRepository {
     private var profileImageUrl = "cat3"
     private val email = "abcdef@gmail.com"
 
-    override suspend fun getMyProfile(): User = User(
+    override suspend fun getMyProfile(): UserProfile = UserProfile(
         nickname = nickname,
         profileImageUrl = profileImageUrl,
         email = email,
