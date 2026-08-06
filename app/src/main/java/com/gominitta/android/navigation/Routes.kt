@@ -48,7 +48,7 @@ object Routes {
     const val RECIPE_RUN = "reciperun"
     const val RECIPE_CREATE = "recipecreate"
     const val RECIPE_EDIT = "recipeedit"
-
+    const val RECIPE_COMPLETE = "recipecomplete" // 추가
 
     // Template: parameterised route
     // const val ITEM_DETAIL = "item_detail/{itemId}"

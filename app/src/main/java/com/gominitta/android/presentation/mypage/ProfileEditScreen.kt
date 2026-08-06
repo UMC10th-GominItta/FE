@@ -1,6 +1,6 @@
 package com.gominitta.android.presentation.mypage
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,42 +21,36 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gominitta.android.presentation.mypage.components.MyPagePrimaryButton
 import com.gominitta.android.presentation.mypage.components.MyPageTopBar
-import androidx.compose.ui.graphics.Color
+import com.gominitta.android.presentation.mypage.model.ProfileImages
+import com.gominitta.android.ui.theme.Primary800
 
 @Composable
 fun ProfileEditRoute(
     onBackClick: () -> Unit,
     onSaved: () -> Unit,
 ) {
-    var nickname by rememberSaveable {
-        mutableStateOf("")
-    }
-
-    var selectedProfileIndex by rememberSaveable {
-        mutableIntStateOf(0)
-    }
+    val viewModel: ProfileEditViewModel = viewModel()
 
     ProfileEditScreen(
-        nickname = nickname,
-        initialNickname = "00님",
-        selectedProfileIndex = selectedProfileIndex,
-        saveEnabled = nickname.isNotBlank() || selectedProfileIndex != 0,
-        onNicknameChange = {
-            nickname = it.take(12)
+        nickname = viewModel.nickname,
+        initialNickname = viewModel.initialNickname,
+        selectedProfileIndex = viewModel.selectedProfileIndex,
+        saveEnabled = viewModel.nickname.isNotBlank() || viewModel.selectedProfileIndex != ProfileImages.DEFAULT_INDEX,
+        onNicknameChange = viewModel::onNicknameChange,
+        onProfileSelected = viewModel::onProfileSelected,
+        onSaveClick = {
+            viewModel.save()
+            onSaved()
         },
-        onProfileSelected = {
-            selectedProfileIndex = it
-        },
-        onSaveClick = onSaved,
         onBackClick = onBackClick,
     )
 }
@@ -125,7 +119,7 @@ fun ProfileEditScreen(
                     .padding(top = 14.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                repeat(5) { index ->
+                ProfileImages.all.forEachIndexed { index, _ ->
                     ProfileImageOption(
                         index = index,
                         selected = selectedProfileIndex == index,
@@ -154,14 +148,6 @@ private fun ProfileImageOption(
     selected: Boolean,
     onClick: () -> Unit,
 ) {
-    val alphaList = listOf(
-        0.9f,
-        0.75f,
-        0.6f,
-        0.5f,
-        0.4f,
-    )
-
     Box(
         modifier = Modifier
             .size(62.dp)
@@ -169,7 +155,7 @@ private fun ProfileImageOption(
                 if (selected) {
                     Modifier.border(
                         width = 2.dp,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = Primary800,
                         shape = CircleShape,
                     )
                 } else {
@@ -177,12 +163,14 @@ private fun ProfileImageOption(
                 },
             )
             .padding(3.dp)
-            .background(
-                color = MaterialTheme.colorScheme.primaryContainer.copy(
-                    alpha = alphaList[index],
-                ),
-                shape = CircleShape,
-            )
+            .clip(CircleShape)
             .clickable(onClick = onClick),
-    )
+        contentAlignment = Alignment.Center,
+    ) {
+        Image(
+            painter = painterResource(ProfileImages.all[index]),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
 }

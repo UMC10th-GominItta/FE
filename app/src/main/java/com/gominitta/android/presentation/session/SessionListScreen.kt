@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -47,6 +48,7 @@ import com.gominitta.android.ui.theme.Body2_15r
 import com.gominitta.android.ui.theme.Body3_14r
 import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.Gray600
+import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.Heading4_18m
 import com.gominitta.android.ui.theme.Primary800
@@ -72,6 +74,7 @@ fun SessionListScreen(
         modifier = modifier.fillMaxSize(),
         containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onBackground,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { innerPadding ->
         when {
             uiState.isLoading -> LoadingState(innerPadding)
@@ -138,14 +141,14 @@ private fun SessionListContent(
             Text(
                 text = "마음 세션",
                 style = Title1_20sb,
-                color = Primary800,
+                color = Gray800,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
             )
         }
 
         item {
-            Text(text = "예정된 세션", style = Heading4_18m, color = Primary800)
+            Text(text = "예정된 세션", style = Heading4_18m, color = Gray800)
         }
         if (scheduled.isEmpty()) {
             item { EmptyScheduledCard(onNavigateToWorryInput) }
@@ -161,7 +164,7 @@ private fun SessionListContent(
         }
 
         item {
-            Text(text = "미완료 세션", style = Heading4_18m, color = Primary800)
+            Text(text = "미완료 세션", style = Heading4_18m, color = Gray800)
         }
         if (incomplete.isEmpty()) {
             item {
@@ -252,7 +255,7 @@ private fun SessionCard(
             )
         }
         Spacer(Modifier.height(8.dp))
-        Text(text = session.worryContent, style = Body1_16m, color = Primary800)
+        Text(text = session.worryContent, style = Body1_16m, color = Gray800)
         Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             GominittaButton(

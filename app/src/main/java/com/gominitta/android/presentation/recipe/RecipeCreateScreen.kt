@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -26,6 +27,9 @@ import com.gominitta.android.presentation.recipe.components.RecipePrimaryButton
 import com.gominitta.android.presentation.recipe.components.RecipeRecommendChip
 import com.gominitta.android.presentation.recipe.components.RecipeScreenScaffold
 
+private const val MIN_DURATION_MINUTES = 1
+private const val MAX_DURATION_MINUTES = 60
+
 @Composable
 fun RecipeCreateScreen(
     onNavigateBack: () -> Unit,
@@ -37,6 +41,10 @@ fun RecipeCreateScreen(
         durationMinutes: Int,
     ) -> Unit = { _, _, _ -> },
 ) {
+    val displayedRecommendedRecipes = remember(recommendedRecipes) {
+        recommendedRecipes.shuffled().take(3) // 변경 — 필터 없이 27개 전체에서 랜덤
+    }
+
     var selectedRecommendedTitle by rememberSaveable {
         mutableStateOf<String?>(null)
     }
@@ -53,13 +61,31 @@ fun RecipeCreateScreen(
         mutableStateOf("")
     }
 
-    val durationMinutes = duration.toIntOrNull()
+    var durationErrorMessage by rememberSaveable {
+        mutableStateOf<String?>(null)
+    }
 
     val isRegisterEnabled =
-        title.isNotBlank() &&
-                description.isNotBlank() &&
-                durationMinutes != null &&
-                durationMinutes > 0
+        title.isNotBlank() && description.isNotBlank()
+
+    fun validateDurationOrShowError(): Int? {
+        val minutes = duration.toIntOrNull()
+        return when {
+            duration.isBlank() -> {
+                durationErrorMessage = "예상 소요 시간을 입력해주세요"
+                null
+            }
+            minutes == null || minutes !in MIN_DURATION_MINUTES..MAX_DURATION_MINUTES -> {
+                durationErrorMessage =
+                    "${MIN_DURATION_MINUTES}~${MAX_DURATION_MINUTES}분 사이의 시간을 입력해주세요"
+                null
+            }
+            else -> {
+                durationErrorMessage = null
+                minutes
+            }
+        }
+    }
 
     RecipeScreenScaffold(
         title = "새 레시피 등록",
@@ -86,13 +112,14 @@ fun RecipeCreateScreen(
             Spacer(modifier = Modifier.height(10.dp))
 
             RecommendedRecipeChips(
-                recommendedRecipes = recommendedRecipes,
+                recommendedRecipes = displayedRecommendedRecipes,
                 selectedTitle = selectedRecommendedTitle,
                 onRecommendedRecipeClick = { recommendedRecipe ->
                     selectedRecommendedTitle = recommendedRecipe.title
                     title = recommendedRecipe.title
                     description = recommendedRecipe.description
                     duration = recommendedRecipe.durationMinutes.toString()
+                    durationErrorMessage = null
                 },
             )
 
@@ -141,9 +168,11 @@ fun RecipeCreateScreen(
                 onValueChange = { newDuration ->
                     duration = newDuration.filter(Char::isDigit)
                     selectedRecommendedTitle = null
+                    durationErrorMessage = null
                 },
-                placeholder = "예: 5",
+                placeholder = "1~60분 사이로 입력해주세요",
                 digitsOnly = true,
+                errorMessage = durationErrorMessage,
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -153,7 +182,7 @@ fun RecipeCreateScreen(
                 enabled = isRegisterEnabled,
                 onClick = {
                     val parsedDurationMinutes =
-                        durationMinutes ?: return@RecipePrimaryButton
+                        validateDurationOrShowError() ?: return@RecipePrimaryButton
 
                     onRegisterClick(
                         title.trim(),
@@ -168,34 +197,25 @@ fun RecipeCreateScreen(
     }
 }
 
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun RecommendedRecipeChips(
     recommendedRecipes: List<RecommendedRecipe>,
     selectedTitle: String?,
     onRecommendedRecipeClick: (RecommendedRecipe) -> Unit,
 ) {
-    Column(
+    androidx.compose.foundation.layout.FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        recommendedRecipes
-            .chunked(2)
-            .forEach { rowItems ->
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    rowItems.forEach { recommendedRecipe ->
-                        RecipeRecommendChip(
-                            text = recommendedRecipe.title,
-                            selected =
-                                selectedTitle == recommendedRecipe.title,
-                            onClick = {
-                                onRecommendedRecipeClick(
-                                    recommendedRecipe,
-                                )
-                            },
-                        )
-                    }
-                }
-            }
+        recommendedRecipes.forEach { recommendedRecipe ->
+            RecipeRecommendChip(
+                text = recommendedRecipe.title,
+                selected = selectedTitle == recommendedRecipe.title,
+                onClick = {
+                    onRecommendedRecipeClick(recommendedRecipe)
+                },
+            )
+        }
     }
 }

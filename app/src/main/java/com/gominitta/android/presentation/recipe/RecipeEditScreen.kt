@@ -27,6 +27,9 @@ import com.gominitta.android.presentation.recipe.components.RecipeInputField
 import com.gominitta.android.presentation.recipe.components.RecipePrimaryButton
 import com.gominitta.android.presentation.recipe.components.RecipeScreenScaffold
 
+private const val MIN_DURATION_MINUTES = 1
+private const val MAX_DURATION_MINUTES = 60
+
 @Composable
 fun RecipeEditScreen(
     onNavigateBack: () -> Unit,
@@ -52,13 +55,31 @@ fun RecipeEditScreen(
         mutableStateOf(recipe.durationMinutes.toString())
     }
 
-    val durationMinutes = duration.toIntOrNull()
+    var durationErrorMessage by rememberSaveable(recipe.id) {
+        mutableStateOf<String?>(null)
+    }
 
     val isCompleteEnabled =
-        title.isNotBlank() &&
-                description.isNotBlank() &&
-                durationMinutes != null &&
-                durationMinutes > 0
+        title.isNotBlank() && description.isNotBlank()
+
+    fun validateDurationOrShowError(): Int? {
+        val minutes = duration.toIntOrNull()
+        return when {
+            duration.isBlank() -> {
+                durationErrorMessage = "예상 소요 시간을 입력해주세요"
+                null
+            }
+            minutes == null || minutes !in MIN_DURATION_MINUTES..MAX_DURATION_MINUTES -> {
+                durationErrorMessage =
+                    "${MIN_DURATION_MINUTES}~${MAX_DURATION_MINUTES}분 사이의 시간을 입력해주세요"
+                null
+            }
+            else -> {
+                durationErrorMessage = null
+                minutes
+            }
+        }
+    }
 
     RecipeScreenScaffold(
         title = "레시피 수정",
@@ -123,9 +144,11 @@ fun RecipeEditScreen(
                     value = duration,
                     onValueChange = {
                         duration = it.filter(Char::isDigit)
+                        durationErrorMessage = null
                     },
-                    placeholder = "예: 5",
+                    placeholder = "1~60분 사이로 입력해주세요",
                     digitsOnly = true,
+                    errorMessage = durationErrorMessage,
                 )
             }
 
@@ -134,7 +157,7 @@ fun RecipeEditScreen(
                 enabled = isCompleteEnabled,
                 onClick = {
                     val parsedDurationMinutes =
-                        durationMinutes ?: return@RecipePrimaryButton
+                        validateDurationOrShowError() ?: return@RecipePrimaryButton
 
                     onCompleteClick(
                         recipe.id,

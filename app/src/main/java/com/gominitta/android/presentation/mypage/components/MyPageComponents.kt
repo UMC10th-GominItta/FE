@@ -2,6 +2,7 @@ package com.gominitta.android.presentation.mypage.components
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,6 +10,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,8 +19,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.ui.res.painterResource
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -31,24 +32,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.gominitta.android.R
 import com.gominitta.android.presentation.mypage.model.TimeValue
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.layout.width
-import com.gominitta.android.ui.theme.Primary300
-import com.gominitta.android.ui.theme.Title2_18sb
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.draw.shadow
 import com.gominitta.android.ui.theme.Body2_15r
 import com.gominitta.android.ui.theme.Primary200
+import com.gominitta.android.ui.theme.Primary300
+import com.gominitta.android.ui.theme.Title2_18sb
 
 val PretendardFontFamily = FontFamily(
     Font(R.font.pretendard_medium, FontWeight.Medium)
@@ -77,12 +75,11 @@ fun MyPageSettingRow(
     trailingContent: (@Composable RowScope.() -> Unit)? = null,
 ) {
     val contentColor = if (enabled) {
-        com.gominitta.android.ui.theme.Gray800          // 기존: MaterialTheme.colorScheme.onSurface
+        com.gominitta.android.ui.theme.Gray800
     } else {
-        com.gominitta.android.ui.theme.Gray800.copy(alpha = 0.35f)   // 기존: onSurface.copy(alpha = 0.35f)
+        com.gominitta.android.ui.theme.Gray800.copy(alpha = 0.35f)
     }
 
-    // 중복으로 감싸져 있던 Row 하나를 제거하여 깔끔하게 수정했습니다.
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -94,24 +91,23 @@ fun MyPageSettingRow(
             )
             .padding(
                 horizontal = 16.dp,
-                vertical = 16.dp, // 피그마 규격에 맞게 상하 패딩 조정 (필요시 원래 14.dp로 유지 가능)
+                vertical = 16.dp,
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             painter = painterResource(iconRes),
             contentDescription = null,
-            modifier = Modifier.size(24.dp), // 피그마 좌측 아이콘 크기
+            modifier = Modifier.size(24.dp),
             tint = Color.Unspecified,
         )
 
         Text(
             text = title,
             modifier = Modifier
-                .padding(start = 12.dp) // 아이콘과 텍스트 사이 간격 12.dp
+                .padding(start = 12.dp)
                 .weight(1f),
-            // Pretendard Medium 16px 스타일 적용
-            fontFamily = PretendardFontFamily, // 이전 질문에서 만드신 FontFamily 사용
+            fontFamily = PretendardFontFamily,
             fontWeight = FontWeight.Medium,
             fontSize = 16.sp,
             color = contentColor,
@@ -125,7 +121,7 @@ fun MyPageSettingRow(
                     id = R.drawable.ic_mypage_rightarrow,
                 ),
                 contentDescription = null,
-                modifier = Modifier.size(24.dp), // 우측 화살표 아이콘 크기도 피그마에 맞춰 24.dp로 조정하는 것을 권장합니다.
+                modifier = Modifier.size(24.dp),
                 tint = Color.Unspecified,
             )
         }
@@ -138,6 +134,7 @@ fun MyPageProfileCard(
     email: String,
     onProfileEditClick: () -> Unit,
     modifier: Modifier = Modifier,
+    profileImageRes: Int? = null, // 추가
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -162,7 +159,16 @@ fun MyPageProfileCard(
                     .background(
                         MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f),
                     ),
-            )
+                contentAlignment = Alignment.Center,
+            ) {
+                if (profileImageRes != null) {
+                    Image(
+                        painter = painterResource(profileImageRes),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            }
 
             Column(
                 modifier = Modifier
@@ -194,6 +200,7 @@ fun MyPageProfileCard(
         }
     }
 }
+
 @Composable
 fun MyPagePrimaryButton(
     text: String,
@@ -204,23 +211,24 @@ fun MyPagePrimaryButton(
     Button(
         onClick = onClick,
         modifier = modifier
-            .fillMaxWidth()   // 부모가 20dp 좌우 패딩을 준 popup 안에서는 이미 335dp 근사치라 width 직접 지정 불필요
+            .fillMaxWidth()
             .height(56.dp),
         enabled = enabled,
         shape = RoundedCornerShape(14.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,      // ✅ 수정: primaryContainer(#FBEACB) → primary(Accent/Cream/300 #F9E0BA)
-            contentColor = MaterialTheme.colorScheme.onPrimary,       // ✅ 수정: 위와 짝 맞춤
-            disabledContainerColor = com.gominitta.android.ui.theme.Gray200,   // ✅ 수정: surfaceVariant → Gray200(#D4D4D4)
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            disabledContainerColor = com.gominitta.android.ui.theme.Gray200,
             disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
         ),
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.labelLarge,   // 이미 Button1_15m = Pretendard Medium 15px
+            style = MaterialTheme.typography.labelLarge,
         )
     }
 }
+
 @Composable
 fun MyPageOutlinedButton(
     text: String,
@@ -246,6 +254,7 @@ fun MyPageOutlinedButton(
         )
     }
 }
+
 @Composable
 fun FavoriteTimeCard(
     time: TimeValue,
@@ -255,16 +264,16 @@ fun FavoriteTimeCard(
     modifier: Modifier = Modifier,
 ) {
     val backgroundColor = if (selected) {
-        MaterialTheme.colorScheme.tertiaryContainer   // AccentCream100 = #FDF1D6
+        MaterialTheme.colorScheme.tertiaryContainer
     } else {
-        MaterialTheme.colorScheme.surface              // White800 = #FEFEFB
+        MaterialTheme.colorScheme.surface
     }
 
     Box(
         modifier = modifier
             .width(166.dp)
             .height(86.dp)
-            .shadow(                                    // ✅ 추가: X0 Y3 blur16 spread0 #000000 4%
+            .shadow(
                 elevation = 16.dp,
                 shape = RoundedCornerShape(14.dp),
                 ambientColor = Color.Black.copy(alpha = 0.04f),
@@ -275,18 +284,15 @@ fun FavoriteTimeCard(
             .border(
                 width = 1.dp,
                 color = Primary200,
-                shape = RoundedCornerShape(14.dp),   // clip과 동일하게 14dp로 통일
+                shape = RoundedCornerShape(14.dp),
             )
-
             .clickable(onClick = onClick),
-        // 바깥 Box의 padding(horizontal = 12.dp)은 삭제 —
-        // 이제 아래 Row가 자체 패딩으로 텍스트 위치를 담당함
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(
                 start = 20.dp,
-                top = 45.dp,     // 글씨를 아래로 내리는 값 — top만 크게
+                top = 45.dp,
                 end = 20.dp,
                 bottom = 20.dp,
             ),
@@ -294,14 +300,14 @@ fun FavoriteTimeCard(
             Text(
                 text = time.formatted(),
                 style = Title2_18sb,
-                color = MaterialTheme.colorScheme.onSurface,   // #404040
+                color = MaterialTheme.colorScheme.onSurface,
             )
 
             Spacer(modifier = Modifier.width(4.dp))
 
             Text(
                 text = suffix,
-                style = Body2_15r,   // Pretendard Regular 15
+                style = Body2_15r,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
