@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -76,9 +77,15 @@ private fun AnxietyDataCard(
     data: AnxietyReportData,
     modifier: Modifier,
 ) {
-    // 점수 변화 방향에 따라 두 점수 카드의 강조 색상을 결정합니다.
-    val isRising = data.state == AnxietyChangeState.INCREASED
-    val isFlat = data.state == AnxietyChangeState.MAINTAINED
+    // 변화 방향에 맞춰 더 높은 점수의 카드를 강조하고, 유지 상태에서는 같은 색을 사용합니다.
+    val primaryCardColor = MaterialTheme.colorScheme.primary300Token
+    val secondaryCardColor = MaterialTheme.colorScheme.secondaryContainer
+    val maintainedCardColor = MaterialTheme.colorScheme.tertiary
+    val (beforeCardColor, afterCardColor) = when (data.state) {
+        AnxietyChangeState.DECREASED -> primaryCardColor to secondaryCardColor
+        AnxietyChangeState.INCREASED -> secondaryCardColor to primaryCardColor
+        AnxietyChangeState.MAINTAINED -> maintainedCardColor to maintainedCardColor
+    }
     val graphColor = MaterialTheme.colorScheme.onSurface
     val dividerColor = MaterialTheme.colorScheme.gray400Token
 
@@ -94,21 +101,13 @@ private fun AnxietyDataCard(
                 label = stringResource(R.string.report_anxiety_before),
                 score = data.beforeScore,
                 illustrationRes = anxietyScoreIllustration(data.beforeScore),
-                backgroundColor = when {
-                    isFlat -> MaterialTheme.colorScheme.tertiary
-                    isRising -> MaterialTheme.colorScheme.secondaryContainer
-                    else -> MaterialTheme.colorScheme.primary300Token
-                },
+                backgroundColor = beforeCardColor,
             )
             ScoreBlock(
                 label = stringResource(R.string.report_anxiety_after),
                 score = data.afterScore,
                 illustrationRes = anxietyScoreIllustration(data.afterScore),
-                backgroundColor = when {
-                    isFlat -> MaterialTheme.colorScheme.tertiary
-                    isRising -> MaterialTheme.colorScheme.primary300Token
-                    else -> MaterialTheme.colorScheme.secondaryContainer
-                },
+                backgroundColor = afterCardColor,
             )
         }
 
@@ -117,9 +116,9 @@ private fun AnxietyDataCard(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             // 그래프의 세로축은 불안 점수 범위인 0~10을 나타냅니다.
-            listOf("10", "8", "6", "4", "2", "0").forEach {
+            (10 downTo 0 step 2).forEach { score ->
                 Text(
-                    text = it,
+                    text = score.toString(),
                     modifier = Modifier.size(15.dp, 20.dp),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodyMedium,
@@ -132,14 +131,23 @@ private fun AnxietyDataCard(
             modifier = Modifier.offset(x = 69.dp, y = 188.dp).size(213.dp, 156.dp),
         ) {
             // 점수가 높을수록 위쪽에 오도록 0~10 점수를 그래프 좌표로 변환합니다.
-            fun scoreY(score: Double): Float =
-                (153 - 14 * score.coerceIn(0.0, 10.0)).dp.toPx()
+            val chartTopY = 13.dp.toPx()
+            val chartBottomY = 153.dp.toPx()
+            val beforePointX = 3.dp.toPx()
+            val afterPointX = 210.dp.toPx()
+            val pointRadius = 3.dp.toPx()
 
-            val start = Offset(3.dp.toPx(), scoreY(data.beforeScore))
-            val end = Offset(210.dp.toPx(), scoreY(data.afterScore))
+            fun scoreY(score: Double): Float {
+                val normalizedScore = score.coerceIn(0.0, 10.0) / 10.0
+                return chartBottomY -
+                    (chartBottomY - chartTopY) * normalizedScore.toFloat()
+            }
+
+            val start = Offset(beforePointX, scoreY(data.beforeScore))
+            val end = Offset(afterPointX, scoreY(data.afterScore))
             drawLine(graphColor, start, end, strokeWidth = 1.dp.toPx())
-            drawCircle(graphColor, 3.dp.toPx(), start)
-            drawCircle(graphColor, 3.dp.toPx(), end)
+            drawCircle(graphColor, pointRadius, start)
+            drawCircle(graphColor, pointRadius, end)
         }
 
         Canvas(
@@ -188,7 +196,7 @@ private fun ScoreBlock(
     label: String,
     score: Double,
     @DrawableRes illustrationRes: Int,
-    backgroundColor: androidx.compose.ui.graphics.Color,
+    backgroundColor: Color,
 ) {
     Row(
         modifier = Modifier
