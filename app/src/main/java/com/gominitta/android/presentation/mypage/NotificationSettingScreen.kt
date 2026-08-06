@@ -16,38 +16,24 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.gominitta.android.presentation.mypage.components.MyPageTopBar
 import androidx.compose.ui.graphics.Color
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.gominitta.android.presentation.mypage.components.MyPageTopBar
 
 @Composable
 fun NotificationSettingRoute(
     onBackClick: () -> Unit,
+    viewModel: NotificationSettingViewModel = hiltViewModel(),
 ) {
-    var reservationReminderEnabled by rememberSaveable {
-        mutableStateOf(false)
-    }
-
-    var sessionStartReminderEnabled by rememberSaveable {
-        mutableStateOf(true)
-    }
-
     NotificationSettingScreen(
-        reservationReminderEnabled = reservationReminderEnabled,
-        sessionStartReminderEnabled = sessionStartReminderEnabled,
-        onReservationReminderChanged = {
-            reservationReminderEnabled = it
-        },
-        onSessionStartReminderChanged = {
-            sessionStartReminderEnabled = it
-        },
+        reservationReminderEnabled = viewModel.reservationReminderEnabled,
+        sessionStartReminderEnabled = viewModel.sessionStartReminderEnabled,
+        onReservationReminderChanged = viewModel::onReservationReminderChanged,
+        onSessionStartReminderChanged = viewModel::onSessionStartReminderChanged,
         onBackClick = onBackClick,
     )
 }

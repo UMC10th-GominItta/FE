@@ -5,11 +5,13 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.gominitta.android.presentation.mypage.model.DummyMyPageRepository
 import com.gominitta.android.presentation.mypage.model.MyPageRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class ProfileEditViewModel @JvmOverloads constructor(
-    private val repository: MyPageRepository = DummyMyPageRepository,
+@HiltViewModel
+class ProfileEditViewModel @Inject constructor(
+    private val repository: MyPageRepository,
 ) : ViewModel() {
 
     var nickname by mutableStateOf("")
