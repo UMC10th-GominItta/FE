@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.datastore.preferences)
 
     // Compose BOM — pins all androidx.compose.* versions
     val composeBom = platform(libs.androidx.compose.bom)
