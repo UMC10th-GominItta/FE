@@ -37,7 +37,7 @@ import com.gominitta.android.presentation.mypage.ProfileEditRoute
 import com.gominitta.android.presentation.mypage.WithdrawScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gominitta.android.presentation.mypage.model.FavoriteTimeViewModel
-
+import androidx.hilt.navigation.compose.hiltViewModel
 
 /**
  * Root navigation graph — the ONLY place holding the top-level [NavHostController].
@@ -136,7 +136,7 @@ fun AppNavHost(
             )
         }
         composable(Routes.MY_PAGE_FAVORITE_TIME) {
-            val viewModel: FavoriteTimeViewModel = viewModel()   // Hilt 쓰면 hiltViewModel()
+            val viewModel: FavoriteTimeViewModel = hiltViewModel() // Hilt 쓰면 hiltViewModel()
             FavoriteTimeRoute(
                 favoriteTimes = viewModel.favoriteTimes,
                 onBackClick = { navController.popBackStack() },
