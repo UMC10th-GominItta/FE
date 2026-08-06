@@ -24,8 +24,7 @@ import retrofit2.Retrofit
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    // TODO: 실제 서버 base URL로 교체
-    private const val BASE_URL = "https://api.gominitta.com/"
+    private const val BASE_URL = "http://www.gominitta.cloud/"
 
     @Provides
     @Singleton

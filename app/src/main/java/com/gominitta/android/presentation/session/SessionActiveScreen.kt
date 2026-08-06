@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,10 +34,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -80,10 +84,14 @@ fun SessionActiveScreen(
     onNavigateBack: () -> Unit,
     onNavigateToRecipeCenter: () -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: SessionActiveViewModel = hiltViewModel(),
 ) {
-    var selectedTab by remember { mutableStateOf(RecordTab.Text) }
-    var noteText by remember { mutableStateOf("") }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showIntroSheet by remember { mutableStateOf(true) }
+
+    LaunchedEffect(uiState.isDone) {
+        if (uiState.isDone) onNavigateNext()
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(
@@ -91,17 +99,31 @@ fun SessionActiveScreen(
             containerColor = Color.Transparent,
             contentColor = MaterialTheme.colorScheme.onBackground,
         ) { innerPadding ->
-            SessionActiveContent(
-                innerPadding = innerPadding,
-                worryTitle = FAKE_WORRY_TITLE,
-                worryMemo = FAKE_WORRY_MEMO,
-                selectedTab = selectedTab,
-                onTabSelected = { selectedTab = it },
-                noteText = noteText,
-                onNoteTextChange = { noteText = it },
-                onNavigateBack = onNavigateBack,
-                onCompleteSession = onNavigateNext,
-            )
+            when {
+                uiState.isLoading -> Box(
+                    modifier = Modifier.fillMaxSize().padding(innerPadding),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator(color = Primary800)
+                }
+                uiState.errorMessage != null -> Box(
+                    modifier = Modifier.fillMaxSize().padding(innerPadding).padding(20.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(text = uiState.errorMessage.orEmpty(), style = Body2_15r, color = Gray400, textAlign = TextAlign.Center)
+                }
+                else -> SessionActiveContent(
+                    innerPadding = innerPadding,
+                    worryContent = uiState.worryContent,
+                    themeCategory = uiState.themeCategory,
+                    selectedTab = uiState.selectedTab,
+                    onTabSelected = viewModel::selectTab,
+                    noteText = uiState.noteText,
+                    onNoteTextChange = viewModel::updateNoteText,
+                    onNavigateBack = onNavigateBack,
+                    onCompleteSession = viewModel::commitAndProceed,
+                )
+            }
         }
 
         if (showIntroSheet) {
@@ -137,8 +159,8 @@ fun SessionActiveScreen(
 @Composable
 private fun SessionActiveContent(
     innerPadding: PaddingValues,
-    worryTitle: String,
-    worryMemo: String,
+    worryContent: String,
+    themeCategory: String,
     selectedTab: RecordTab,
     onTabSelected: (RecordTab) -> Unit,
     noteText: String,
@@ -182,9 +204,9 @@ private fun SessionActiveContent(
             Text(text = "예약된 걱정", style = Heading5_15m, color = Gray800)
             Spacer(Modifier.height(8.dp))
             GominittaElevatedCard(modifier = Modifier.height(170.dp)) {
-                Text(text = worryTitle, style = Body1_16m, color = Gray800)
+                Text(text = worryContent, style = Body1_16m, color = Gray800)
                 Spacer(Modifier.height(4.dp))
-                Text(text = worryMemo, style = Body3_14r, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(text = themeCategory, style = Body3_14r, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Spacer(Modifier.height(20.dp))
 
@@ -210,7 +232,7 @@ private fun SessionActiveContent(
                         "다 끝나면 세션 완료하기를 누르세요.",
                     icon = R.drawable.ic_mic,
                 )
-                RecordTab.Camera -> PlaceholderRecordArea(
+                RecordTab.Handwriting -> PlaceholderRecordArea(
                     guide = "노트나 일기장에 적어둔 내용이 있다면 카메라로 스캔해보세요.",
                     icon = R.drawable.ic_camera,
                 )
@@ -224,12 +246,6 @@ private fun SessionActiveContent(
             modifier = Modifier.fillMaxWidth(),
         )
     }
-}
-
-private enum class RecordTab(val label: String, val icon: Int) {
-    Text("텍스트 입력", R.drawable.ic_textpencil),
-    Voice("음성 인식", R.drawable.ic_mic),
-    Camera("텍스트 인식", R.drawable.ic_camera),
 }
 
 @Composable
@@ -369,12 +385,10 @@ private fun SessionIntroSheetContent(onSkip: () -> Unit, onStartRecipe: () -> Un
     }
 }
 
-// ---- Fake data (API 연동 전) --------------------------------------------------
-
-private const val FAKE_WORRY_TITLE = "UMC 프론트가 안 구해지면 어떡하지"
-private const val FAKE_WORRY_MEMO = "걱정걱정걱정"
-
 // ---- Preview ---------------------------------------------------------------
+
+private const val PREVIEW_WORRY_CONTENT = "UMC 프론트가 안 구해지면 어떡하지"
+private const val PREVIEW_THEME_CATEGORY = "진로"
 
 @Preview(name = "SessionActive - 텍스트 탭", showBackground = true, backgroundColor = 0xFFF3F0EB)
 @Composable
@@ -382,8 +396,8 @@ private fun SessionActiveContentTextPreview() {
     GominittaTheme {
         SessionActiveContent(
             innerPadding = PaddingValues(0.dp),
-            worryTitle = FAKE_WORRY_TITLE,
-            worryMemo = FAKE_WORRY_MEMO,
+            worryContent = PREVIEW_WORRY_CONTENT,
+            themeCategory = PREVIEW_THEME_CATEGORY,
             selectedTab = RecordTab.Text,
             onTabSelected = {},
             noteText = "",
@@ -400,8 +414,8 @@ private fun SessionActiveContentVoicePreview() {
     GominittaTheme {
         SessionActiveContent(
             innerPadding = PaddingValues(0.dp),
-            worryTitle = FAKE_WORRY_TITLE,
-            worryMemo = FAKE_WORRY_MEMO,
+            worryContent = PREVIEW_WORRY_CONTENT,
+            themeCategory = PREVIEW_THEME_CATEGORY,
             selectedTab = RecordTab.Voice,
             onTabSelected = {},
             noteText = "",

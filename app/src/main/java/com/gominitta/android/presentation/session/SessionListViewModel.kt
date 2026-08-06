@@ -2,8 +2,8 @@ package com.gominitta.android.presentation.session
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gominitta.android.domain.model.session.Session
 import com.gominitta.android.domain.model.session.SessionStatus
-import com.gominitta.android.domain.model.session.SessionSummary
 import com.gominitta.android.domain.usecase.GetSessionListUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -15,8 +15,8 @@ import kotlinx.coroutines.launch
 
 data class SessionListUiState(
     val isLoading: Boolean = true,
-    val scheduled: List<SessionSummary> = emptyList(),
-    val incomplete: List<SessionSummary> = emptyList(),
+    val scheduled: List<Session> = emptyList(),
+    val incomplete: List<Session> = emptyList(),
     val errorMessage: String? = null,
 )
 

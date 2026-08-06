@@ -28,6 +28,9 @@ import com.gominitta.android.presentation.recipe.RecipeViewModel
 import com.gominitta.android.presentation.recipe.RecipeCompleteScreen
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.compose.runtime.getValue
+
+private const val HOME_NEXT_SESSION_PLACEHOLDER_ID = 1L
+
 /**
  * 하단 탭 바를 가진 메인 컨테이너.
  *
@@ -39,7 +42,7 @@ import androidx.compose.runtime.getValue
 fun MainScreen(
     onNavigateToWorryInput: () -> Unit,
     onNavigateToWorryMemo: () -> Unit,
-    onNavigateToSessionDetail: () -> Unit,
+    onNavigateToSessionDetail: (Long) -> Unit,
     onNavigateToSessionEdit: (Long) -> Unit,
     onNavigateToMyPage: () -> Unit,
     startTab: String = Routes.HOME,
@@ -85,14 +88,16 @@ fun MainScreen(
                 HomeScreen(
                     onNavigateToWorryInput = onNavigateToWorryInput,
                     onNavigateToWorryMemo = onNavigateToWorryMemo,
-                    onNavigateToSessionDetail = onNavigateToSessionDetail,
+                    // 홈 화면의 "다음 세션" 카드가 아직 실제 세션 데이터에 연결되지 않아
+                    // (하드코딩된 표시값) sessionId 도 임시로 고정값을 쓴다. 홈 카드가
+                    // 실데이터를 받으면 그 세션 id를 그대로 넘기면 된다.
+                    onNavigateToSessionDetail = { onNavigateToSessionDetail(HOME_NEXT_SESSION_PLACEHOLDER_ID) },
                     onNavigateToMyPage = onNavigateToMyPage,
                 )
             }
             composable(Routes.SESSION_LIST) {
                 SessionListScreen(
-                    // TODO: SESSION_DETAIL 라우트에 sessionId 인자가 추가되면 실제로 전달하도록 변경
-                    onNavigateToSessionDetail = { _ -> onNavigateToSessionDetail() },
+                    onNavigateToSessionDetail = onNavigateToSessionDetail,
                     onNavigateToSessionEdit = onNavigateToSessionEdit,
                     onNavigateToWorryInput = onNavigateToWorryInput,
                     onNavigateToWorryMemo = onNavigateToWorryMemo,

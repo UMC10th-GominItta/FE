@@ -37,8 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gominitta.android.R
+import com.gominitta.android.domain.model.session.Session
 import com.gominitta.android.domain.model.session.SessionStatus
-import com.gominitta.android.domain.model.session.SessionSummary
 import com.gominitta.android.ui.components.GominittaButton
 import com.gominitta.android.ui.components.GominittaButtonVariant
 import com.gominitta.android.ui.components.GominittaElevatedCard
@@ -122,8 +122,8 @@ private fun ErrorState(innerPadding: PaddingValues, message: String, onRetry: ()
 @Composable
 private fun SessionListContent(
     innerPadding: PaddingValues,
-    scheduled: List<SessionSummary>,
-    incomplete: List<SessionSummary>,
+    scheduled: List<Session>,
+    incomplete: List<Session>,
     onNavigateToSessionDetail: (Long) -> Unit,
     onNavigateToSessionEdit: (Long) -> Unit,
     onNavigateToWorryInput: () -> Unit,
@@ -213,7 +213,7 @@ private fun EmptyScheduledCard(onNavigateToWorryInput: () -> Unit) {
 
 @Composable
 private fun SessionCard(
-    session: SessionSummary,
+    session: Session,
     onStartSession: (Long) -> Unit,
     onEditSession: (Long) -> Unit,
     onAddMemo: () -> Unit,
@@ -299,32 +299,35 @@ private fun LocalDateTime.toSessionCardLabel(): String {
 // ---- Preview ---------------------------------------------------------------
 
 private val previewScheduled = listOf(
-    SessionSummary(
+    Session(
         id = 1,
         worryId = 10,
         worryContent = "UMC 프론트가 안 구해지면 어떡하지",
-        status = SessionStatus.SCHEDULED,
         scheduledStartAt = LocalDateTime.of(2026, 5, 27, 22, 0),
         scheduledEndAt = LocalDateTime.of(2026, 5, 27, 23, 0),
+        status = SessionStatus.SCHEDULED,
+        emotionScoreBefore = 8,
     ),
-    SessionSummary(
+    Session(
         id = 2,
         worryId = 11,
         worryContent = "UMC 디자이너가 안 구해지면 어떡하지",
-        status = SessionStatus.SCHEDULED,
         scheduledStartAt = LocalDateTime.of(2026, 5, 28, 23, 0),
         scheduledEndAt = LocalDateTime.of(2026, 5, 29, 0, 0),
+        status = SessionStatus.SCHEDULED,
+        emotionScoreBefore = 7,
     ),
 )
 
 private val previewIncomplete = listOf(
-    SessionSummary(
+    Session(
         id = 3,
         worryId = 12,
         worryContent = "UMC 프론트가 안 구해지면 어떡하지",
-        status = SessionStatus.INCOMPLETE,
         scheduledStartAt = LocalDateTime.of(2026, 5, 19, 23, 0),
         scheduledEndAt = LocalDateTime.of(2026, 5, 20, 0, 0),
+        status = SessionStatus.INCOMPLETE,
+        emotionScoreBefore = 8,
     ),
 )
 

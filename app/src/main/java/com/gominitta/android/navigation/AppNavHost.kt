@@ -99,7 +99,7 @@ fun AppNavHost(
                 startTab = startTab ?: Routes.HOME,
                 onNavigateBackToSession = { navController.popBackStack() },
                 onNavigateToWorryInput = { navController.navigate(Routes.WORRY_INPUT) },
-                onNavigateToSessionDetail = { navController.navigate(Routes.SESSION_ACTIVE) },
+                onNavigateToSessionDetail = { sessionId -> navController.navigate(Routes.sessionActiveRoute(sessionId)) },
                 onNavigateToSessionEdit = { sessionId -> navController.navigate(Routes.sessionEditRoute(sessionId)) },
                 onNavigateToWorryMemo = { navController.navigate(Routes.WORRY_MEMO) },
                 onNavigateToMyPage = { navController.navigate(Routes.MY_PAGE) },
@@ -223,7 +223,10 @@ fun AppNavHost(
         }
 
         // ── 마음 세션 플로우 (전체화면, 바텀바 없음) ──
-        composable(Routes.SESSION_ACTIVE) {
+        composable(
+            route = Routes.SESSION_ACTIVE,
+            arguments = listOf(navArgument("sessionId") { type = NavType.LongType }),
+        ) {
             SessionActiveScreen(
                 onNavigateNext = { navController.navigate(Routes.SESSION_DETAIL) },
                 onNavigateBack = { navController.popBackStack() },

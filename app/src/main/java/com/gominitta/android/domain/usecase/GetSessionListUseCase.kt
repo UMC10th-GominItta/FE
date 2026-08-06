@@ -1,6 +1,6 @@
 package com.gominitta.android.domain.usecase
 
-import com.gominitta.android.domain.model.session.SessionSummary
+import com.gominitta.android.domain.model.session.Session
 import com.gominitta.android.domain.repository.SessionRepository
 import javax.inject.Inject
 
@@ -11,5 +11,5 @@ import javax.inject.Inject
 class GetSessionListUseCase @Inject constructor(
     private val repository: SessionRepository,
 ) {
-    suspend operator fun invoke(): List<SessionSummary> = repository.getSessions()
+    suspend operator fun invoke(): List<Session> = repository.getSessions()
 }
