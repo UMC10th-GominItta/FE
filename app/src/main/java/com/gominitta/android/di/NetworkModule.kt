@@ -1,6 +1,7 @@
 package com.gominitta.android.di
 
 import com.gominitta.android.BuildConfig
+import com.gominitta.android.data.remote.api.ReportApi
 import com.gominitta.android.data.remote.AuthInterceptor
 import com.gominitta.android.data.remote.TokenAuthenticator
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
@@ -60,4 +61,8 @@ object NetworkModule {
             .client(okHttpClient)
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
+
+    @Provides
+    @Singleton
+    fun provideReportApi(retrofit: Retrofit): ReportApi = retrofit.create(ReportApi::class.java)
 }

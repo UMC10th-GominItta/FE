@@ -14,14 +14,6 @@ import javax.inject.Inject
 class MyPageViewModel @Inject constructor(
     private val getUserProfileUseCase: GetUserProfileUseCase,
 ) : ViewModel() {
-    fun refresh() {
-        viewModelScope.launch {
-            val user = getUserProfileUseCase()
-            nickname = user.nickname
-            email = user.email
-            profileImageUrl = user.profileImageUrl
-        }
-    }
 
     var nickname by mutableStateOf("")
         private set
@@ -33,6 +25,15 @@ class MyPageViewModel @Inject constructor(
         private set
 
     init {
+        viewModelScope.launch {
+            val user = getUserProfileUseCase()
+            nickname = user.nickname
+            email = user.email
+            profileImageUrl = user.profileImageUrl
+        }
+    }
+
+    fun refresh() {
         viewModelScope.launch {
             val user = getUserProfileUseCase()
             nickname = user.nickname

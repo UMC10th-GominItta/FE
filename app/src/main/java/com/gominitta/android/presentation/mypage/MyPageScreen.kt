@@ -60,6 +60,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+
 @Composable
 fun MyPageRoute(
     onBackClick: () -> Unit,
