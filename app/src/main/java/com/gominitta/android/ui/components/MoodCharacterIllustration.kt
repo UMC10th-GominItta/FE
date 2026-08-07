@@ -1,5 +1,10 @@
 package com.gominitta.android.ui.components
 
+import androidx.compose.foundation.Image
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import com.gominitta.android.R
 
 
@@ -54,3 +59,18 @@ private fun Int.toScoreBucket(): Int = when (coerceIn(0, 10)) {
 /** [profileIndex](0~4)의 캐릭터 세트에서 [score](0~10) 구간에 맞는 이미지를 반환한다. */
 fun moodCharacterDrawableRes(profileIndex: Int, score: Int): Int =
     MoodCharacterDrawables.getValue(profileIndex.toMoodCharacterSet())[score.toScoreBucket()]
+
+@Composable
+fun MoodCharacterIllustration(
+    score: Int,
+    profileIndex: Int,
+    modifier: Modifier = Modifier,
+    contentDescription: String? = "감정 표현 이미지",
+) {
+    Image(
+        painter = painterResource(moodCharacterDrawableRes(profileIndex, score)),
+        contentDescription = contentDescription,
+        modifier = modifier,
+        contentScale = ContentScale.Fit,
+    )
+}
