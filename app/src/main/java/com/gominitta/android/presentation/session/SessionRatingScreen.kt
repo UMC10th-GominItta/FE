@@ -31,9 +31,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.gominitta.android.presentation.mypage.model.DummyMyPageRepository
+import com.gominitta.android.presentation.common.CurrentUserMoodCharacterIllustration
 import com.gominitta.android.ui.components.GominittaButton
-import com.gominitta.android.ui.components.MoodCharacterIllustration
 import com.gominitta.android.ui.theme.AccentCream100
 import com.gominitta.android.ui.theme.AccentCream300
 import com.gominitta.android.ui.theme.Body3_14r
@@ -55,7 +54,6 @@ fun SessionRatingScreen(
     modifier: Modifier = Modifier,
 ) {
     var emotionScore by remember { mutableFloatStateOf(5f) }
-    val profileIndex = remember { DummyMyPageRepository.getProfileImageIndex() }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -87,9 +85,8 @@ fun SessionRatingScreen(
             )
             Spacer(Modifier.weight(1f))
 
-            MoodCharacterIllustration(
+            CurrentUserMoodCharacterIllustration(
                 score = emotionScore.roundToInt(),
-                profileIndex = profileIndex,
                 modifier = Modifier.size(180.dp),
             )
 
