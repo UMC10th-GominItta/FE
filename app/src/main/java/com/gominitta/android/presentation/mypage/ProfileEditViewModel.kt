@@ -5,22 +5,38 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.gominitta.android.presentation.mypage.model.MyPageRepository
+import androidx.lifecycle.viewModelScope
+import com.gominitta.android.domain.usecase.GetUserProfileUseCase
+import com.gominitta.android.domain.usecase.UpdateUserProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileEditViewModel @Inject constructor(
-    private val repository: MyPageRepository,
+    private val getUserProfileUseCase: GetUserProfileUseCase,
+    private val updateUserProfileUseCase: UpdateUserProfileUseCase,
 ) : ViewModel() {
 
     var nickname by mutableStateOf("")
         private set
 
-    var selectedProfileIndex by mutableIntStateOf(repository.getProfileImageIndex())
+    var initialNickname by mutableStateOf("")
         private set
 
-    val initialNickname: String get() = repository.getNickname()
+    var selectedProfileIndex by mutableIntStateOf(0)
+        private set
+
+    var isSaved by mutableStateOf(false)
+        private set
+
+    init {
+        viewModelScope.launch {
+            val user = getUserProfileUseCase()
+            initialNickname = user.nickname
+            selectedProfileIndex = user.profileImageUrl.toProfileIndex()
+        }
+    }
 
     fun onNicknameChange(value: String) {
         nickname = value.take(12)
@@ -31,7 +47,12 @@ class ProfileEditViewModel @Inject constructor(
     }
 
     fun save() {
-        repository.setProfileImageIndex(selectedProfileIndex)
-        // TODO: 닉네임 저장은 API 연동 시 UseCase 호출로 대체
+        viewModelScope.launch {
+            updateUserProfileUseCase(
+                nickname = nickname.ifBlank { null },
+                profileImageUrl = selectedProfileIndex.toProfileImageUrl(),
+            )
+            isSaved = true
+        }
     }
 }
