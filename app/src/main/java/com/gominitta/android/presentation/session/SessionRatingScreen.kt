@@ -31,7 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.gominitta.android.presentation.mypage.model.DummyMyPageRepository
+import com.gominitta.android.presentation.mypage.model.ProfileImages
 import com.gominitta.android.ui.components.GominittaButton
 import com.gominitta.android.ui.components.MoodCharacterIllustration
 import com.gominitta.android.ui.theme.AccentCream100
@@ -55,8 +55,9 @@ fun SessionRatingScreen(
     modifier: Modifier = Modifier,
 ) {
     var emotionScore by remember { mutableFloatStateOf(5f) }
-    val profileIndex = remember { DummyMyPageRepository.getProfileImageIndex() }
-
+// TODO: DummyMyPageRepository 삭제로 인한 임시 처리 — 세션 담당자 확인 후
+//       실제 유저 프로필 이미지를 반영하도록 수정 필요
+    val profileIndex = remember { ProfileImages.DEFAULT_INDEX }
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = Color.Transparent,
