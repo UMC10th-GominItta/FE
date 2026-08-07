@@ -61,6 +61,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+
 @Composable
 fun MyPageRoute(
     onBackClick: () -> Unit,
@@ -82,6 +83,7 @@ fun MyPageRoute(
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
+
     var showLogoutSheet by rememberSaveable { mutableStateOf(false) }
     var sheetTopY by remember { mutableStateOf(0f) }
 

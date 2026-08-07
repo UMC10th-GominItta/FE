@@ -5,10 +5,12 @@ import com.gominitta.android.data.repository.FakeSampleRepository
 import com.gominitta.android.data.repository.FakeSessionRepository
 import com.gominitta.android.data.repository.FavoriteTimeRepositoryImpl
 import com.gominitta.android.data.repository.ReportRepositoryImpl
+import com.gominitta.android.data.repository.DummyFavoriteTimeRepository
 import com.gominitta.android.domain.repository.RecipeRepository
 import com.gominitta.android.domain.repository.SampleRepository
 import com.gominitta.android.domain.repository.SessionRepository
 import com.gominitta.android.domain.repository.ReportRepository
+import com.gominitta.android.domain.repository.UserRepository
 import com.gominitta.android.domain.repository.FavoriteTimeRepository
 import dagger.Binds
 import dagger.Module
@@ -48,7 +50,7 @@ abstract class AppModule {
         repository: ReportRepositoryImpl,
     ): ReportRepository
 
-    @Binds
+@Binds
     @Singleton
     abstract fun bindFavoriteTimeRepository(
         impl: FavoriteTimeRepositoryImpl,
