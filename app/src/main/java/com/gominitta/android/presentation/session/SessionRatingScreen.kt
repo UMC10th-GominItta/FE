@@ -55,11 +55,9 @@ fun SessionRatingScreen(
     modifier: Modifier = Modifier,
 ) {
     var emotionScore by remember { mutableFloatStateOf(5f) }
-
 // TODO: DummyMyPageRepository 삭제로 인한 임시 처리 — 세션 담당자 확인 후
 //       실제 유저 프로필 이미지를 반영하도록 수정 필요
     val profileIndex = remember { ProfileImages.DEFAULT_INDEX }
-
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = Color.Transparent,

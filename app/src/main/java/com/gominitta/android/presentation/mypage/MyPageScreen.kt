@@ -56,6 +56,7 @@ import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Title1_20sb
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
