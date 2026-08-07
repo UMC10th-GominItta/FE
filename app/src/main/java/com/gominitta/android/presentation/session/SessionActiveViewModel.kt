@@ -4,10 +4,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gominitta.android.R
+import com.gominitta.android.domain.usecase.AddHandwritingRecordUseCase
 import com.gominitta.android.domain.usecase.AddTextRecordUseCase
+import com.gominitta.android.domain.usecase.AddVoiceRecordUseCase
 import com.gominitta.android.domain.usecase.GetSessionDetailUseCase
 import com.gominitta.android.domain.usecase.StartSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.io.File
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,6 +35,8 @@ data class SessionActiveUiState(
     val isSaving: Boolean = false,
     val errorMessage: String? = null,
     val isDone: Boolean = false,
+    /** 음성/필기 탭에서 이미 업로드까지 끝난 기록의 탭. null이면 아직 없음. */
+    val capturedTab: RecordTab? = null,
 )
 
 @HiltViewModel
@@ -40,6 +45,8 @@ class SessionActiveViewModel @Inject constructor(
     private val getSessionDetail: GetSessionDetailUseCase,
     private val startSession: StartSessionUseCase,
     private val addTextRecord: AddTextRecordUseCase,
+    private val addVoiceRecord: AddVoiceRecordUseCase,
+    private val addHandwritingRecord: AddHandwritingRecordUseCase,
     private val flowState: SessionFlowState,
 ) : ViewModel() {
 
@@ -83,11 +90,15 @@ class SessionActiveViewModel @Inject constructor(
     }
 
     /**
-     * "세션 완료하기" 클릭. 텍스트 탭에 내용이 있으면 그 자리에서 기록을 실제로 생성하고
-     * (음성/필기 탭은 아직 실촬영·녹음이 없어서 건너뜀), 다음 화면으로 넘어간다.
+     * "세션 완료하기" 클릭. 텍스트 탭에 내용이 있으면 그 자리에서 기록을 실제로 생성한다.
+     * 음성/필기 탭은 녹음·촬영 시점에 이미 업로드가 끝나 있으므로([capturedTab]) 그대로 진행.
      */
     fun commitAndProceed() {
         val state = _uiState.value
+        if (state.capturedTab != null) {
+            _uiState.update { it.copy(isDone = true) }
+            return
+        }
         val text = state.noteText.trim()
         if (state.selectedTab != RecordTab.Text || text.isEmpty()) {
             _uiState.update { it.copy(isDone = true) }
@@ -103,6 +114,42 @@ class SessionActiveViewModel @Inject constructor(
                 throw e
             } catch (e: Exception) {
                 _uiState.update { it.copy(isSaving = false, errorMessage = e.message) }
+            }
+        }
+    }
+
+    /** 음성 탭에서 녹음이 끝나 파일이 생기면 곧바로 업로드해 STT 결과를 기록으로 저장한다. */
+    fun uploadVoiceRecord(file: File) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSaving = true, errorMessage = null) }
+            try {
+                val record = addVoiceRecord(sessionId, file)
+                flowState.setRecord(record.id, record.contentText)
+                _uiState.update { it.copy(isSaving = false, capturedTab = RecordTab.Voice) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isSaving = false, errorMessage = e.message) }
+            } finally {
+                file.delete()
+            }
+        }
+    }
+
+    /** 필기 탭에서 촬영이 끝나 파일이 생기면 곧바로 업로드해 OCR 결과를 기록으로 저장한다. */
+    fun uploadHandwritingRecord(file: File) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isSaving = true, errorMessage = null) }
+            try {
+                val record = addHandwritingRecord(sessionId, file)
+                flowState.setRecord(record.id, record.contentText)
+                _uiState.update { it.copy(isSaving = false, capturedTab = RecordTab.Handwriting) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _uiState.update { it.copy(isSaving = false, errorMessage = e.message) }
+            } finally {
+                file.delete()
             }
         }
     }
