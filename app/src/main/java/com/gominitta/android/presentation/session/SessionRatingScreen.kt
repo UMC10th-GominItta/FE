@@ -204,7 +204,6 @@ private fun MoodIllustration(score: Int) {
     )
 }
 
-
 private fun Int.toMoodCatDrawableRes(): Int = when (coerceIn(0, 10)) {
     0 -> R.drawable.worry_cat_0
     1, 2 -> R.drawable.worry_cat_1_2

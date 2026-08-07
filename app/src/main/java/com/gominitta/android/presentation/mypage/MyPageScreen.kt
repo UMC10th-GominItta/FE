@@ -41,7 +41,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gominitta.android.R
 import com.gominitta.android.presentation.mypage.components.MyPageOutlinedButton
 import com.gominitta.android.presentation.mypage.components.MyPagePrimaryButton
@@ -56,6 +55,12 @@ import com.gominitta.android.ui.theme.Gray600
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Title1_20sb
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 
 @Composable
 fun MyPageRoute(
@@ -66,7 +71,18 @@ fun MyPageRoute(
     onWithdrawClick: () -> Unit,
     onLogoutConfirmed: () -> Unit,
 ) {
-    val viewModel: MyPageViewModel = viewModel()
+    val viewModel: MyPageViewModel = hiltViewModel()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.refresh()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     var showLogoutSheet by rememberSaveable { mutableStateOf(false) }
     var sheetTopY by remember { mutableStateOf(0f) }
@@ -74,7 +90,7 @@ fun MyPageRoute(
     MyPageScreen(
         nickname = viewModel.nickname,
         email = viewModel.email,
-        profileImageRes = ProfileImages.all.getOrNull(viewModel.profileImageIndex), // 추가
+        profileImageRes = ProfileImages.all.getOrNull(viewModel.profileImageUrl.toProfileIndex()),
         isEditing = showLogoutSheet,
         sheetTopY = sheetTopY,
         onBackClick = onBackClick,

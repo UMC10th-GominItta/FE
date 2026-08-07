@@ -1,5 +1,6 @@
 package com.gominitta.android.ui.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -23,15 +24,17 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.gominitta.android.R
 import com.gominitta.android.ui.theme.GominittaTheme
 
 enum class HeartReportTab(
-    val title: String,
+    @param:StringRes val titleRes: Int,
     internal val width: Dp,
 ) {
-    WORRY_THEME_MAP("걱정 테마 지도", 116.dp),
-    ANXIETY_TEMPERATURE("불안 온도차", 99.dp),
-    WORRY_TIMELINE("걱정 타임라인", 112.dp),
+    WORRY_THEME_MAP(R.string.report_tab_worry_theme, 116.dp),
+    ANXIETY_TEMPERATURE(R.string.report_tab_anxiety_gap, 99.dp),
+    WORRY_TIMELINE(R.string.report_tab_worry_timeline, 112.dp),
 }
 
 /**
@@ -100,7 +103,7 @@ private fun HeartReportTabButton(
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = tab.title,
+                text = stringResource(tab.titleRes),
                 color = if (enabled) {
                     MaterialTheme.colorScheme.onSurface
                 } else {

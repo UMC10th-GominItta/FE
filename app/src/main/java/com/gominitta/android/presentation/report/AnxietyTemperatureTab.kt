@@ -1,5 +1,7 @@
 package com.gominitta.android.presentation.report
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -8,26 +10,32 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.gominitta.android.R
 import com.gominitta.android.ui.components.DateRangeOption
 import com.gominitta.android.ui.components.GominittaDateSelectMenu
 import com.gominitta.android.ui.components.GominittaReportCard
-import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.gray400Token
 import com.gominitta.android.ui.theme.heading2Token
 import com.gominitta.android.ui.theme.primary300Token
+import com.gominitta.android.ui.theme.White800
+import kotlin.math.roundToInt
 
 @Composable
 internal fun AnxietyTemperatureTab(
@@ -36,6 +44,7 @@ internal fun AnxietyTemperatureTab(
     onRangeSelected: (DateRangeOption) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
+    // 집계 표본이 없으면 그래프 대신 데이터 부족 안내를 표시합니다.
     if (data?.canRender == true) {
         AnxietyDataCard(selectedRange, onRangeSelected, data, modifier)
     } else {
@@ -52,7 +61,7 @@ private fun AnxietyEmptyCard(
     GominittaReportCard(modifier = modifier, height = 453.dp) {
         AnxietyCardHeader(selectedRange, onRangeSelected)
         Text(
-            text = "아직 리포트를 분석하기에 걱정 기록이 조금 부족해요.\n세션을 조금 더 진행해 볼까요?",
+            text = stringResource(R.string.report_empty_message),
             modifier = Modifier.offset(x = 50.dp, y = 190.dp).width(235.dp),
             color = MaterialTheme.colorScheme.gray400Token,
             style = MaterialTheme.typography.bodyLarge,
@@ -68,35 +77,37 @@ private fun AnxietyDataCard(
     data: AnxietyReportData,
     modifier: Modifier,
 ) {
-    val isRising = data.state == AnxietyChangeState.INCREASED
-    val isFlat = data.state == AnxietyChangeState.MAINTAINED
+    // 변화 방향에 맞춰 더 높은 점수의 카드를 강조하고, 유지 상태에서는 같은 색을 사용합니다.
+    val primaryCardColor = MaterialTheme.colorScheme.primary300Token
+    val secondaryCardColor = MaterialTheme.colorScheme.secondaryContainer
+    val maintainedCardColor = MaterialTheme.colorScheme.tertiary
+    val (beforeCardColor, afterCardColor) = when (data.state) {
+        AnxietyChangeState.DECREASED -> primaryCardColor to secondaryCardColor
+        AnxietyChangeState.INCREASED -> secondaryCardColor to primaryCardColor
+        AnxietyChangeState.MAINTAINED -> maintainedCardColor to maintainedCardColor
+    }
     val graphColor = MaterialTheme.colorScheme.onSurface
     val dividerColor = MaterialTheme.colorScheme.gray400Token
 
-    GominittaReportCard(modifier = modifier, height = 479.dp) {
+    GominittaReportCard(modifier = modifier, height = null, minHeight = 479.dp) {
         AnxietyCardHeader(selectedRange, onRangeSelected)
 
         Row(
             modifier = Modifier.offset(x = 16.dp, y = 85.dp).size(303.dp, 86.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
+            // 예약 시와 세션 후 점수를 각각 카드와 고양이 일러스트로 표시합니다.
             ScoreBlock(
-                label = "예약 시",
-                score = data.beforeAverage,
-                backgroundColor = when {
-                    isFlat -> MaterialTheme.colorScheme.tertiary
-                    isRising -> MaterialTheme.colorScheme.secondaryContainer
-                    else -> MaterialTheme.colorScheme.primary300Token
-                },
+                label = stringResource(R.string.report_anxiety_before),
+                score = data.beforeScore,
+                illustrationRes = anxietyScoreIllustration(data.beforeScore),
+                backgroundColor = beforeCardColor,
             )
             ScoreBlock(
-                label = "세션 후",
-                score = data.afterAverage,
-                backgroundColor = when {
-                    isFlat -> MaterialTheme.colorScheme.tertiary
-                    isRising -> MaterialTheme.colorScheme.primary300Token
-                    else -> MaterialTheme.colorScheme.secondaryContainer
-                },
+                label = stringResource(R.string.report_anxiety_after),
+                score = data.afterScore,
+                illustrationRes = anxietyScoreIllustration(data.afterScore),
+                backgroundColor = afterCardColor,
             )
         }
 
@@ -104,9 +115,10 @@ private fun AnxietyDataCard(
             modifier = Modifier.offset(x = 20.dp, y = 191.dp).size(15.dp, 160.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            listOf("10", "8", "6", "4", "2", "0").forEach {
+            // 그래프의 세로축은 불안 점수 범위인 0~10을 나타냅니다.
+            (10 downTo 0 step 2).forEach { score ->
                 Text(
-                    text = it,
+                    text = score.toString(),
                     modifier = Modifier.size(15.dp, 20.dp),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodyMedium,
@@ -118,14 +130,24 @@ private fun AnxietyDataCard(
         Canvas(
             modifier = Modifier.offset(x = 69.dp, y = 188.dp).size(213.dp, 156.dp),
         ) {
-            fun scoreY(score: Double): Float =
-                (153 - 14 * score.coerceIn(0.0, 10.0)).dp.toPx()
+            // 점수가 높을수록 위쪽에 오도록 0~10 점수를 그래프 좌표로 변환합니다.
+            val chartTopY = 13.dp.toPx()
+            val chartBottomY = 153.dp.toPx()
+            val beforePointX = 3.dp.toPx()
+            val afterPointX = 210.dp.toPx()
+            val pointRadius = 3.dp.toPx()
 
-            val start = Offset(3.dp.toPx(), scoreY(data.beforeAverage))
-            val end = Offset(210.dp.toPx(), scoreY(data.afterAverage))
+            fun scoreY(score: Double): Float {
+                val normalizedScore = score.coerceIn(0.0, 10.0) / 10.0
+                return chartBottomY -
+                    (chartBottomY - chartTopY) * normalizedScore.toFloat()
+            }
+
+            val start = Offset(beforePointX, scoreY(data.beforeScore))
+            val end = Offset(afterPointX, scoreY(data.afterScore))
             drawLine(graphColor, start, end, strokeWidth = 1.dp.toPx())
-            drawCircle(graphColor, 3.dp.toPx(), start)
-            drawCircle(graphColor, 3.dp.toPx(), end)
+            drawCircle(graphColor, pointRadius, start)
+            drawCircle(graphColor, pointRadius, end)
         }
 
         Canvas(
@@ -143,17 +165,25 @@ private fun AnxietyDataCard(
         }
 
         Column(
-            modifier = Modifier.offset(x = 16.dp, y = 378.dp).size(303.dp, 85.dp),
+            modifier = Modifier
+                .padding(start = 16.dp, top = 378.dp, end = 16.dp, bottom = 16.dp)
+                .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
+            // 서버 피드백과 프론트 팁의 길이에 맞춰 카드 하단 높이가 확장됩니다.
             Text(
-                text = data.summaryText(),
+                text = data.feedback,
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.labelLarge,
-                maxLines = 1,
             )
             Text(
-                text = data.tipText(),
+                text = stringResource(
+                    if (data.state == AnxietyChangeState.DECREASED) {
+                        R.string.report_anxiety_tip_decreased
+                    } else {
+                        R.string.report_anxiety_tip_default
+                    },
+                ),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodyMedium,
             )
@@ -165,7 +195,8 @@ private fun AnxietyDataCard(
 private fun ScoreBlock(
     label: String,
     score: Double,
-    backgroundColor: androidx.compose.ui.graphics.Color,
+    @DrawableRes illustrationRes: Int,
+    backgroundColor: Color,
 ) {
     Row(
         modifier = Modifier
@@ -176,8 +207,20 @@ private fun ScoreBlock(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier = Modifier.size(48.dp).background(MaterialTheme.colorScheme.onSecondary),
-        )
+            modifier = Modifier
+                .size(48.dp)
+                .background(White800, CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Image(
+                painter = painterResource(illustrationRes),
+                contentDescription = stringResource(
+                    R.string.report_anxiety_illustration_description,
+                    label,
+                ),
+                modifier = Modifier.size(48.dp),
+            )
+        }
         Column(modifier = Modifier.width(62.dp)) {
             Text(
                 text = label,
@@ -193,7 +236,7 @@ private fun ScoreBlock(
                     maxLines = 1,
                 )
                 Text(
-                    text = "/ 10",
+                    text = stringResource(R.string.report_score_scale),
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
@@ -201,6 +244,18 @@ private fun ScoreBlock(
             }
         }
     }
+}
+
+@DrawableRes
+internal fun anxietyScoreIllustration(score: Double): Int = when (
+    score.coerceIn(0.0, 10.0).roundToInt()
+) {
+    0 -> R.drawable.worry_cat_0
+    1, 2 -> R.drawable.worry_cat_1_2
+    3, 4 -> R.drawable.worry_cat_3_4
+    5, 6 -> R.drawable.worry_cat_5_6
+    7, 8 -> R.drawable.worry_cat_7_8
+    else -> R.drawable.worry_cat_9_10
 }
 
 @Composable
@@ -216,14 +271,14 @@ private fun BoxScope.AnxietyCardHeader(
             contentAlignment = Alignment.CenterStart,
         ) {
             Text(
-                text = "불안 온도차",
+                text = stringResource(R.string.report_tab_anxiety_gap),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.heading2Token,
                 maxLines = 1,
             )
         }
         Text(
-            text = "걱정 예약 시와 마음 세션 후 변화에요.",
+            text = stringResource(R.string.report_anxiety_subtitle),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyLarge,
             maxLines = 1,
@@ -234,10 +289,4 @@ private fun BoxScope.AnxietyCardHeader(
         onOptionSelected = onRangeSelected,
         modifier = Modifier.offset(x = 223.dp, y = 16.dp),
     )
-}
-
-@Preview(showBackground = true, widthDp = 375, heightDp = 535)
-@Composable
-private fun AnxietyTemperaturePreview() {
-    GominittaTheme { AnxietyTemperatureTab() }
 }
