@@ -8,3 +8,15 @@ data class UserProfileResponse(
     val email: String? = null,
     val profileIcon: String? = null,
 )
+
+@Serializable
+data class UserUpdateRequest(
+    val nickname: String? = null,
+    val profileIcon: String? = null,
+)
+
+@Serializable
+data class UserUpdateResponse(
+    val nickname: String? = null,
+    val profileIcon: String? = null,
+)

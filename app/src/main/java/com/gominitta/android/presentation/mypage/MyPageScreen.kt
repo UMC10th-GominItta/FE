@@ -56,6 +56,11 @@ import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Title1_20sb
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+
 @Composable
 fun MyPageRoute(
     onBackClick: () -> Unit,
@@ -66,13 +71,25 @@ fun MyPageRoute(
     onLogoutConfirmed: () -> Unit,
 ) {
     val viewModel: MyPageViewModel = hiltViewModel()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.refresh()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     var showLogoutSheet by rememberSaveable { mutableStateOf(false) }
     var sheetTopY by remember { mutableStateOf(0f) }
 
     MyPageScreen(
         nickname = viewModel.nickname,
         email = viewModel.email,
-        profileImageRes = ProfileImages.all.getOrNull(viewModel.profileImageIndex), // 추가
+        profileImageRes = ProfileImages.all.getOrNull(viewModel.profileImageUrl.toProfileIndex()),
         isEditing = showLogoutSheet,
         sheetTopY = sheetTopY,
         onBackClick = onBackClick,
