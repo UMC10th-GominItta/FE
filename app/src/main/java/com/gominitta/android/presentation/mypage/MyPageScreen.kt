@@ -25,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,7 +57,6 @@ import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Title1_20sb
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -69,7 +69,7 @@ fun MyPageRoute(
     onNotificationSettingClick: () -> Unit,
     onProfileEditClick: () -> Unit,
     onWithdrawClick: () -> Unit,
-    onLogoutConfirmed: () -> Unit,
+    onLoggedOut: () -> Unit,
 ) {
     val viewModel: MyPageViewModel = hiltViewModel()
 
@@ -82,6 +82,10 @@ fun MyPageRoute(
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    LaunchedEffect(viewModel.isLoggedOut) {
+        if (viewModel.isLoggedOut) onLoggedOut()
     }
 
     var showLogoutSheet by rememberSaveable { mutableStateOf(false) }
@@ -106,7 +110,7 @@ fun MyPageRoute(
             onDismissRequest = { showLogoutSheet = false },
             onConfirmClick = {
                 showLogoutSheet = false
-                onLogoutConfirmed()
+                viewModel.logout()
             },
             onSheetPositioned = { sheetTopY = it },
         )
@@ -123,7 +127,7 @@ fun MyPageScreen(
     onProfileEditClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onWithdrawClick: () -> Unit,
-    profileImageRes: Int? = null, // 추가
+    profileImageRes: Int? = null,
     isEditing: Boolean = false,
     sheetTopY: Float = 0f,
 ) {
@@ -154,7 +158,7 @@ fun MyPageScreen(
                 MyPageProfileCard(
                     nickname = nickname,
                     email = email,
-                    profileImageRes = profileImageRes, // 추가
+                    profileImageRes = profileImageRes,
                     onProfileEditClick = onProfileEditClick,
                 )
                 Spacer(modifier = Modifier.height(30.dp))
