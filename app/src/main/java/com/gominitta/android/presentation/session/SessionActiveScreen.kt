@@ -6,12 +6,15 @@ import android.media.MediaRecorder
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -94,8 +97,13 @@ import java.io.File
 /**
  * 마음 세션 진행 (C102 인트로 바텀시트 + C103 세션 기록 3종). 세션 상세 → 시작.
  * 진입 시 "더 나은 기분으로 시작해볼까요?" 바텀시트가 한 번 뜨고, 아래엔 걱정 기록용
- * 텍스트/음성/사진 3탭이 있다. 지금은 API 연동 전이라 걱정 내용은 하드코딩된 더미값이고,
- * 음성 인식·카메라 텍스트 인식 탭은 아이콘만 있는 자리표시자(실제 녹음/촬영 미구현).
+ * 텍스트/음성/사진 3탭이 있다.
+ *
+ * 텍스트는 "세션 완료하기" 시점에 한 번에 저장하고, 음성/사진은 녹음 정지·촬영 즉시
+ * 서버로 업로드해 STT/OCR 결과를 기록으로 저장한다(성공 시 "저장됐어요" 뱃지가
+ * 잠깐 떴다 사라짐). 걱정 내용은 [SessionActiveViewModel]이 실제 세션 상세 API로
+ * 불러온다. 세션 로딩 실패는 화면 전체를 에러로 대체하고, 기록 저장 실패는 화면은
+ * 그대로 둔 채 버튼 위에 인라인으로만 보여준다.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -126,11 +134,11 @@ fun SessionActiveScreen(
                 ) {
                     CircularProgressIndicator(color = Primary800)
                 }
-                uiState.errorMessage != null -> Box(
+                uiState.loadErrorMessage != null -> Box(
                     modifier = Modifier.fillMaxSize().padding(innerPadding).padding(20.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(text = uiState.errorMessage.orEmpty(), style = Body2_15r, color = Gray400, textAlign = TextAlign.Center)
+                    Text(text = uiState.loadErrorMessage.orEmpty(), style = Body2_15r, color = Gray400, textAlign = TextAlign.Center)
                 }
                 else -> SessionActiveContent(
                     innerPadding = innerPadding,
@@ -142,6 +150,7 @@ fun SessionActiveScreen(
                     onNoteTextChange = viewModel::updateNoteText,
                     isSaving = uiState.isSaving,
                     capturedTab = uiState.capturedTab,
+                    recordErrorMessage = uiState.recordErrorMessage,
                     onVoiceRecorded = viewModel::uploadVoiceRecord,
                     onHandwritingCaptured = viewModel::uploadHandwritingRecord,
                     onNavigateBack = onNavigateBack,
@@ -191,6 +200,7 @@ private fun SessionActiveContent(
     onNoteTextChange: (String) -> Unit,
     isSaving: Boolean,
     capturedTab: RecordTab?,
+    recordErrorMessage: String?,
     onVoiceRecorded: (File) -> Unit,
     onHandwritingCaptured: (File) -> Unit,
     onNavigateBack: () -> Unit,
@@ -258,17 +268,39 @@ private fun SessionActiveContent(
                 RecordTab.Text -> TextRecordArea(value = noteText, onValueChange = onNoteTextChange)
                 RecordTab.Voice -> VoiceRecordArea(
                     isUploading = isSaving,
-                    isCaptured = capturedTab == RecordTab.Voice,
                     onRecorded = onVoiceRecorded,
                 )
                 RecordTab.Handwriting -> HandwritingRecordArea(
                     isUploading = isSaving,
-                    isCaptured = capturedTab == RecordTab.Handwriting,
                     onCaptured = onHandwritingCaptured,
                 )
             }
         }
         Spacer(Modifier.height(20.dp))
+
+        val capturedLabel = when (capturedTab) {
+            RecordTab.Voice -> "녹음이 저장됐어요."
+            RecordTab.Handwriting -> "사진이 저장됐어요."
+            else -> null
+        }
+        AnimatedVisibility(visible = capturedLabel != null, enter = fadeIn(), exit = fadeOut()) {
+            Text(
+                text = capturedLabel.orEmpty(),
+                style = Body3_14r,
+                color = Primary800,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+            )
+        }
+        if (recordErrorMessage != null) {
+            Text(
+                text = recordErrorMessage,
+                style = Body3_14r,
+                color = Gray400,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+            )
+        }
 
         GominittaButton(
             text = "세션 완료하기",
@@ -361,7 +393,6 @@ private fun sessionCaptureFile(context: Context, name: String): File {
 @Composable
 private fun VoiceRecordArea(
     isUploading: Boolean,
-    isCaptured: Boolean,
     onRecorded: (File) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -452,10 +483,6 @@ private fun VoiceRecordArea(
                 }
             }
         }
-        if (isCaptured) {
-            Spacer(Modifier.height(12.dp))
-            Text(text = "녹음이 저장됐어요.", style = Body3_14r, color = Primary800)
-        }
     }
 }
 
@@ -484,7 +511,6 @@ private fun MicListeningPulse(modifier: Modifier = Modifier) {
 @Composable
 private fun HandwritingRecordArea(
     isUploading: Boolean,
-    isCaptured: Boolean,
     onCaptured: (File) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -526,10 +552,6 @@ private fun HandwritingRecordArea(
                         },
                 )
             }
-        }
-        if (isCaptured) {
-            Spacer(Modifier.height(12.dp))
-            Text(text = "사진이 저장됐어요.", style = Body3_14r, color = Primary800)
         }
     }
 }
@@ -618,6 +640,7 @@ private fun SessionActiveContentTextPreview() {
             onNoteTextChange = {},
             isSaving = false,
             capturedTab = null,
+            recordErrorMessage = null,
             onVoiceRecorded = {},
             onHandwritingCaptured = {},
             onNavigateBack = {},
@@ -640,6 +663,7 @@ private fun SessionActiveContentVoicePreview() {
             onNoteTextChange = {},
             isSaving = false,
             capturedTab = null,
+            recordErrorMessage = null,
             onVoiceRecorded = {},
             onHandwritingCaptured = {},
             onNavigateBack = {},

@@ -7,13 +7,6 @@ import com.gominitta.android.domain.repository.SessionRepository
 import java.io.File
 import javax.inject.Inject
 
-/**
- * 마음 세션 UseCase 모음. 기존 [GetSessionListUseCase] 는 그대로 두고 나머지를 채운다.
- *
- * 파일당 클래스 하나가 팀 컨벤션이면 이 파일을 클래스별로 쪼개면 된다 —
- * 내용은 그대로 두고 파일만 나누면 됨.
- */
-
 /** 마음 세션 상세(C102). 기록 목록도 함께 담겨 오므로 별도 조회 불필요. */
 class GetSessionDetailUseCase @Inject constructor(
     private val repository: SessionRepository,
@@ -59,15 +52,16 @@ class GetSessionRecordsUseCase @Inject constructor(
     ): List<SessionRecord> = repository.getRecords(sessionId, recordType)
 }
 
-/** 세션 진행 중 "한 줄 보태기" — 빈 문자열은 보내지 않는다. */
+/**
+ * 세션 진행 중 텍스트 탭에 적은 내용을 기록으로 저장한다.
+ * 빈 문자열 체크는 호출부(SessionActiveViewModel.commitAndProceed)에서 이미 하고 있어
+ * 여기서는 그대로 전달만 한다.
+ */
 class AddTextRecordUseCase @Inject constructor(
     private val repository: SessionRepository,
 ) {
-    suspend operator fun invoke(sessionId: Long, contentText: String): SessionRecord {
-        val trimmed = contentText.trim()
-        require(trimmed.isNotEmpty()) { "기록할 내용을 입력해 주세요." }
-        return repository.createTextRecord(sessionId, trimmed)
-    }
+    suspend operator fun invoke(sessionId: Long, contentText: String): SessionRecord =
+        repository.createTextRecord(sessionId, contentText.trim())
 }
 
 /** 녹음 파일 업로드 → 서버 STT 변환. */
@@ -93,11 +87,7 @@ class UpdateRecordUseCase @Inject constructor(
         sessionId: Long,
         recordId: Long,
         contentText: String,
-    ): SessionRecord {
-        val trimmed = contentText.trim()
-        require(trimmed.isNotEmpty()) { "기록할 내용을 입력해 주세요." }
-        return repository.updateRecord(sessionId, recordId, trimmed)
-    }
+    ): SessionRecord = repository.updateRecord(sessionId, recordId, contentText.trim())
 }
 
 class DeleteRecordUseCase @Inject constructor(

@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import java.io.File
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,9 +34,12 @@ data class SessionActiveUiState(
     val selectedTab: RecordTab = RecordTab.Text,
     val noteText: String = "",
     val isSaving: Boolean = false,
-    val errorMessage: String? = null,
+    /** 화면 진입 시 세션 로딩 실패 — 화면 전체를 에러로 대체한다. */
+    val loadErrorMessage: String? = null,
+    /** 기록 저장/업로드 실패 — 화면은 그대로 두고 인라인으로만 보여준다. */
+    val recordErrorMessage: String? = null,
     val isDone: Boolean = false,
-    /** 음성/필기 탭에서 이미 업로드까지 끝난 기록의 탭. null이면 아직 없음. */
+    /** 음성/필기 탭에서 이미 업로드까지 끝난 기록의 탭. 잠깐 뱃지로 보여준 뒤 자동으로 null로 돌아간다. */
     val capturedTab: RecordTab? = null,
 )
 
@@ -61,7 +65,7 @@ class SessionActiveViewModel @Inject constructor(
 
     fun load() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, errorMessage = null) }
+            _uiState.update { it.copy(isLoading = true, loadErrorMessage = null) }
             try {
                 startSession(sessionId)
                 val session = getSessionDetail(sessionId)
@@ -76,7 +80,7 @@ class SessionActiveViewModel @Inject constructor(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false, errorMessage = e.message) }
+                _uiState.update { it.copy(isLoading = false, loadErrorMessage = e.message) }
             }
         }
     }
@@ -105,7 +109,7 @@ class SessionActiveViewModel @Inject constructor(
             return
         }
         viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true, errorMessage = null) }
+            _uiState.update { it.copy(isSaving = true, recordErrorMessage = null) }
             try {
                 val record = addTextRecord(sessionId, text)
                 flowState.setRecord(record.id, record.contentText)
@@ -113,7 +117,7 @@ class SessionActiveViewModel @Inject constructor(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _uiState.update { it.copy(isSaving = false, errorMessage = e.message) }
+                _uiState.update { it.copy(isSaving = false, recordErrorMessage = e.message) }
             }
         }
     }
@@ -121,15 +125,16 @@ class SessionActiveViewModel @Inject constructor(
     /** 음성 탭에서 녹음이 끝나 파일이 생기면 곧바로 업로드해 STT 결과를 기록으로 저장한다. */
     fun uploadVoiceRecord(file: File) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true, errorMessage = null) }
+            _uiState.update { it.copy(isSaving = true, recordErrorMessage = null) }
             try {
                 val record = addVoiceRecord(sessionId, file)
                 flowState.setRecord(record.id, record.contentText)
                 _uiState.update { it.copy(isSaving = false, capturedTab = RecordTab.Voice) }
+                clearCapturedTabAfterDelay()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _uiState.update { it.copy(isSaving = false, errorMessage = e.message) }
+                _uiState.update { it.copy(isSaving = false, recordErrorMessage = e.message) }
             } finally {
                 file.delete()
             }
@@ -139,18 +144,31 @@ class SessionActiveViewModel @Inject constructor(
     /** 필기 탭에서 촬영이 끝나 파일이 생기면 곧바로 업로드해 OCR 결과를 기록으로 저장한다. */
     fun uploadHandwritingRecord(file: File) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true, errorMessage = null) }
+            _uiState.update { it.copy(isSaving = true, recordErrorMessage = null) }
             try {
                 val record = addHandwritingRecord(sessionId, file)
                 flowState.setRecord(record.id, record.contentText)
                 _uiState.update { it.copy(isSaving = false, capturedTab = RecordTab.Handwriting) }
+                clearCapturedTabAfterDelay()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _uiState.update { it.copy(isSaving = false, errorMessage = e.message) }
+                _uiState.update { it.copy(isSaving = false, recordErrorMessage = e.message) }
             } finally {
                 file.delete()
             }
         }
+    }
+
+    /** "저장됐어요" 뱃지를 잠깐만 보여주고 자동으로 치운다. */
+    private fun clearCapturedTabAfterDelay() {
+        viewModelScope.launch {
+            delay(CAPTURED_BADGE_DURATION_MS)
+            _uiState.update { it.copy(capturedTab = null) }
+        }
+    }
+
+    private companion object {
+        const val CAPTURED_BADGE_DURATION_MS = 1800L
     }
 }
