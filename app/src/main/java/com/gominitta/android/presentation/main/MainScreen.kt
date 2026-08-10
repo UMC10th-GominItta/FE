@@ -52,6 +52,7 @@ fun MainScreen(
     onNavigateToWorryMemo: () -> Unit,
     onNavigateToSessionDetail: (Long) -> Unit,
     onNavigateToSessionEdit: (Long) -> Unit,
+    onNavigateToSessionResult: (Long) -> Unit,
     onNavigateToMyPage: () -> Unit,
     startTab: String = Routes.HOME,
     onNavigateBackToSession: () -> Unit = {},
@@ -102,6 +103,7 @@ fun MainScreen(
                 SessionListScreen(
                     onNavigateToSessionDetail = onNavigateToSessionDetail,
                     onNavigateToSessionEdit = onNavigateToSessionEdit,
+                    onNavigateToSessionResult = onNavigateToSessionResult,
                     onNavigateToWorryInput = onNavigateToWorryInput,
                     onNavigateToWorryMemo = onNavigateToWorryMemo,
                 )

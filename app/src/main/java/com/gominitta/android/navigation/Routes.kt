@@ -43,6 +43,8 @@ object Routes {
     const val SESSION_RATING   = "session_rating"
     const val SESSION_EDIT     = "session_edit/{sessionId}"
     fun sessionEditRoute(sessionId: Long) = "session_edit/$sessionId"
+    const val SESSION_RESULT   = "session_result/{sessionId}"
+    fun sessionResultRoute(sessionId: Long) = "session_result/$sessionId"
 
 
     //recipe 상세 루트

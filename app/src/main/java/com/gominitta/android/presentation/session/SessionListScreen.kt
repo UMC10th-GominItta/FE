@@ -71,6 +71,7 @@ import java.time.LocalDateTime
 fun SessionListScreen(
     onNavigateToSessionDetail: (Long) -> Unit,
     onNavigateToSessionEdit: (Long) -> Unit,
+    onNavigateToSessionResult: (Long) -> Unit,
     onNavigateToWorryInput: () -> Unit,
     onNavigateToWorryMemo: () -> Unit,
     modifier: Modifier = Modifier,
@@ -111,6 +112,7 @@ fun SessionListScreen(
                 completed = uiState.completed,
                 onNavigateToSessionDetail = onNavigateToSessionDetail,
                 onNavigateToSessionEdit = onNavigateToSessionEdit,
+                onNavigateToSessionResult = onNavigateToSessionResult,
                 onNavigateToWorryInput = onNavigateToWorryInput,
                 onNavigateToWorryMemo = onNavigateToWorryMemo,
             )
@@ -151,6 +153,7 @@ private fun SessionListContent(
     completed: List<Session>,
     onNavigateToSessionDetail: (Long) -> Unit,
     onNavigateToSessionEdit: (Long) -> Unit,
+    onNavigateToSessionResult: (Long) -> Unit,
     onNavigateToWorryInput: () -> Unit,
     onNavigateToWorryMemo: () -> Unit,
 ) {
@@ -198,6 +201,7 @@ private fun SessionListContent(
                         onStartSession = onNavigateToSessionDetail,
                         onEditSession = onNavigateToSessionEdit,
                         onAddMemo = onNavigateToWorryMemo,
+                        onViewResult = onNavigateToSessionResult,
                     )
                 }
             }
@@ -289,8 +293,12 @@ private fun SessionCard(
     onStartSession: (Long) -> Unit,
     onEditSession: (Long) -> Unit,
     onAddMemo: () -> Unit,
+    onViewResult: (Long) -> Unit,
 ) {
-    GominittaElevatedCard {
+    val isCompleted = session.status == SessionStatus.COMPLETED
+    GominittaElevatedCard(
+        modifier = if (isCompleted) Modifier.clickable(onClick = { onViewResult(session.id) }) else Modifier,
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -330,25 +338,27 @@ private fun SessionCard(
         }
         Spacer(Modifier.height(8.dp))
         Text(text = session.worryContent, style = Body1_16m, color = Gray800)
-        Spacer(Modifier.height(16.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            GominittaButton(
-                text = "한 줄 보태기",
-                onClick = onAddMemo,
-                modifier = Modifier.weight(1f),
-                variant = GominittaButtonVariant.Outlined,
-                leadingIcon = {
-                    Icon(painterResource(R.drawable.ic_chat), null, Modifier.size(18.dp))
-                },
-            )
-            GominittaButton(
-                text = "세션 시작",
-                onClick = { onStartSession(session.id) },
-                modifier = Modifier.weight(1f),
-                leadingIcon = {
-                    Icon(painterResource(R.drawable.ic_play), null, Modifier.size(18.dp))
-                },
-            )
+        if (!isCompleted) {
+            Spacer(Modifier.height(16.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                GominittaButton(
+                    text = "한 줄 보태기",
+                    onClick = onAddMemo,
+                    modifier = Modifier.weight(1f),
+                    variant = GominittaButtonVariant.Outlined,
+                    leadingIcon = {
+                        Icon(painterResource(R.drawable.ic_chat), null, Modifier.size(18.dp))
+                    },
+                )
+                GominittaButton(
+                    text = "세션 시작",
+                    onClick = { onStartSession(session.id) },
+                    modifier = Modifier.weight(1f),
+                    leadingIcon = {
+                        Icon(painterResource(R.drawable.ic_play), null, Modifier.size(18.dp))
+                    },
+                )
+            }
         }
     }
 }
@@ -431,6 +441,7 @@ private fun SessionListContentPopulatedPreview() {
             completed = previewCompleted,
             onNavigateToSessionDetail = {},
             onNavigateToSessionEdit = {},
+            onNavigateToSessionResult = {},
             onNavigateToWorryInput = {},
             onNavigateToWorryMemo = {},
         )
@@ -450,6 +461,7 @@ private fun SessionListContentCompletedPreview() {
             completed = previewCompleted,
             onNavigateToSessionDetail = {},
             onNavigateToSessionEdit = {},
+            onNavigateToSessionResult = {},
             onNavigateToWorryInput = {},
             onNavigateToWorryMemo = {},
         )
@@ -469,6 +481,7 @@ private fun SessionListContentIncompleteEmptyPreview() {
             completed = previewCompleted,
             onNavigateToSessionDetail = {},
             onNavigateToSessionEdit = {},
+            onNavigateToSessionResult = {},
             onNavigateToWorryInput = {},
             onNavigateToWorryMemo = {},
         )
@@ -488,6 +501,7 @@ private fun SessionListContentEmptyPreview() {
             completed = emptyList(),
             onNavigateToSessionDetail = {},
             onNavigateToSessionEdit = {},
+            onNavigateToSessionResult = {},
             onNavigateToWorryInput = {},
             onNavigateToWorryMemo = {},
         )

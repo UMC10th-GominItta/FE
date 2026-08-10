@@ -110,7 +110,7 @@ class SessionRepositoryImpl @Inject constructor(
     }
 
     private companion object {
-        const val AUDIO_MIME = "audio/*"
-        const val IMAGE_MIME = "image/*"
+        const val AUDIO_MIME = "audio/mp4"
+        const val IMAGE_MIME = "image/jpeg"
     }
 }
