@@ -118,7 +118,10 @@ fun SessionActiveScreen(
     var showIntroSheet by remember { mutableStateOf(true) }
 
     LaunchedEffect(uiState.isDone) {
-        if (uiState.isDone) onNavigateNext()
+        if (uiState.isDone) {
+            onNavigateNext()
+            viewModel.onDoneHandled()
+        }
     }
 
     Box(modifier = modifier.fillMaxSize()) {
