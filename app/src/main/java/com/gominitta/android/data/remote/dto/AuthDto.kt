@@ -18,3 +18,8 @@ data class AuthTokenResponse(
     val refreshToken: String,
     val isNewUser: Boolean,
 )
+
+@Serializable
+data class LogoutRequest(
+    val refreshToken: String,
+)
