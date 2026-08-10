@@ -30,6 +30,9 @@ class ProfileEditViewModel @Inject constructor(
     var isSaved by mutableStateOf(false)
         private set
 
+    // 변경사항 여부와 상관없이 항상 저장 가능
+    val saveEnabled: Boolean = true
+
     init {
         viewModelScope.launch {
             val user = getUserProfileUseCase()

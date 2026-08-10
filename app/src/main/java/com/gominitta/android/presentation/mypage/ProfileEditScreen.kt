@@ -49,7 +49,7 @@ fun ProfileEditRoute(
         nickname = viewModel.nickname,
         initialNickname = viewModel.initialNickname,
         selectedProfileIndex = viewModel.selectedProfileIndex,
-        saveEnabled = viewModel.nickname.isNotBlank() || viewModel.selectedProfileIndex != ProfileImages.DEFAULT_INDEX,
+        saveEnabled = viewModel.saveEnabled,
         onNicknameChange = viewModel::onNicknameChange,
         onProfileSelected = viewModel::onProfileSelected,
         onSaveClick = viewModel::save,
