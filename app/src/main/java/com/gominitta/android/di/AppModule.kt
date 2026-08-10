@@ -1,20 +1,23 @@
 package com.gominitta.android.di
 
-import com.gominitta.android.data.repository.DummyRecipeRepository
 import com.gominitta.android.data.repository.FakeSampleRepository
 import com.gominitta.android.data.repository.FakeSessionRepository
+import com.gominitta.android.data.repository.RealRecipeRepository
+import com.gominitta.android.data.repository.FavoriteTimeRepositoryImpl
 import com.gominitta.android.data.repository.ReportRepositoryImpl
+import com.gominitta.android.data.repository.DummyFavoriteTimeRepository
 import com.gominitta.android.domain.repository.RecipeRepository
 import com.gominitta.android.domain.repository.SampleRepository
 import com.gominitta.android.domain.repository.SessionRepository
 import com.gominitta.android.domain.repository.ReportRepository
+import com.gominitta.android.domain.repository.UserRepository
+import com.gominitta.android.domain.repository.FavoriteTimeRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
-import com.gominitta.android.presentation.mypage.model.DummyMyPageRepository
-import com.gominitta.android.presentation.mypage.model.MyPageRepository
+
 /**
  * Application-scoped Hilt module.
  *
@@ -40,21 +43,22 @@ abstract class AppModule {
     abstract fun bindSessionRepository(
         fake: FakeSessionRepository,
     ): SessionRepository
-    @Binds
-    @Singleton
-    abstract fun bindReportRepository(
-        repository: ReportRepositoryImpl,
-    ): ReportRepository
 
     @Binds
     @Singleton
-    abstract fun bindMyPageRepository(
-        dummy: DummyMyPageRepository,
-    ): MyPageRepository
+abstract fun bindReportRepository(
+        repository: ReportRepositoryImpl,
+    ): ReportRepository
+
+@Binds
+    @Singleton
+    abstract fun bindFavoriteTimeRepository(
+        impl: FavoriteTimeRepositoryImpl,
+    ): FavoriteTimeRepository
 
     @Binds
     @Singleton
     abstract fun bindRecipeRepository(
-        dummy: DummyRecipeRepository,
+        real: RealRecipeRepository,
     ): RecipeRepository
 }

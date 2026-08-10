@@ -71,11 +71,7 @@ fun MainScreen(
     )
     Scaffold(
         modifier = modifier,
-        bottomBar = {
-            if (showBottomBar) { // 변경 — RECIPE_COMPLETE 화면에서는 바텀바 숨김
-                GominittaBottomBar(tabNavController)
-            }
-        },
+        bottomBar = { GominittaBottomBar(tabNavController) },
         containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onBackground,
     ) { innerPadding ->

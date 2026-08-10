@@ -148,17 +148,14 @@ fun AppNavHost(
             )
         }
         composable(Routes.MY_PAGE_FAVORITE_TIME) {
-            val viewModel: FavoriteTimeViewModel = hiltViewModel() // Hilt 쓰면 hiltViewModel()
             FavoriteTimeRoute(
-                favoriteTimes = viewModel.favoriteTimes,
                 onBackClick = { navController.popBackStack() },
                 onAddClick = { navController.navigate(Routes.MY_PAGE_FAVORITE_TIME_ADD) },
             )
         }
 
         composable(Routes.MY_PAGE_FAVORITE_TIME_ADD) {
-            // 같은 그래프 안이면 이전 백스택 엔트리에서 같은 ViewModel 인스턴스를 다시 얻을 수 있음
-            val viewModel: FavoriteTimeViewModel = viewModel(
+            val viewModel: FavoriteTimeViewModel = hiltViewModel(
                 navController.getBackStackEntry(Routes.MY_PAGE_FAVORITE_TIME),
             )
             FavoriteTimeAddRoute(
