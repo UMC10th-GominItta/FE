@@ -27,6 +27,8 @@ data class SessionListUiState(
     val incomplete: List<Session> = emptyList(),
     val completed: List<Session> = emptyList(),
     val errorMessage: String? = null,
+    /** 최초 로딩 성공 여부 — 이후 재조회(탭 재진입 등)는 이 화면을 스피너로 덮지 않고 조용히 갱신한다. */
+    val hasLoadedOnce: Boolean = false,
 )
 
 @HiltViewModel
@@ -41,9 +43,16 @@ class SessionListViewModel @Inject constructor(
         load()
     }
 
+    /**
+     * 탭 재진입(ON_RESUME)마다 최신 상태를 반영하려고 매번 다시 부르지만, 첫 로딩 이후엔
+     * 화면을 스피너로 덮지 않고 조용히 갱신한다 — 실패해도 이미 보여주던 목록은 그대로 둔다.
+     */
     fun load() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            val isFirstLoad = !_uiState.value.hasLoadedOnce
+            if (isFirstLoad) {
+                _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            }
             try {
                 val sessions = getSessionList()
                 // 파라미터 없는 기본 목록엔 완료된 세션이 안 오므로 별도로 요청한다.
@@ -57,6 +66,7 @@ class SessionListViewModel @Inject constructor(
                 }
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
+                    hasLoadedOnce = true,
                     scheduled = sessions.filter { it.status == SessionStatus.SCHEDULED },
                     incomplete = sessions.filter { it.status == SessionStatus.INCOMPLETE },
                     completed = completedSessions,
@@ -64,7 +74,9 @@ class SessionListViewModel @Inject constructor(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(isLoading = false, errorMessage = e.message)
+                if (isFirstLoad) {
+                    _uiState.value = _uiState.value.copy(isLoading = false, errorMessage = e.message)
+                }
             }
         }
     }
