@@ -45,9 +45,16 @@ class SessionListViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
             try {
-                // 파라미터 없는 기본 목록엔 완료된 세션이 안 오므로 별도로 요청한다.
                 val sessions = getSessionList()
-                val completedSessions = getSessionList(SessionStatus.COMPLETED)
+                // 파라미터 없는 기본 목록엔 완료된 세션이 안 오므로 별도로 요청한다.
+                // 서버가 아직 이 필터를 지원 안 하면(400) 완료 탭만 비워두고 나머지는 보여준다.
+                val completedSessions = try {
+                    getSessionList(SessionStatus.COMPLETED)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    emptyList()
+                }
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     scheduled = sessions.filter { it.status == SessionStatus.SCHEDULED },
