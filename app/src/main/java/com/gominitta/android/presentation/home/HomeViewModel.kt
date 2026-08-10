@@ -2,8 +2,7 @@ package com.gominitta.android.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gominitta.android.domain.usecase.GetGreetingUseCase
-import com.gominitta.android.domain.usecase.GetMyProfileUseCase
+import com.gominitta.android.domain.usecase.GetHomeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,38 +10,27 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * ViewModel for [HomeScreen].
- *
- * Depends on the [GetGreetingUseCase] domain use case, NOT on a repository
- * or any data implementation — the presentation layer only knows the domain.
- */
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val getGreeting: GetGreetingUseCase,
-    private val getMyProfile: GetMyProfileUseCase,
+    private val getHome: GetHomeUseCase,
 ) : ViewModel() {
 
-    private val _greeting = MutableStateFlow("")
-    val greeting: StateFlow<String> = _greeting.asStateFlow()
-
-    private val _nickname = MutableStateFlow("")
-    val nickname: StateFlow<String> = _nickname.asStateFlow()
+    private val _uiState = MutableStateFlow(HomeUiState())
+    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
-        loadGreeting()
-        loadNickname()
+        loadHome()
     }
 
-    private fun loadGreeting() {
+    private fun loadHome() {
         viewModelScope.launch {
-            _greeting.value = getGreeting().message
-        }
-    }
-
-    private fun loadNickname() {
-        viewModelScope.launch {
-            runCatching { getMyProfile() }.getOrNull()?.let { _nickname.value = it.nickname }
+            runCatching { getHome() }.getOrNull()?.let { data ->
+                _uiState.value = HomeUiState(
+                    nickname = data.nickname,
+                    dailyMessage = data.dailyMessage,
+                    nextSession = data.nextSession,
+                )
+            }
         }
     }
 }

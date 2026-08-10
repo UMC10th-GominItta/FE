@@ -1,6 +1,7 @@
 package com.gominitta.android.data.remote.api
 
 import com.gominitta.android.data.remote.dto.ApiResponse
+import com.gominitta.android.data.remote.dto.UserHomeResponse
 import com.gominitta.android.data.remote.dto.UserProfileResponse
 import com.gominitta.android.data.remote.dto.UserUpdateRequest
 import com.gominitta.android.data.remote.dto.UserUpdateResponse
@@ -18,4 +19,7 @@ interface UsersApi {
 
     @DELETE("api/v1/users/me")
     suspend fun deleteMe(): ApiResponse<Unit?>
+
+    @GET("api/v1/users/home")
+    suspend fun getHome(): ApiResponse<UserHomeResponse>
 }
