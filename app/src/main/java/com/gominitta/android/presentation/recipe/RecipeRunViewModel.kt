@@ -55,4 +55,11 @@ class RecipeRunViewModel @Inject constructor(
             isFinished = true
         }
     }
+    fun pauseRun() {
+        runStatus = RecipeRunStatus.Paused
+    }
+
+    fun resumeRun() {
+        runStatus = RecipeRunStatus.Running
+    }
 }

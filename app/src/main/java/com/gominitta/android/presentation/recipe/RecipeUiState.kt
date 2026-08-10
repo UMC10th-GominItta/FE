@@ -12,7 +12,6 @@ data class RecipeItem(
     val description: String,
     val durationMinutes: Int
 )
-
 /**
  * D102 레시피 실행 화면의 상태.
  *
@@ -24,16 +23,22 @@ data class RecipeItem(
  * Running:
  * - 실행 중 상태
  * - 타이머가 감소하는 상태
- * - 완료하기 버튼 표시
+ * - 그만두기 / 완료하기 버튼 표시
+ *
+ * Paused:
+ * - 일시정지 상태
+ * - 타이머 감소 멈춤, remainingSeconds 유지
+ * - 그만두기 / 완료하기 버튼 표시
  *
  * Completed:
  * - 완료 상태
  * - 원형 타이머 안에 "완료" 표시
- * - 완료하기 버튼 표시
+ * - 완료하기 버튼만 단독 표시
  */
 enum class RecipeRunStatus {
     Ready,
     Running,
+    Paused,
     Completed
 }
 

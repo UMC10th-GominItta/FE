@@ -13,10 +13,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,12 +37,12 @@ import com.gominitta.android.ui.theme.Title1_20sb
  */
 @Composable
 fun WorryIntensityScreen(
-    onNavigateNext: () -> Unit,
+    intensity: Int,
+    onIntensityChange: (Int) -> Unit,
+    onNext: () -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var intensity by remember { mutableStateOf(5) }
-
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = Color.Transparent,
@@ -99,14 +95,14 @@ fun WorryIntensityScreen(
 
                 WorryIntensitySlider(
                     value = intensity,
-                    onValueChange = { intensity = it },
+                    onValueChange = onIntensityChange,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
 
             WorryPrimaryButton(
                 text = "다음",
-                onClick = onNavigateNext,
+                onClick = onNext,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
@@ -148,7 +144,12 @@ private fun worryCatCaption(intensity: Int): String = when (intensity) {
 private fun WorryIntensityScreenPreview() {
     GominittaTheme {
         GominittaBackground {
-            WorryIntensityScreen(onNavigateNext = {}, onNavigateBack = {})
+            WorryIntensityScreen(
+                intensity = 5,
+                onIntensityChange = {},
+                onNext = {},
+                onNavigateBack = {},
+            )
         }
     }
 }
