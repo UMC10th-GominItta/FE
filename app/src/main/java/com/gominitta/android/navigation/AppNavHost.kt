@@ -144,8 +144,10 @@ fun AppNavHost(
                         Routes.MY_PAGE_WITHDRAW,
                     )
                 },
-                onLogoutConfirmed = {
-                    // TODO 실제 로그아웃 처리 후 로그인 화면 이동
+                onLoggedOut = {
+                    navController.navigate(Routes.ONBOARDING) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 },
             )
         }
