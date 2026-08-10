@@ -296,8 +296,15 @@ private fun SessionCard(
     onViewResult: (Long) -> Unit,
 ) {
     val isCompleted = session.status == SessionStatus.COMPLETED
+    // 완료 세션은 카드를 눌러 기록 보기로, 예정/미완료 세션은 카드를 눌러 걱정 수정으로 이동한다
+    // ("수정/삭제" 텍스트 버튼은 그대로 유지 — 카드 어디를 눌러도 같은 곳으로 가는 것뿐).
+    val onCardClick = if (isCompleted) {
+        { onViewResult(session.id) }
+    } else {
+        { onEditSession(session.worryId) }
+    }
     GominittaElevatedCard(
-        modifier = if (isCompleted) Modifier.clickable(onClick = { onViewResult(session.id) }) else Modifier,
+        modifier = Modifier.clickable(onClick = onCardClick),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
