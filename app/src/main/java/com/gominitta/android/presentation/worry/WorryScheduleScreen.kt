@@ -25,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +56,7 @@ import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.Heading4_18m
+import com.gominitta.android.ui.theme.ErrorDefault
 import com.gominitta.android.ui.theme.Primary200
 import com.gominitta.android.ui.theme.Primary800
 import java.time.LocalDate
@@ -81,16 +83,23 @@ private enum class WorryTimeSlot { START, END }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WorryScheduleScreen(
-    onNavigateNext: () -> Unit,
+    startTime: LocalDateTime?,
+    endTime: LocalDateTime?,
+    saveState: WorrySaveState,
+    onScheduleChange: (startTime: LocalDateTime?, endTime: LocalDateTime?) -> Unit,
+    onSubmit: () -> Unit,
+    onSaved: () -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    LaunchedEffect(saveState) {
+        if (saveState is WorrySaveState.Success) onSaved()
+    }
+
     val year = remember { LocalDate.now().year }
     val defaultStartTime = remember(year) { LocalDateTime.of(year, 4, 13, 21, 0) }
     val defaultEndTime = remember(year) { LocalDateTime.of(year, 4, 13, 22, 0) }
 
-    var startTime by remember { mutableStateOf<LocalDateTime?>(null) }
-    var endTime by remember { mutableStateOf<LocalDateTime?>(null) }
     var activeSlot by remember { mutableStateOf<WorryTimeSlot?>(null) }
     var selectedFavoriteIndex by remember { mutableStateOf<Int?>(null) }
 
@@ -100,10 +109,11 @@ fun WorryScheduleScreen(
     val sheetState = rememberModalBottomSheetState()
     val coroutineScope = rememberCoroutineScope()
 
+    val isSaving = saveState is WorrySaveState.Loading
     val nextEnabled = run {
         val start = startTime
         val end = endTime
-        start != null && end != null && start < end
+        start != null && end != null && start < end && !isSaving
     }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -200,8 +210,10 @@ fun WorryScheduleScreen(
                                     onClick = {
                                         selectedFavoriteIndex = index
                                         val base = LocalDate.now().atStartOfDay()
-                                        startTime = base.plusMinutes(favorite.startMinutes.toLong())
-                                        endTime = base.plusMinutes(favorite.endMinutes.toLong())
+                                        onScheduleChange(
+                                            base.plusMinutes(favorite.startMinutes.toLong()),
+                                            base.plusMinutes(favorite.endMinutes.toLong()),
+                                        )
                                     },
                                 )
                             }
@@ -209,9 +221,22 @@ fun WorryScheduleScreen(
                     }
                 }
 
+                if (saveState is WorrySaveState.Error) {
+                    Text(
+                        text = saveState.message,
+                        style = Body2_15r,
+                        color = ErrorDefault,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp)
+                            .padding(bottom = 8.dp),
+                        textAlign = TextAlign.Center,
+                    )
+                }
+
                 WorryPrimaryButton(
-                    text = "다음",
-                    onClick = onNavigateNext,
+                    text = if (isSaving) "저장 중..." else "다음",
+                    onClick = onSubmit,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp)
@@ -286,7 +311,10 @@ fun WorryScheduleScreen(
                         val hour24 = to24Hour(pickerHour, pickerIsPm)
                         val safeDay = pickerDay.coerceAtMost(YearMonth.of(year, pickerMonth).lengthOfMonth())
                         val result = LocalDateTime.of(year, pickerMonth, safeDay, hour24, pickerMinute)
-                        if (slot == WorryTimeSlot.START) startTime = result else endTime = result
+                        onScheduleChange(
+                            if (slot == WorryTimeSlot.START) result else startTime,
+                            if (slot == WorryTimeSlot.END) result else endTime,
+                        )
                         selectedFavoriteIndex = null
 
                         coroutineScope.launch { sheetState.hide() }.invokeOnCompletion {
@@ -335,7 +363,15 @@ private fun to24Hour(hour12: Int, isPm: Boolean): Int = when {
 private fun WorryScheduleScreenPreview() {
     GominittaTheme {
         GominittaBackground {
-            WorryScheduleScreen(onNavigateNext = {}, onNavigateBack = {})
+            WorryScheduleScreen(
+                startTime = null,
+                endTime = null,
+                saveState = WorrySaveState.Idle,
+                onScheduleChange = { _, _ -> },
+                onSubmit = {},
+                onSaved = {},
+                onNavigateBack = {},
+            )
         }
     }
 }

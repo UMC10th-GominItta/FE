@@ -6,12 +6,14 @@ import com.gominitta.android.data.repository.RealRecipeRepository
 import com.gominitta.android.data.repository.FavoriteTimeRepositoryImpl
 import com.gominitta.android.data.repository.ReportRepositoryImpl
 import com.gominitta.android.data.repository.DummyFavoriteTimeRepository
+import com.gominitta.android.data.repository.WorryRepositoryImpl
 import com.gominitta.android.domain.repository.RecipeRepository
 import com.gominitta.android.domain.repository.SampleRepository
 import com.gominitta.android.domain.repository.SessionRepository
 import com.gominitta.android.domain.repository.ReportRepository
 import com.gominitta.android.domain.repository.UserRepository
 import com.gominitta.android.domain.repository.FavoriteTimeRepository
+import com.gominitta.android.domain.repository.WorryRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -61,4 +63,10 @@ abstract fun bindReportRepository(
     abstract fun bindRecipeRepository(
         real: RealRecipeRepository,
     ): RecipeRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindWorryRepository(
+        impl: WorryRepositoryImpl,
+    ): WorryRepository
 }

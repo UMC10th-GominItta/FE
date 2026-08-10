@@ -4,6 +4,7 @@ import com.gominitta.android.BuildConfig
 import com.gominitta.android.data.remote.api.ReportApi
 import com.gominitta.android.data.remote.AuthInterceptor
 import com.gominitta.android.data.remote.TokenAuthenticator
+import com.gominitta.android.data.remote.worry.WorryApi
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -65,4 +66,8 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideReportApi(retrofit: Retrofit): ReportApi = retrofit.create(ReportApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideWorryApi(retrofit: Retrofit): WorryApi = retrofit.create(WorryApi::class.java)
 }
