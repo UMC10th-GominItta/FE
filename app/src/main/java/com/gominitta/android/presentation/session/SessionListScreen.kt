@@ -332,7 +332,7 @@ private fun SessionCard(
                     style = Body3_14r,
                     color = Gray400,
                     textDecoration = TextDecoration.Underline,
-                    modifier = Modifier.clickable(onClick = { onEditSession(session.id) }),
+                    modifier = Modifier.clickable(onClick = { onEditSession(session.worryId) }),
                 )
             }
         }
