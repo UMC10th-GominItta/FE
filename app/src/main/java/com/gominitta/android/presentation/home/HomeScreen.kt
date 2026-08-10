@@ -51,6 +51,20 @@ import com.gominitta.android.ui.theme.Primary300
 import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.Title1_20sb
 import com.gominitta.android.ui.theme.White800
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
+import java.util.Locale
+
+private val HomeDateFormatter = DateTimeFormatter.ofPattern("M월 d일", Locale.KOREAN)
+private val HomeTimeFormatter = DateTimeFormatter.ofPattern("h:mm a", Locale.ENGLISH)
+
+private fun formatNextSession(dateTime: LocalDateTime): String {
+    val date = dateTime.format(HomeDateFormatter)
+    val weekday = dateTime.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.KOREAN)
+    val time = dateTime.format(HomeTimeFormatter)
+    return "$date $weekday · $time"
+}
 
 /**
  * 홈 화면 — 하단 4탭 중 첫 탭. 헤더 + 히어로 카드(걱정 예약) + 오늘의 한 마디 + 다음 마음 세션.
@@ -68,7 +82,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
-    val nickname by viewModel.nickname.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     Column(
         modifier = modifier
@@ -84,7 +98,7 @@ fun HomeScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "${nickname.ifBlank { "OO" }}님, 반가워요!",
+                text = "${uiState.nickname.ifBlank { "OO" }}님, 반가워요!",
                 style = Heading1_24sb,
                 color = Primary800,
                 modifier = Modifier.weight(1f),
@@ -167,7 +181,7 @@ fun HomeScreen(
             },
         ) {
             Text(
-                text = "Q. 내가 지금 걱정하는 일은 사실일까요,\n가능성일까요?",
+                text = uiState.dailyMessage,
                 style = Body1_16m,
                 color = Primary800,
             )
@@ -201,55 +215,64 @@ fun HomeScreen(
                 )
             },
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(AccentCream100),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_calendar),
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = Primary800,
-                    )
-                }
-                Spacer(Modifier.width(8.dp))
+            val nextSession = uiState.nextSession
+            if (nextSession == null) {
                 Text(
-                    text = "5월 27일 수요일 · 10:00 PM",
+                    text = "예약된 세션이 없어요",
                     style = Body3_14r,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-            }
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = "UMC 프론트가 안 구해지면 어떡하지",
-                style = Body1_16m,
-                color = Primary800,
-            )
-            Spacer(Modifier.height(16.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                GominittaButton(
-                    text = "한 줄 보태기",
-                    onClick = onNavigateToWorryMemo,
-                    modifier = Modifier.weight(1f).height(44.dp),
-                    variant = GominittaButtonVariant.Outlined,
-                    leadingIcon = {
-                        Icon(painterResource(R.drawable.ic_chat), null, Modifier.size(18.dp))
-                    },
-                    contentPadding = GominittaButtonDefaults.CompactContentPadding,
+            } else {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(AccentCream100),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_calendar),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                            tint = Primary800,
+                        )
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = formatNextSession(nextSession.startedAt),
+                        style = Body3_14r,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = nextSession.title,
+                    style = Body1_16m,
+                    color = Primary800,
                 )
-                GominittaButton(
-                    text = "세션 시작",
-                    onClick = onNavigateToSessionDetail,
-                    modifier = Modifier.weight(1f).height(44.dp),
-                    leadingIcon = {
-                        Icon(painterResource(R.drawable.ic_play), null, Modifier.size(18.dp))
-                    },
-                    contentPadding = GominittaButtonDefaults.CompactContentPadding,
-                )
+                Spacer(Modifier.height(16.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    GominittaButton(
+                        text = "한 줄 보태기",
+                        onClick = onNavigateToWorryMemo,
+                        modifier = Modifier.weight(1f).height(44.dp),
+                        variant = GominittaButtonVariant.Outlined,
+                        leadingIcon = {
+                            Icon(painterResource(R.drawable.ic_chat), null, Modifier.size(18.dp))
+                        },
+                        contentPadding = GominittaButtonDefaults.CompactContentPadding,
+                    )
+                    GominittaButton(
+                        text = "세션 시작",
+                        onClick = onNavigateToSessionDetail,
+                        modifier = Modifier.weight(1f).height(44.dp),
+                        leadingIcon = {
+                            Icon(painterResource(R.drawable.ic_play), null, Modifier.size(18.dp))
+                        },
+                        contentPadding = GominittaButtonDefaults.CompactContentPadding,
+                    )
+                }
             }
         }
     }
