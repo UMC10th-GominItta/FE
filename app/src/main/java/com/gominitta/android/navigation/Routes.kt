@@ -37,11 +37,14 @@ object Routes {
 
     // 마음 세션 플로우
     const val SESSION_DETAIL   = "session_detail"
-    const val SESSION_ACTIVE   = "session_active"
+    const val SESSION_ACTIVE   = "session_active/{sessionId}"
+    fun sessionActiveRoute(sessionId: Long) = "session_active/$sessionId"
     const val SESSION_COMPLETE = "session_complete"
     const val SESSION_RATING   = "session_rating"
     const val SESSION_EDIT     = "session_edit/{sessionId}"
     fun sessionEditRoute(sessionId: Long) = "session_edit/$sessionId"
+    const val SESSION_RESULT   = "session_result/{sessionId}"
+    fun sessionResultRoute(sessionId: Long) = "session_result/$sessionId"
 
 
     //recipe 상세 루트

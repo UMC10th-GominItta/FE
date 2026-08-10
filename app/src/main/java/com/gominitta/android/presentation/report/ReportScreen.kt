@@ -104,8 +104,9 @@ fun ReportScreen(
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // 상태바 아래에 고정되는 화면 제목 영역
-        Spacer(Modifier.height(56.dp))
+        // 시스템 바 인셋은 MainScreen의 Scaffold가 적용하므로,
+        // 여기서는 상태바 아래의 콘텐츠 여백만 확보합니다.
+        Spacer(Modifier.height(32.dp))
 
         Box(
             modifier = Modifier
