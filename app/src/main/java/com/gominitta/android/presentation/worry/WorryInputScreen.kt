@@ -44,12 +44,14 @@ import com.gominitta.android.ui.theme.Heading4_18m
  */
 @Composable
 fun WorryInputScreen(
-    onNavigateNext: () -> Unit,
+    title: String,
+    content: String,
+    onTitleChange: (String) -> Unit,
+    onContentChange: (String) -> Unit,
+    onNext: () -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var noteTitle by remember { mutableStateOf("") }
-    var noteContent by remember { mutableStateOf("") }
     var showExitDialog by remember { mutableStateOf(false) }
 
     BackHandler(enabled = true) { showExitDialog = true }
@@ -89,10 +91,10 @@ fun WorryInputScreen(
                     Spacer(Modifier.height(56.dp))
 
                     WorryNoteField(
-                        title = noteTitle,
-                        onTitleChange = { noteTitle = it },
-                        content = noteContent,
-                        onContentChange = { noteContent = it },
+                        title = title,
+                        onTitleChange = onTitleChange,
+                        content = content,
+                        onContentChange = onContentChange,
                     )
 
                     Spacer(Modifier.height(96.dp))
@@ -101,14 +103,14 @@ fun WorryInputScreen(
 
             WorryPrimaryButton(
                 text = "다음",
-                onClick = onNavigateNext,
+                onClick = onNext,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.ime.exclude(WindowInsets.navigationBars))
                     .padding(horizontal = 20.dp)
                     .padding(top = 16.dp, bottom = 28.dp),
-                enabled = noteTitle.isNotBlank() && noteContent.isNotBlank(),
+                enabled = title.isNotBlank() && content.isNotBlank(),
             )
         }
     }
@@ -131,7 +133,14 @@ fun WorryInputScreen(
 private fun WorryInputScreenPreview() {
     GominittaTheme {
         GominittaBackground {
-            WorryInputScreen(onNavigateNext = {}, onNavigateBack = {})
+            WorryInputScreen(
+                title = "",
+                content = "",
+                onTitleChange = {},
+                onContentChange = {},
+                onNext = {},
+                onNavigateBack = {},
+            )
         }
     }
 }

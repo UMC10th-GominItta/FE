@@ -19,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,12 +56,11 @@ private val TimeFormatter = DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLIS
  */
 @Composable
 fun WorrySavedScreen(
+    startTime: LocalDateTime,
+    endTime: LocalDateTime,
     onNavigateToHome: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val sampleStartTime = remember { LocalDateTime.of(LocalDate.now().year, 4, 14, 22, 0) }
-    val sampleEndTime = remember { LocalDateTime.of(LocalDate.now().year, 4, 14, 23, 0) }
-
     BackHandler { onNavigateToHome() }
 
     Scaffold(
@@ -107,7 +105,7 @@ fun WorrySavedScreen(
                     text = buildAnnotatedString {
                         append("나의 하루를 위해 잠시 접어두고,\n")
                         withStyle(Title2_18sb.toSpanStyle()) {
-                            append(formatSessionTime(sampleStartTime))
+                            append(formatSessionTime(startTime))
                         }
                         append(" 에 만나요!")
                     },
@@ -144,8 +142,8 @@ fun WorrySavedScreen(
                 Spacer(Modifier.height(18.dp))
 
                 WorrySessionInfoCard(
-                    startTime = sampleStartTime,
-                    endTime = sampleEndTime,
+                    startTime = startTime,
+                    endTime = endTime,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -178,7 +176,11 @@ private fun formatSessionTime(dateTime: LocalDateTime): String {
 private fun WorrySavedScreenPreview() {
     GominittaTheme {
         GominittaBackground {
-            WorrySavedScreen(onNavigateToHome = {})
+            WorrySavedScreen(
+                startTime = LocalDateTime.of(LocalDate.now().year, 4, 14, 22, 0),
+                endTime = LocalDateTime.of(LocalDate.now().year, 4, 14, 23, 0),
+                onNavigateToHome = {},
+            )
         }
     }
 }

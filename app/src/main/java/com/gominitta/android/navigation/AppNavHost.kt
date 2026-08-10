@@ -6,9 +6,11 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -40,7 +42,8 @@ import com.gominitta.android.presentation.mypage.ProfileEditRoute
 import com.gominitta.android.presentation.mypage.WithdrawScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gominitta.android.presentation.mypage.model.FavoriteTimeViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.gominitta.android.presentation.worry.WorryReservationViewModel
+import java.time.LocalDateTime
 
 /**
  * Root navigation graph — the ONLY place holding the top-level [NavHostController].
@@ -205,21 +208,45 @@ fun AppNavHost(
         }
 
         // ── 걱정 예약 플로우 (전체화면, 바텀바 없음) ──
+        // WORRY_INPUT ~ WORRY_SAVED 4개 화면이 WorryReservationViewModel 하나를 공유한다.
         composable(Routes.WORRY_INPUT) {
+            val vm: WorryReservationViewModel = hiltViewModel()
+            val uiState by vm.uiState.collectAsStateWithLifecycle()
             WorryInputScreen(
-                onNavigateNext = { navController.navigate(Routes.WORRY_INTENSITY) },
+                title = uiState.title,
+                content = uiState.content,
+                onTitleChange = vm::onTitleChange,
+                onContentChange = vm::onContentChange,
+                onNext = { navController.navigate(Routes.WORRY_INTENSITY) },
                 onNavigateBack = { navController.popBackStack() },
             )
         }
-        composable(Routes.WORRY_INTENSITY) {
+        composable(Routes.WORRY_INTENSITY) { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(Routes.WORRY_INPUT)
+            }
+            val vm: WorryReservationViewModel = hiltViewModel(parentEntry)
+            val uiState by vm.uiState.collectAsStateWithLifecycle()
             WorryIntensityScreen(
-                onNavigateNext = { navController.navigate(Routes.WORRY_SCHEDULE) },
+                intensity = uiState.intensity,
+                onIntensityChange = vm::onIntensityChange,
+                onNext = { navController.navigate(Routes.WORRY_SCHEDULE) },
                 onNavigateBack = { navController.popBackStack() },
             )
         }
-        composable(Routes.WORRY_SCHEDULE) {
+        composable(Routes.WORRY_SCHEDULE) { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(Routes.WORRY_INPUT)
+            }
+            val vm: WorryReservationViewModel = hiltViewModel(parentEntry)
+            val uiState by vm.uiState.collectAsStateWithLifecycle()
             WorryScheduleScreen(
-                onNavigateNext = { navController.navigate(Routes.WORRY_SAVED) },
+                startTime = uiState.startTime,
+                endTime = uiState.endTime,
+                saveState = uiState.saveState,
+                onScheduleChange = vm::onScheduleChange,
+                onSubmit = { vm.save() },
+                onSaved = { navController.navigate(Routes.WORRY_SAVED) },
                 onNavigateBack = { navController.popBackStack() },
             )
         }
@@ -229,8 +256,15 @@ fun AppNavHost(
                 onNavigateBack = { navController.popBackStack() },
             )
         }
-        composable(Routes.WORRY_SAVED) {
+        composable(Routes.WORRY_SAVED) { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(Routes.WORRY_INPUT)
+            }
+            val vm: WorryReservationViewModel = hiltViewModel(parentEntry)
+            val uiState by vm.uiState.collectAsStateWithLifecycle()
             WorrySavedScreen(
+                startTime = uiState.startTime ?: LocalDateTime.now(),
+                endTime = uiState.endTime ?: LocalDateTime.now(),
                 onNavigateToHome = { navController.popBackStack(Routes.MAIN, inclusive = false) },
             )
         }
