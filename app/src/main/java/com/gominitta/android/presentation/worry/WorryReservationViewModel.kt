@@ -55,13 +55,13 @@ class WorryReservationViewModel @Inject constructor(
         val state = _uiState.value
         val start = state.startTime ?: return
         val end = state.endTime ?: return
-        val mergedContent = if (state.title.isBlank()) state.content else "${state.title}\n\n${state.content}"
 
         viewModelScope.launch {
             _uiState.update { it.copy(saveState = WorrySaveState.Loading) }
             when (
                 val result = createWorry(
-                    content = mergedContent,
+                    title = state.title,
+                    content = state.content,
                     emotionScoreBefore = state.intensity,
                     scheduledStartAt = start.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                     scheduledEndAt = end.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
