@@ -25,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -34,6 +35,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.gominitta.android.R
 import com.gominitta.android.presentation.mypage.model.ProfileImages
 import com.gominitta.android.presentation.mypage.toProfileIndex
@@ -85,6 +89,17 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.load()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     Column(
         modifier = modifier
@@ -140,16 +155,16 @@ fun HomeScreen(
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .offset(x = 0.dp, y = 8.dp)
-                        .requiredSize(width = 62.dp, height = 58.dp),
+                        .offset(x = 22.dp, y = (-22).dp)
+                        .requiredSize(width = 146.25.dp, height = 137.15.dp),
                 )
                 Image(
                     painter = painterResource(R.drawable.home_hero_acorn),
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .offset(x = (-4).dp, y = 68.dp)
-                        .requiredSize(width = 88.dp, height = 64.dp),
+                        .offset(x = (-14).dp, y = 84.dp)
+                        .requiredSize(width = 86.4.dp, height = 63.dp),
                 )
             },
         ) {
@@ -158,7 +173,7 @@ fun HomeScreen(
                 style = Title1_20sb,
                 color = Primary800,
             )
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(24.dp))
             Text(
                 text = "오늘은 어떤 생각이 드나요?\n약속된 시간까지 잘 보관해둘게요.",
                 style = Body2_15r,
@@ -190,9 +205,9 @@ fun HomeScreen(
                     painter = painterResource(R.drawable.home_quote_leaf),
                     contentDescription = null,
                     modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .offset(x = (-8).dp, y = 0.dp)
-                        .requiredSize(width = 34.dp, height = 30.dp),
+                        .align(Alignment.BottomEnd)
+                        .offset(x = (-12).dp, y = 0.dp)
+                        .requiredSize(width = 50.3.dp, height = 45.2.dp),
                 )
             },
         ) {
@@ -226,8 +241,8 @@ fun HomeScreen(
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .offset(x = (-2).dp, y = (-2).dp)
-                        .requiredSize(width = 64.dp, height = 62.dp),
+                        .offset(x = (-6).dp, y = 2.dp)
+                        .requiredSize(width = 96.7.dp, height = 93.7.dp),
                 )
             },
         ) {
