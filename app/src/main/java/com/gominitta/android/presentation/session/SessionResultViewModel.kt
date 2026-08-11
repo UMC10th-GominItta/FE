@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 
 data class SessionResultUiState(
     val isLoading: Boolean = true,
+    val worryTitle: String = "",
     val worryContent: String = "",
     val themeCategory: String? = null,
     val records: List<SessionRecord> = emptyList(),
@@ -46,6 +47,7 @@ class SessionResultViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
+                        worryTitle = session.worryTitle,
                         worryContent = session.worryContent,
                         themeCategory = session.themeCategory,
                         records = session.records,

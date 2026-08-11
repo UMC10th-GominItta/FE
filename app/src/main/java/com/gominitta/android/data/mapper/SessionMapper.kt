@@ -14,6 +14,7 @@ import java.time.format.DateTimeParseException
 fun SessionListResponseDto.toDomain() = Session(
     id = id,
     worryId = worryId,
+    worryTitle = worryTitle,
     worryContent = worryContent,
     scheduledStartAt = scheduledStartAt.toLocalDateTime(),
     scheduledEndAt = scheduledEndAt.toLocalDateTime(),
@@ -23,6 +24,7 @@ fun SessionListResponseDto.toDomain() = Session(
 fun SessionDetailResponseDto.toDomain() = Session(
     id = id,
     worryId = worryId,
+    worryTitle = worryTitle,
     worryContent = worryContent,
     scheduledStartAt = scheduledStartAt.toLocalDateTime(),
     scheduledEndAt = scheduledEndAt.toLocalDateTime(),

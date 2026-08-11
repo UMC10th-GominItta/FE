@@ -57,7 +57,10 @@ fun SessionDetailScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(uiState.isDone) {
-        if (uiState.isDone) onSave()
+        if (uiState.isDone) {
+            onSave()
+            viewModel.onDoneHandled()
+        }
     }
 
     Scaffold(

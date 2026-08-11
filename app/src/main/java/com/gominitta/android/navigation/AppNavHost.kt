@@ -116,7 +116,7 @@ fun AppNavHost(
                 onNavigateBackToSession = { navController.popBackStack() },
                 onNavigateToWorryInput = { navController.navigate(Routes.WORRY_INPUT) },
                 onNavigateToSessionDetail = { sessionId -> navController.navigate(Routes.sessionActiveRoute(sessionId)) },
-                onNavigateToSessionEdit = { sessionId -> navController.navigate(Routes.sessionEditRoute(sessionId)) },
+                onNavigateToSessionEdit = { worryId -> navController.navigate(Routes.sessionEditRoute(worryId)) },
                 onNavigateToSessionResult = { sessionId -> navController.navigate(Routes.sessionResultRoute(sessionId)) },
                 onNavigateToWorryMemo = { navController.navigate(Routes.WORRY_MEMO) },
                 onNavigateToMyPage = { navController.navigate(Routes.MY_PAGE) },
@@ -304,11 +304,9 @@ fun AppNavHost(
         }
         composable(
             route = Routes.SESSION_EDIT,
-            arguments = listOf(navArgument("sessionId") { type = NavType.LongType }),
-        ) { backStackEntry ->
-            val sessionId = backStackEntry.arguments?.getLong("sessionId") ?: 0L
+            arguments = listOf(navArgument("worryId") { type = NavType.LongType }),
+        ) {
             SessionEditScreen(
-                sessionId = sessionId,
                 onNavigateBack = { navController.popBackStack() },
                 onSave = { navController.popBackStack() },
                 onDelete = { navController.popBackStack(Routes.MAIN, inclusive = false) },

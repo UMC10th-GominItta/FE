@@ -41,8 +41,9 @@ object Routes {
     fun sessionActiveRoute(sessionId: Long) = "session_active/$sessionId"
     const val SESSION_COMPLETE = "session_complete"
     const val SESSION_RATING   = "session_rating"
-    const val SESSION_EDIT     = "session_edit/{sessionId}"
-    fun sessionEditRoute(sessionId: Long) = "session_edit/$sessionId"
+    /** 세션이 아니라 그 세션을 만든 걱정(worry)을 수정한다 — arg는 worryId. */
+    const val SESSION_EDIT     = "session_edit/{worryId}"
+    fun sessionEditRoute(worryId: Long) = "session_edit/$worryId"
     const val SESSION_RESULT   = "session_result/{sessionId}"
     fun sessionResultRoute(sessionId: Long) = "session_result/$sessionId"
 

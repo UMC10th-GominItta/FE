@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 data class SessionListResponseDto(
     val id: Long,
     val worryId: Long,
+    val worryTitle: String,
     val worryContent: String,
     val status: String,
     val scheduledStartAt: String,
@@ -18,6 +19,7 @@ data class SessionListResponseDto(
 data class SessionDetailResponseDto(
     val id: Long,
     val worryId: Long,
+    val worryTitle: String,
     val worryContent: String,
     val themeCategory: String? = null,
     val status: String,

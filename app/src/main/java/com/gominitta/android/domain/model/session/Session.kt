@@ -9,6 +9,7 @@ import java.time.LocalDateTime
 data class Session(
     val id: Long,
     val worryId: Long,
+    val worryTitle: String,
     val worryContent: String,
     val scheduledStartAt: LocalDateTime,
     val scheduledEndAt: LocalDateTime,

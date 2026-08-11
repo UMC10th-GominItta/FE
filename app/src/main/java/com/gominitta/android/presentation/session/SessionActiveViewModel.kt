@@ -29,6 +29,7 @@ enum class RecordTab(val raw: String, val label: String, val icon: Int) {
 
 data class SessionActiveUiState(
     val isLoading: Boolean = true,
+    val worryTitle: String = "",
     val worryContent: String = "",
     val themeCategory: String = "",
     val selectedTab: RecordTab = RecordTab.Text,
@@ -73,6 +74,7 @@ class SessionActiveViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
+                        worryTitle = session.worryTitle,
                         worryContent = session.worryContent,
                         themeCategory = session.themeCategory.orEmpty(),
                     )
@@ -85,6 +87,15 @@ class SessionActiveViewModel @Inject constructor(
         }
     }
 
+    /**
+     * [SessionActiveUiState.isDone] 소비 완료 신호. 이 화면은 네비게이션 뒤로가기로
+     * 다시 돌아올 수 있는 스택 최하단 화면이므로, isDone을 리셋하지 않으면 복귀 즉시
+     * LaunchedEffect가 다시 true를 보고 onNavigateNext()를 재실행해 뒤로가기가 막힌다.
+     */
+    fun onDoneHandled() {
+        _uiState.update { it.copy(isDone = false) }
+    }
+
     fun selectTab(tab: RecordTab) {
         _uiState.update { it.copy(selectedTab = tab) }
     }
@@ -94,17 +105,15 @@ class SessionActiveViewModel @Inject constructor(
     }
 
     /**
-     * "세션 완료하기" 클릭. 텍스트 탭에 내용이 있으면 그 자리에서 기록을 실제로 생성한다.
-     * 음성/필기 탭은 녹음·촬영 시점에 이미 업로드가 끝나 있으므로([capturedTab]) 그대로 진행.
+     * "세션 완료하기" 클릭. 음성/필기 탭은 녹음·촬영 시점에 이미 업로드가 끝나 있으므로([capturedTab])
+     * 손댈 게 없지만, 텍스트 탭의 [SessionActiveUiState.noteText]는 현재 선택된 탭이나 [capturedTab]
+     * 여부와 무관하게 내용이 있으면 항상 저장한다 — 그렇지 않으면 음성/사진을 같이 기록했을 때
+     * 텍스트만 조용히 유실된다.
      */
     fun commitAndProceed() {
         val state = _uiState.value
-        if (state.capturedTab != null) {
-            _uiState.update { it.copy(isDone = true) }
-            return
-        }
         val text = state.noteText.trim()
-        if (state.selectedTab != RecordTab.Text || text.isEmpty()) {
+        if (text.isEmpty()) {
             _uiState.update { it.copy(isDone = true) }
             return
         }

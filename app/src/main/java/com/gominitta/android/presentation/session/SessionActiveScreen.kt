@@ -118,7 +118,10 @@ fun SessionActiveScreen(
     var showIntroSheet by remember { mutableStateOf(true) }
 
     LaunchedEffect(uiState.isDone) {
-        if (uiState.isDone) onNavigateNext()
+        if (uiState.isDone) {
+            onNavigateNext()
+            viewModel.onDoneHandled()
+        }
     }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -142,6 +145,7 @@ fun SessionActiveScreen(
                 }
                 else -> SessionActiveContent(
                     innerPadding = innerPadding,
+                    worryTitle = uiState.worryTitle,
                     worryContent = uiState.worryContent,
                     themeCategory = uiState.themeCategory,
                     selectedTab = uiState.selectedTab,
@@ -192,6 +196,7 @@ fun SessionActiveScreen(
 @Composable
 private fun SessionActiveContent(
     innerPadding: PaddingValues,
+    worryTitle: String,
     worryContent: String,
     themeCategory: String,
     selectedTab: RecordTab,
@@ -243,7 +248,9 @@ private fun SessionActiveContent(
             Text(text = "예약된 걱정", style = Heading5_15m, color = Gray800)
             Spacer(Modifier.height(8.dp))
             GominittaElevatedCard(modifier = Modifier.height(170.dp)) {
-                Text(text = worryContent, style = Body1_16m, color = Gray800)
+                Text(text = worryTitle, style = Body1_16m, color = Gray800)
+                Spacer(Modifier.height(4.dp))
+                Text(text = worryContent, style = Body2_15r, color = Gray800)
                 Spacer(Modifier.height(4.dp))
                 Text(text = themeCategory, style = Body3_14r, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
@@ -623,6 +630,7 @@ private fun SessionIntroSheetContent(onSkip: () -> Unit, onStartRecipe: () -> Un
 
 // ---- Preview ---------------------------------------------------------------
 
+private const val PREVIEW_WORRY_TITLE = "취업 걱정"
 private const val PREVIEW_WORRY_CONTENT = "UMC 프론트가 안 구해지면 어떡하지"
 private const val PREVIEW_THEME_CATEGORY = "진로"
 
@@ -632,6 +640,7 @@ private fun SessionActiveContentTextPreview() {
     GominittaTheme {
         SessionActiveContent(
             innerPadding = PaddingValues(0.dp),
+            worryTitle = PREVIEW_WORRY_TITLE,
             worryContent = PREVIEW_WORRY_CONTENT,
             themeCategory = PREVIEW_THEME_CATEGORY,
             selectedTab = RecordTab.Text,
@@ -655,6 +664,7 @@ private fun SessionActiveContentVoicePreview() {
     GominittaTheme {
         SessionActiveContent(
             innerPadding = PaddingValues(0.dp),
+            worryTitle = PREVIEW_WORRY_TITLE,
             worryContent = PREVIEW_WORRY_CONTENT,
             themeCategory = PREVIEW_THEME_CATEGORY,
             selectedTab = RecordTab.Voice,

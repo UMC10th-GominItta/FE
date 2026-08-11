@@ -34,6 +34,15 @@ class SessionDetailViewModel @Inject constructor(
         _uiState.update { it.copy(recordText = text) }
     }
 
+    /**
+     * [SessionDetailUiState.isDone] 소비 완료 신호. onSave()로 다음 화면(SESSION_COMPLETE)에
+     * 이동한 뒤에도 이 화면의 백스택 엔트리·ViewModel은 살아있으므로, 리셋하지 않으면
+     * 뒤로가기로 돌아오자마자 LaunchedEffect가 다시 true를 보고 즉시 재이동해 버린다.
+     */
+    fun onDoneHandled() {
+        _uiState.update { it.copy(isDone = false) }
+    }
+
     /** "저장하기" 클릭. 기록이 없으면(음성/필기 탭이었거나 빈 텍스트) 서버 호출 없이 바로 넘어간다. */
     fun save() {
         val sessionId = flowState.sessionId

@@ -36,7 +36,6 @@ import com.gominitta.android.domain.model.session.SessionRecord
 import com.gominitta.android.ui.components.GominittaElevatedCard
 import com.gominitta.android.ui.theme.Body1_16m
 import com.gominitta.android.ui.theme.Body2_15r
-import com.gominitta.android.ui.theme.Body3_14r
 import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.GominittaTheme
@@ -65,6 +64,7 @@ fun SessionResultScreen(
         SessionResultContent(
             innerPadding = innerPadding,
             isLoading = uiState.isLoading,
+            worryTitle = uiState.worryTitle,
             worryContent = uiState.worryContent,
             records = uiState.records,
             errorMessage = uiState.errorMessage,
@@ -77,6 +77,7 @@ fun SessionResultScreen(
 private fun SessionResultContent(
     innerPadding: PaddingValues,
     isLoading: Boolean,
+    worryTitle: String,
     worryContent: String,
     records: List<SessionRecord>,
     errorMessage: String?,
@@ -125,7 +126,9 @@ private fun SessionResultContent(
                 Text(text = "예약된 걱정", style = Heading5_15m, color = Gray800)
                 Spacer(Modifier.height(8.dp))
                 GominittaElevatedCard {
-                    Text(text = worryContent, style = Body1_16m, color = Gray800)
+                    Text(text = worryTitle, style = Body1_16m, color = Gray800)
+                    Spacer(Modifier.height(4.dp))
+                    Text(text = worryContent, style = Body2_15r, color = Gray800)
                 }
                 Spacer(Modifier.height(20.dp))
 
@@ -161,17 +164,7 @@ private fun SessionResultContent(
 
 @Composable
 private fun SessionRecordItem(record: SessionRecord, modifier: Modifier = Modifier) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        Text(text = record.recordType.toLabel(), style = Body3_14r, color = Gray400)
-        Spacer(Modifier.height(4.dp))
-        Text(text = record.contentText, style = Body2_15r, color = Gray800)
-    }
-}
-
-private fun RecordType.toLabel(): String = when (this) {
-    RecordType.TEXT -> "텍스트"
-    RecordType.VOICE -> "음성"
-    RecordType.HANDWRITING -> "필기"
+    Text(text = record.contentText, style = Body2_15r, color = Gray800, modifier = modifier.fillMaxWidth())
 }
 
 // ---- Preview ---------------------------------------------------------------
@@ -183,6 +176,7 @@ private fun SessionResultContentPreview() {
         SessionResultContent(
             innerPadding = PaddingValues(0.dp),
             isLoading = false,
+            worryTitle = "취업 걱정",
             worryContent = "UMC 프론트가 안 구해지면 어떡하지\n걱정걱정걱정",
             records = listOf(
                 SessionRecord(
@@ -206,6 +200,7 @@ private fun SessionResultContentEmptyPreview() {
         SessionResultContent(
             innerPadding = PaddingValues(0.dp),
             isLoading = false,
+            worryTitle = "취업 걱정",
             worryContent = "UMC 프론트가 안 구해지면 어떡하지",
             records = emptyList(),
             errorMessage = null,

@@ -296,8 +296,15 @@ private fun SessionCard(
     onViewResult: (Long) -> Unit,
 ) {
     val isCompleted = session.status == SessionStatus.COMPLETED
+    // 완료 세션은 카드를 눌러 기록 보기로, 예정/미완료 세션은 카드를 눌러 걱정 수정으로 이동한다
+    // ("수정/삭제" 텍스트 버튼은 그대로 유지 — 카드 어디를 눌러도 같은 곳으로 가는 것뿐).
+    val onCardClick = if (isCompleted) {
+        { onViewResult(session.id) }
+    } else {
+        { onEditSession(session.worryId) }
+    }
     GominittaElevatedCard(
-        modifier = if (isCompleted) Modifier.clickable(onClick = { onViewResult(session.id) }) else Modifier,
+        modifier = Modifier.clickable(onClick = onCardClick),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -332,12 +339,12 @@ private fun SessionCard(
                     style = Body3_14r,
                     color = Gray400,
                     textDecoration = TextDecoration.Underline,
-                    modifier = Modifier.clickable(onClick = { onEditSession(session.id) }),
+                    modifier = Modifier.clickable(onClick = { onEditSession(session.worryId) }),
                 )
             }
         }
         Spacer(Modifier.height(8.dp))
-        Text(text = session.worryContent, style = Body1_16m, color = Gray800)
+        Text(text = session.worryTitle, style = Body1_16m, color = Gray800)
         if (!isCompleted) {
             Spacer(Modifier.height(16.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -386,6 +393,7 @@ private val previewScheduled = listOf(
     Session(
         id = 1,
         worryId = 10,
+        worryTitle = "취업 걱정",
         worryContent = "UMC 프론트가 안 구해지면 어떡하지",
         scheduledStartAt = LocalDateTime.of(2026, 5, 27, 22, 0),
         scheduledEndAt = LocalDateTime.of(2026, 5, 27, 23, 0),
@@ -395,6 +403,7 @@ private val previewScheduled = listOf(
     Session(
         id = 2,
         worryId = 11,
+        worryTitle = "취업 걱정",
         worryContent = "UMC 디자이너가 안 구해지면 어떡하지",
         scheduledStartAt = LocalDateTime.of(2026, 5, 28, 23, 0),
         scheduledEndAt = LocalDateTime.of(2026, 5, 29, 0, 0),
@@ -407,6 +416,7 @@ private val previewIncomplete = listOf(
     Session(
         id = 3,
         worryId = 12,
+        worryTitle = "취업 걱정",
         worryContent = "UMC 프론트가 안 구해지면 어떡하지",
         scheduledStartAt = LocalDateTime.of(2026, 5, 19, 23, 0),
         scheduledEndAt = LocalDateTime.of(2026, 5, 20, 0, 0),
@@ -419,6 +429,7 @@ private val previewCompleted = listOf(
     Session(
         id = 4,
         worryId = 13,
+        worryTitle = "취업 걱정",
         worryContent = "UMC 프론트가 안 구해지면 어떡하지",
         scheduledStartAt = LocalDateTime.of(2026, 5, 27, 22, 0),
         scheduledEndAt = LocalDateTime.of(2026, 5, 27, 23, 0),
