@@ -118,7 +118,7 @@ fun AppNavHost(
                 onNavigateToSessionDetail = { sessionId -> navController.navigate(Routes.sessionActiveRoute(sessionId)) },
                 onNavigateToSessionEdit = { worryId -> navController.navigate(Routes.sessionEditRoute(worryId)) },
                 onNavigateToSessionResult = { sessionId -> navController.navigate(Routes.sessionResultRoute(sessionId)) },
-                onNavigateToWorryMemo = { navController.navigate(Routes.WORRY_MEMO) },
+                onNavigateToWorryMemo = { sessionId -> navController.navigate(Routes.worryMemoRoute(sessionId)) },
                 onNavigateToMyPage = { navController.navigate(Routes.MY_PAGE) },
             )
         }
@@ -251,8 +251,12 @@ fun AppNavHost(
                 onNavigateBack = { navController.popBackStack() },
             )
         }
-        composable(Routes.WORRY_MEMO) {
+        composable(
+            route = Routes.WORRY_MEMO,
+            arguments = listOf(navArgument("sessionId") { type = NavType.LongType }),
+        ) {
             WorryMemoScreen(
+                viewModel = hiltViewModel(),
                 onNavigateNext = { navController.popBackStack(Routes.MAIN, inclusive = false) },
                 onNavigateBack = { navController.popBackStack() },
             )

@@ -32,7 +32,8 @@ object Routes {
     const val WORRY_INPUT     = "worry_input"
     const val WORRY_INTENSITY = "worry_intensity"
     const val WORRY_SCHEDULE  = "worry_schedule"
-    const val WORRY_MEMO      = "worry_memo"
+    const val WORRY_MEMO      = "worry_memo/{sessionId}"
+    fun worryMemoRoute(sessionId: Long) = "worry_memo/$sessionId"
     const val WORRY_SAVED     = "worry_saved"
 
     // 마음 세션 플로우

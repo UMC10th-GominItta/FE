@@ -73,7 +73,7 @@ fun SessionListScreen(
     onNavigateToSessionEdit: (Long) -> Unit,
     onNavigateToSessionResult: (Long) -> Unit,
     onNavigateToWorryInput: () -> Unit,
-    onNavigateToWorryMemo: () -> Unit,
+    onNavigateToWorryMemo: (Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SessionListViewModel = hiltViewModel(),
 ) {
@@ -155,7 +155,7 @@ private fun SessionListContent(
     onNavigateToSessionEdit: (Long) -> Unit,
     onNavigateToSessionResult: (Long) -> Unit,
     onNavigateToWorryInput: () -> Unit,
-    onNavigateToWorryMemo: () -> Unit,
+    onNavigateToWorryMemo: (Long) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -292,7 +292,7 @@ private fun SessionCard(
     showEditDelete: Boolean,
     onStartSession: (Long) -> Unit,
     onEditSession: (Long) -> Unit,
-    onAddMemo: () -> Unit,
+    onAddMemo: (Long) -> Unit,
     onViewResult: (Long) -> Unit,
 ) {
     val isCompleted = session.status == SessionStatus.COMPLETED
@@ -350,7 +350,7 @@ private fun SessionCard(
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 GominittaButton(
                     text = "한 줄 보태기",
-                    onClick = onAddMemo,
+                    onClick = { onAddMemo(session.id) },
                     modifier = Modifier.weight(1f),
                     variant = GominittaButtonVariant.Outlined,
                     leadingIcon = {
@@ -454,7 +454,7 @@ private fun SessionListContentPopulatedPreview() {
             onNavigateToSessionEdit = {},
             onNavigateToSessionResult = {},
             onNavigateToWorryInput = {},
-            onNavigateToWorryMemo = {},
+            onNavigateToWorryMemo = { _ -> },
         )
     }
 }
@@ -474,7 +474,7 @@ private fun SessionListContentCompletedPreview() {
             onNavigateToSessionEdit = {},
             onNavigateToSessionResult = {},
             onNavigateToWorryInput = {},
-            onNavigateToWorryMemo = {},
+            onNavigateToWorryMemo = { _ -> },
         )
     }
 }
@@ -494,7 +494,7 @@ private fun SessionListContentIncompleteEmptyPreview() {
             onNavigateToSessionEdit = {},
             onNavigateToSessionResult = {},
             onNavigateToWorryInput = {},
-            onNavigateToWorryMemo = {},
+            onNavigateToWorryMemo = { _ -> },
         )
     }
 }
@@ -514,7 +514,7 @@ private fun SessionListContentEmptyPreview() {
             onNavigateToSessionEdit = {},
             onNavigateToSessionResult = {},
             onNavigateToWorryInput = {},
-            onNavigateToWorryMemo = {},
+            onNavigateToWorryMemo = { _ -> },
         )
     }
 }

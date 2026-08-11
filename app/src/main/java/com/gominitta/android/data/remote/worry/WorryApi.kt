@@ -1,6 +1,7 @@
 package com.gominitta.android.data.remote.worry
 
 import com.gominitta.android.data.remote.dto.ApiResponse
+import com.gominitta.android.data.remote.worry.dto.WorryContentRequest
 import com.gominitta.android.data.remote.worry.dto.WorryCreateRequest
 import com.gominitta.android.data.remote.worry.dto.WorryCreateResponse
 import com.gominitta.android.data.remote.worry.dto.WorryDetailResponse
@@ -28,4 +29,10 @@ interface WorryApi {
 
     @DELETE("api/v1/worries/{worryId}")
     suspend fun deleteWorry(@Path("worryId") worryId: Long): ApiResponse<WorryCreateResponse>
+
+    @POST("api/v1/worries/{worryId}/contents")
+    suspend fun addWorryContent(
+        @Path("worryId") worryId: Long,
+        @Body req: WorryContentRequest,
+    ): ApiResponse<WorryCreateResponse>
 }
