@@ -7,6 +7,7 @@ import com.gominitta.android.data.remote.ApiResult
 import com.gominitta.android.domain.usecase.DeleteWorryUseCase
 import com.gominitta.android.domain.usecase.GetWorryUseCase
 import com.gominitta.android.domain.usecase.UpdateWorryUseCase
+import com.gominitta.android.presentation.notification.ReminderScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -38,6 +39,7 @@ class SessionEditViewModel @Inject constructor(
     private val getWorry: GetWorryUseCase,
     private val updateWorry: UpdateWorryUseCase,
     private val deleteWorry: DeleteWorryUseCase,
+    private val reminderScheduler: ReminderScheduler,
 ) : ViewModel() {
 
     private val worryId: Long = checkNotNull(savedStateHandle["worryId"])
@@ -100,7 +102,10 @@ class SessionEditViewModel @Inject constructor(
                     scheduledEndAt = end.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                 )
             ) {
-                is ApiResult.Success -> _uiState.update { it.copy(isSaving = false, isDone = true) }
+                is ApiResult.Success -> {
+                    reminderScheduler.rescheduleAll(worryId, start)
+                    _uiState.update { it.copy(isSaving = false, isDone = true) }
+                }
                 is ApiResult.Error -> _uiState.update { it.copy(isSaving = false, saveErrorMessage = result.message) }
                 is ApiResult.NetworkError ->
                     _uiState.update { it.copy(isSaving = false, saveErrorMessage = "네트워크 연결을 확인해 주세요.") }
@@ -112,7 +117,10 @@ class SessionEditViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true, saveErrorMessage = null) }
             when (val result = deleteWorry(worryId)) {
-                is ApiResult.Success -> _uiState.update { it.copy(isSaving = false, isDeleted = true) }
+                is ApiResult.Success -> {
+                    reminderScheduler.cancelReminders(worryId)
+                    _uiState.update { it.copy(isSaving = false, isDeleted = true) }
+                }
                 is ApiResult.Error -> _uiState.update { it.copy(isSaving = false, saveErrorMessage = result.message) }
                 is ApiResult.NetworkError ->
                     _uiState.update { it.copy(isSaving = false, saveErrorMessage = "네트워크 연결을 확인해 주세요.") }
