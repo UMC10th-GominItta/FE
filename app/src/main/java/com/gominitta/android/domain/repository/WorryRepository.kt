@@ -31,4 +31,6 @@ interface WorryRepository {
     ): ApiResult<Long>
 
     suspend fun deleteWorry(worryId: Long): ApiResult<Long>
+
+    suspend fun addWorryContent(worryId: Long, content: String): ApiResult<Long>
 }

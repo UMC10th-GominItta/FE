@@ -89,7 +89,7 @@ private fun formatNextSession(dateTime: LocalDateTime): String {
 @Composable
 fun HomeScreen(
     onNavigateToWorryInput: () -> Unit = {},
-    onNavigateToWorryMemo: () -> Unit = {},
+    onNavigateToWorryMemo: (Long) -> Unit = {},
     onNavigateToSessionDetail: () -> Unit = {},
     onNavigateToSessionList: () -> Unit = {},
     onNavigateToMyPage: () -> Unit = {},
@@ -310,7 +310,7 @@ fun HomeScreen(
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     GominittaButton(
                         text = "한 줄 보태기",
-                        onClick = onNavigateToWorryMemo,
+                        onClick = { onNavigateToWorryMemo(nextSession.sessionId) },
                         modifier = Modifier.weight(1f).height(44.dp),
                         variant = GominittaButtonVariant.Outlined,
                         leadingIcon = {
