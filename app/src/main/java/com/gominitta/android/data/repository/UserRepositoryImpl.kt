@@ -54,6 +54,7 @@ class UserRepositoryImpl @Inject constructor(
                     startedAt = startedAt,
                 )
             } else null,
+            profileImageUrl = data.user?.profileIcon?.toAppProfileImageUrl().orEmpty(),
         )
     }
 

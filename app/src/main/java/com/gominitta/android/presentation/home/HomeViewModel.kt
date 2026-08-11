@@ -29,6 +29,7 @@ class HomeViewModel @Inject constructor(
                     nickname = data.nickname,
                     dailyMessage = data.dailyMessage,
                     nextSession = data.nextSession,
+                    profileImageUrl = data.profileImageUrl,
                 )
             }
         }
