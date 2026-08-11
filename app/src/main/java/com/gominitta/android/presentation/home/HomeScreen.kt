@@ -30,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -140,8 +139,16 @@ fun HomeScreen(
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .offset(x = 2.dp, y = 14.dp)
-                        .requiredSize(width = 159.dp, height = 147.dp),
+                        .offset(x = 0.dp, y = 8.dp)
+                        .requiredSize(width = 62.dp, height = 58.dp),
+                )
+                Image(
+                    painter = painterResource(R.drawable.home_hero_acorn),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = (-4).dp, y = 68.dp)
+                        .requiredSize(width = 88.dp, height = 64.dp),
                 )
             },
         ) {
@@ -181,12 +188,10 @@ fun HomeScreen(
                 Image(
                     painter = painterResource(R.drawable.home_quote_leaf),
                     contentDescription = null,
-                    alpha = 0.5f,
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
-                        .offset(x = (-28).dp, y = 14.dp)
-                        .requiredSize(width = 151.89.dp, height = 227.83.dp)
-                        .rotate(38.18f),
+                        .offset(x = (-8).dp, y = 0.dp)
+                        .requiredSize(width = 34.dp, height = 30.dp),
                 )
             },
         ) {
@@ -219,9 +224,8 @@ fun HomeScreen(
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .offset(x = 38.dp, y = (-34).dp)
-                        .requiredSize(128.4.dp)
-                        .rotate(-148.91f),
+                        .offset(x = (-2).dp, y = (-2).dp)
+                        .requiredSize(width = 64.dp, height = 62.dp),
                 )
             },
         ) {
