@@ -36,6 +36,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gominitta.android.R
+import com.gominitta.android.presentation.mypage.model.ProfileImages
+import com.gominitta.android.presentation.mypage.toProfileIndex
 import com.gominitta.android.ui.components.GominittaButton
 import com.gominitta.android.ui.components.GominittaButtonDefaults
 import com.gominitta.android.ui.components.GominittaButtonVariant
@@ -111,12 +113,20 @@ fun HomeScreen(
                     .clickable(onClick = onNavigateToMyPage),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_profile),
-                    contentDescription = "마이페이지",
-                    modifier = Modifier.size(24.dp),
-                    tint = White800,
-                )
+                if (uiState.profileImageUrl.isNotBlank()) {
+                    Image(
+                        painter = painterResource(ProfileImages.all[uiState.profileImageUrl.toProfileIndex()]),
+                        contentDescription = "마이페이지",
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_profile),
+                        contentDescription = "마이페이지",
+                        modifier = Modifier.size(24.dp),
+                        tint = White800,
+                    )
+                }
             }
         }
         Spacer(Modifier.height(4.dp))
