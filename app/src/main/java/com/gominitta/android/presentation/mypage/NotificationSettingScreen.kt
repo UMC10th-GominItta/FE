@@ -32,6 +32,7 @@ fun NotificationSettingRoute(
     NotificationSettingScreen(
         reservationReminderEnabled = viewModel.reservationReminderEnabled,
         sessionStartReminderEnabled = viewModel.sessionStartReminderEnabled,
+        errorMessage = viewModel.errorMessage,
         onReservationReminderChanged = viewModel::onReservationReminderChanged,
         onSessionStartReminderChanged = viewModel::onSessionStartReminderChanged,
         onBackClick = onBackClick,
@@ -42,6 +43,7 @@ fun NotificationSettingRoute(
 fun NotificationSettingScreen(
     reservationReminderEnabled: Boolean,
     sessionStartReminderEnabled: Boolean,
+    errorMessage: String? = null,
     onReservationReminderChanged: (Boolean) -> Unit,
     onSessionStartReminderChanged: (Boolean) -> Unit,
     onBackClick: () -> Unit,
@@ -86,6 +88,17 @@ fun NotificationSettingScreen(
                 checked = sessionStartReminderEnabled,
                 onCheckedChange = onSessionStartReminderChanged,
             )
+
+            if (errorMessage != null) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = errorMessage,
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
     }
 }
