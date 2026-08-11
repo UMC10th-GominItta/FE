@@ -96,9 +96,10 @@ fun WorryScheduleScreen(
         if (saveState is WorrySaveState.Success) onSaved()
     }
 
-    val year = remember { LocalDate.now().year }
-    val defaultStartTime = remember(year) { LocalDateTime.of(year, 4, 13, 21, 0) }
-    val defaultEndTime = remember(year) { LocalDateTime.of(year, 4, 13, 22, 0) }
+    val today = remember { LocalDate.now() }
+    val year = today.year
+    val defaultStartTime = remember(today) { today.atTime(21, 0) }
+    val defaultEndTime = remember(today) { today.atTime(22, 0) }
 
     var activeSlot by remember { mutableStateOf<WorryTimeSlot?>(null) }
     var selectedFavoriteIndex by remember { mutableStateOf<Int?>(null) }
