@@ -1,17 +1,16 @@
 package com.gominitta.android.di
 
 import com.gominitta.android.data.repository.FakeSampleRepository
-import com.gominitta.android.data.repository.FakeSessionRepository
 import com.gominitta.android.data.repository.RealRecipeRepository
 import com.gominitta.android.data.repository.FavoriteTimeRepositoryImpl
 import com.gominitta.android.data.repository.ReportRepositoryImpl
 import com.gominitta.android.data.repository.DummyFavoriteTimeRepository
+import com.gominitta.android.data.repository.WorryRepositoryImpl
 import com.gominitta.android.domain.repository.RecipeRepository
 import com.gominitta.android.domain.repository.SampleRepository
-import com.gominitta.android.domain.repository.SessionRepository
 import com.gominitta.android.domain.repository.ReportRepository
-import com.gominitta.android.domain.repository.UserRepository
 import com.gominitta.android.domain.repository.FavoriteTimeRepository
+import com.gominitta.android.domain.repository.WorryRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -37,20 +36,13 @@ abstract class AppModule {
         fake: FakeSampleRepository,
     ): SampleRepository
 
-    // TODO: 실제 서버(NetworkModule.BASE_URL) 준비되면 SessionRepositoryImpl 로 교체
     @Binds
     @Singleton
-    abstract fun bindSessionRepository(
-        fake: FakeSessionRepository,
-    ): SessionRepository
-
-    @Binds
-    @Singleton
-abstract fun bindReportRepository(
+    abstract fun bindReportRepository(
         repository: ReportRepositoryImpl,
     ): ReportRepository
 
-@Binds
+    @Binds
     @Singleton
     abstract fun bindFavoriteTimeRepository(
         impl: FavoriteTimeRepositoryImpl,
@@ -61,4 +53,10 @@ abstract fun bindReportRepository(
     abstract fun bindRecipeRepository(
         real: RealRecipeRepository,
     ): RecipeRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindWorryRepository(
+        impl: WorryRepositoryImpl,
+    ): WorryRepository
 }

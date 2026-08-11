@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +49,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gominitta.android.R
 import com.gominitta.android.ui.components.GominittaButton
 import com.gominitta.android.ui.components.GominittaButtonVariant
@@ -55,7 +58,7 @@ import com.gominitta.android.ui.components.GominittaCard
 import com.gominitta.android.ui.components.GominittaCardVariant
 import com.gominitta.android.ui.components.GominittaElevatedCard
 import com.gominitta.android.ui.theme.AccentCream200
-import com.gominitta.android.ui.theme.Body1_16m
+import com.gominitta.android.ui.theme.Body2_15r
 import com.gominitta.android.ui.theme.Body3_14r
 import com.gominitta.android.ui.theme.Gray400
 import com.gominitta.android.ui.theme.Gray600
@@ -69,126 +72,203 @@ import com.gominitta.android.ui.theme.Primary800
 import com.gominitta.android.ui.theme.Title1_20sb
 import com.gominitta.android.ui.theme.White800
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.YearMonth
 import kotlin.math.abs
 
 /**
- * 예약된 걱정 수정 (C105) — 마음 세션 목록의 "수정/삭제"에서 진입.
- * API 연동 전, UI 확인용 fake 데이터만 사용 — [sessionId] 는 실제 조회에는 아직 안 쓰인다.
- * 시간 선택 바텀시트는 Figma대로 월·일·시·분·AM/PM 5열이 각각 스크롤·스냅되는 휠 피커.
+ * 예약된 걱정 수정 (C105) — 마음 세션 목록의 "수정/삭제"에서 진입. 세션이 아니라
+ * 그 세션을 만든 걱정(worry)의 내용·예약 시간을 고친다. 시간 선택 바텀시트는
+ * Figma대로 월·일·시·분·AM/PM 5열이 각각 스크롤·스냅되는 휠 피커.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SessionEditScreen(
-    sessionId: Long,
+    onNavigateBack: () -> Unit,
+    onSave: () -> Unit,
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: SessionEditViewModel = hiltViewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(uiState.isDone) {
+        if (uiState.isDone) onSave()
+    }
+    LaunchedEffect(uiState.isDeleted) {
+        if (uiState.isDeleted) onDelete()
+    }
+
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onBackground,
+    ) { innerPadding ->
+        when {
+            uiState.isLoading -> Box(
+                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator(color = Primary800)
+            }
+            uiState.loadErrorMessage != null -> Box(
+                modifier = Modifier.fillMaxSize().padding(innerPadding).padding(20.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(text = uiState.loadErrorMessage.orEmpty(), style = Body2_15r, color = Gray400, textAlign = TextAlign.Center)
+            }
+            else -> SessionEditContent(
+                innerPadding = innerPadding,
+                title = uiState.title,
+                onTitleChange = viewModel::updateTitle,
+                content = uiState.content,
+                onContentChange = viewModel::updateContent,
+                startAt = uiState.startAt ?: LocalDateTime.now(),
+                endAt = uiState.endAt ?: LocalDateTime.now(),
+                onStartAtChange = viewModel::updateStartAt,
+                onEndAtChange = viewModel::updateEndAt,
+                isDirty = uiState.isDirty,
+                isSaving = uiState.isSaving,
+                errorMessage = uiState.saveErrorMessage,
+                onNavigateBack = onNavigateBack,
+                onSave = viewModel::save,
+                onDelete = viewModel::delete,
+            )
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun SessionEditContent(
+    innerPadding: PaddingValues,
+    title: String,
+    onTitleChange: (String) -> Unit,
+    content: String,
+    onContentChange: (String) -> Unit,
+    startAt: LocalDateTime,
+    endAt: LocalDateTime,
+    onStartAtChange: (LocalDateTime) -> Unit,
+    onEndAtChange: (LocalDateTime) -> Unit,
+    isDirty: Boolean,
+    isSaving: Boolean,
+    errorMessage: String?,
     onNavigateBack: () -> Unit,
     onSave: () -> Unit,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var memoText by remember { mutableStateOf(FAKE_MEMO) }
-    var startDateTime by remember { mutableStateOf(EditableDateTime(4, 13, 9, 0, "PM")) }
-    var endDateTime by remember { mutableStateOf(EditableDateTime(4, 13, 10, 0, "PM")) }
-    var isDirty by remember { mutableStateOf(false) }
     var editingSlot by remember { mutableStateOf<TimeSlot?>(null) }
 
     Box(modifier = modifier.fillMaxSize()) {
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            containerColor = Color.Transparent,
-            contentColor = MaterialTheme.colorScheme.onBackground,
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(horizontal = 20.dp)
-                    .padding(top = 12.dp, bottom = 24.dp),
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(horizontal = 20.dp)
+                .padding(top = 12.dp, bottom = 24.dp),
+        ) {
+            Box(Modifier.fillMaxWidth()) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_back),
+                    contentDescription = "뒤로",
+                    tint = Primary800,
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .size(32.dp)
+                        .clickable(onClick = onNavigateBack),
+                )
+                Text(
+                    text = "예약된 걱정 수정",
+                    style = Title1_20sb,
+                    color = Gray800,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.align(Alignment.Center),
+                )
+                Icon(
+                    painter = painterResource(R.drawable.ic_trash),
+                    contentDescription = "삭제",
+                    tint = Primary800,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .size(24.dp)
+                        .clickable(onClick = onDelete),
+                )
+            }
+            Spacer(Modifier.height(28.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Box(Modifier.fillMaxWidth()) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_back),
-                        contentDescription = "뒤로",
-                        tint = Primary800,
-                        modifier = Modifier
-                            .align(Alignment.CenterStart)
-                            .size(24.dp)
-                            .clickable(onClick = onNavigateBack),
-                    )
-                    Text(
-                        text = "예약된 걱정 수정",
-                        style = Title1_20sb,
-                        color = Gray800,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.align(Alignment.Center),
-                    )
-                    Icon(
-                        painter = painterResource(R.drawable.ic_trash),
-                        contentDescription = "삭제",
-                        tint = Primary800,
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .size(24.dp)
-                            .clickable(onClick = onDelete),
-                    )
-                }
-                Spacer(Modifier.height(28.dp))
+                TimeEditCard(
+                    datePart = startAt.toDatePart(),
+                    weekdayPart = startAt.toWeekdayPart(),
+                    timeLabel = startAt.toTimeLabel(),
+                    suffix = "부터",
+                    variant = if (editingSlot == TimeSlot.Start) GominittaCardVariant.Type2 else GominittaCardVariant.Type1,
+                    onClick = { editingSlot = TimeSlot.Start },
+                    modifier = Modifier.weight(1f).height(111.dp),
+                )
+                TimeEditCard(
+                    datePart = endAt.toDatePart(),
+                    weekdayPart = endAt.toWeekdayPart(),
+                    timeLabel = endAt.toTimeLabel(),
+                    suffix = "까지",
+                    variant = if (editingSlot == TimeSlot.End) GominittaCardVariant.Type2 else GominittaCardVariant.Type1,
+                    onClick = { editingSlot = TimeSlot.End },
+                    modifier = Modifier.weight(1f).height(111.dp),
+                )
+            }
+            Spacer(Modifier.height(44.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    TimeEditCard(
-                        datePart = startDateTime.toDatePart(),
-                        weekdayPart = startDateTime.toWeekdayPart(),
-                        timeLabel = startDateTime.toTimeLabel(),
-                        suffix = "부터",
-                        variant = if (editingSlot == TimeSlot.Start) GominittaCardVariant.Type2 else GominittaCardVariant.Type1,
-                        onClick = { editingSlot = TimeSlot.Start },
-                        modifier = Modifier.weight(1f).height(111.dp),
-                    )
-                    TimeEditCard(
-                        datePart = endDateTime.toDatePart(),
-                        weekdayPart = endDateTime.toWeekdayPart(),
-                        timeLabel = endDateTime.toTimeLabel(),
-                        suffix = "까지",
-                        variant = if (editingSlot == TimeSlot.End) GominittaCardVariant.Type2 else GominittaCardVariant.Type1,
-                        onClick = { editingSlot = TimeSlot.End },
-                        modifier = Modifier.weight(1f).height(111.dp),
-                    )
-                }
-                Spacer(Modifier.height(44.dp))
-
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    GominittaElevatedCard(modifier = Modifier.height(170.dp)) {
-                        Text(text = FAKE_WORRY_TITLE, style = Body1_16m, color = Gray800)
+            Box(modifier = Modifier.fillMaxWidth()) {
+                GominittaElevatedCard(modifier = Modifier.height(170.dp)) {
+                    Column {
+                        BasicTextField(
+                            value = title,
+                            onValueChange = { if (it.length <= TitleMax) onTitleChange(it) },
+                            singleLine = true,
+                            textStyle = Heading5_15m.copy(color = Gray800),
+                            modifier = Modifier.fillMaxWidth(),
+                            decorationBox = { inner ->
+                                Box {
+                                    if (title.isEmpty()) {
+                                        Text(text = "제목", style = Heading5_15m, color = Gray400)
+                                    }
+                                    inner()
+                                }
+                            },
+                        )
                         Spacer(Modifier.height(8.dp))
                         BasicTextField(
-                            value = memoText,
-                            onValueChange = {
-                                memoText = it
-                                isDirty = true
-                            },
+                            value = content,
+                            onValueChange = onContentChange,
                             textStyle = Body3_14r.copy(color = Gray600),
                             modifier = Modifier.fillMaxWidth(),
                         )
                     }
-                    // 테이프 세로 중심을 카드 위쪽 가장자리에 맞춰 절반만 겹치게 offset.
-                    WashiTapeDecoration(
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .offset(y = -(TapeSize.height / 2)),
-                    )
                 }
-
-                Spacer(Modifier.weight(1f))
-                GominittaButton(
-                    text = "저장하기",
-                    onClick = onSave,
-                    enabled = isDirty,
-                    modifier = Modifier.fillMaxWidth(),
+                // 테이프 세로 중심을 카드 위쪽 가장자리에 맞춰 절반만 겹치게 offset.
+                WashiTapeDecoration(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .offset(y = -(TapeSize.height / 2)),
                 )
             }
+
+            if (errorMessage != null) {
+                Spacer(Modifier.height(12.dp))
+                Text(text = errorMessage, style = Body2_15r, color = Gray800, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+            }
+
+            Spacer(Modifier.weight(1f))
+            GominittaButton(
+                text = "저장하기",
+                onClick = onSave,
+                enabled = isDirty && !isSaving,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
 
         if (editingSlot != null) {
@@ -209,13 +289,14 @@ fun SessionEditScreen(
             containerColor = Primary200,
             contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
             scrimColor = Color.Transparent,
+            shape = RoundedCornerShape(0.dp),
             dragHandle = { BottomSheetDefaults.DragHandle(width = 50.dp) },
         ) {
             TimePickerSheetContent(
-                initial = if (slot == TimeSlot.Start) startDateTime else endDateTime,
+                initial = (if (slot == TimeSlot.Start) startAt else endAt).toEditable(),
                 onConfirm = { picked ->
-                    if (slot == TimeSlot.Start) startDateTime = picked else endDateTime = picked
-                    isDirty = true
+                    val dateTime = picked.toLocalDateTime()
+                    if (slot == TimeSlot.Start) onStartAtChange(dateTime) else onEndAtChange(dateTime)
                     editingSlot = null
                 },
             )
@@ -223,9 +304,12 @@ fun SessionEditScreen(
     }
 }
 
+private const val TitleMax = 50
+
 private enum class TimeSlot { Start, End }
 
 private data class EditableDateTime(
+    val year: Int,
     val month: Int,
     val day: Int,
     val hour: Int,
@@ -235,18 +319,41 @@ private data class EditableDateTime(
 
 private val KoreanWeekdays = arrayOf("월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일")
 
-/** 실제 서버 연동 전이라 UI 확인용으로 2026년 기준 고정 연도를 사용한다. */
-private fun EditableDateTime.toDatePart(): String {
-    val safeDay = day.coerceAtMost(YearMonth.of(2026, month).lengthOfMonth())
-    return "%02d/%02d".format(month, safeDay)
+private fun LocalDateTime.toDatePart(): String = "%02d/%02d".format(monthValue, dayOfMonth)
+
+private fun LocalDateTime.toWeekdayPart(): String = KoreanWeekdays[dayOfWeek.value - 1]
+
+private fun LocalDateTime.toTimeLabel(): String {
+    val hour12 = when {
+        hour == 0 -> 12
+        hour > 12 -> hour - 12
+        else -> hour
+    }
+    val amPm = if (hour < 12) "AM" else "PM"
+    return "%02d:%02d %s".format(hour12, minute, amPm)
 }
 
-private fun EditableDateTime.toWeekdayPart(): String {
-    val safeDay = day.coerceAtMost(YearMonth.of(2026, month).lengthOfMonth())
-    return KoreanWeekdays[LocalDate.of(2026, month, safeDay).dayOfWeek.value - 1]
+/** 휠 피커의 분 단위(5분)에 맞춰 스냅한다. */
+private fun LocalDateTime.toEditable(): EditableDateTime {
+    val hour12 = when {
+        hour == 0 -> 12
+        hour > 12 -> hour - 12
+        else -> hour
+    }
+    val amPm = if (hour < 12) "AM" else "PM"
+    val snappedMinute = (minute / 5) * 5
+    return EditableDateTime(year, monthValue, dayOfMonth, hour12, snappedMinute, amPm)
 }
 
-private fun EditableDateTime.toTimeLabel(): String = "%02d:%02d %s".format(hour, minute, amPm)
+private fun EditableDateTime.toLocalDateTime(): LocalDateTime {
+    val hour24 = when {
+        amPm == "AM" && hour == 12 -> 0
+        amPm == "PM" && hour != 12 -> hour + 12
+        else -> hour
+    }
+    val safeDay = day.coerceAtMost(YearMonth.of(year, month).lengthOfMonth())
+    return LocalDateTime.of(year, month, safeDay, hour24, minute)
+}
 
 @Composable
 private fun TimeEditCard(
@@ -306,8 +413,8 @@ private val AmPmOptions = listOf("AM", "PM")
 @Composable
 private fun TimePickerSheetContent(initial: EditableDateTime, onConfirm: (EditableDateTime) -> Unit) {
     var current by remember { mutableStateOf(initial) }
-    val dayOptions = remember(current.month) {
-        (1..YearMonth.of(2026, current.month).lengthOfMonth()).toList()
+    val dayOptions = remember(current.year, current.month) {
+        (1..YearMonth.of(current.year, current.month).lengthOfMonth()).toList()
     }
 
     Column(
@@ -342,7 +449,7 @@ private fun TimePickerSheetContent(initial: EditableDateTime, onConfirm: (Editab
                     selectedIndex = MonthOptions.indexOf(current.month),
                     onSelect = { index ->
                         val newMonth = MonthOptions[index]
-                        val maxDay = YearMonth.of(2026, newMonth).lengthOfMonth()
+                        val maxDay = YearMonth.of(current.year, newMonth).lengthOfMonth()
                         current = current.copy(month = newMonth, day = current.day.coerceAtMost(maxDay))
                     },
                     label = { "${it}월" },
@@ -450,19 +557,25 @@ private fun <T> WheelColumn(
     }
 }
 
-// ---- Fake data (API 연동 전) --------------------------------------------------
-
-private const val FAKE_WORRY_TITLE = "UMC 프론트가 안 구해지면 어떡하지"
-private const val FAKE_MEMO = "걱정걱정걱정"
-
 // ---- Preview ---------------------------------------------------------------
 
 @Preview(name = "SessionEdit", showBackground = true, backgroundColor = 0xFFF3F0EB)
 @Composable
-private fun SessionEditScreenPreview() {
+private fun SessionEditContentPreview() {
     GominittaTheme {
-        SessionEditScreen(
-            sessionId = 1L,
+        SessionEditContent(
+            innerPadding = PaddingValues(0.dp),
+            title = "UMC 프론트가 안 구해지면 어쩌지",
+            onTitleChange = {},
+            content = "걱정걱정걱정",
+            onContentChange = {},
+            startAt = LocalDateTime.of(2026, 4, 13, 21, 0),
+            endAt = LocalDateTime.of(2026, 4, 13, 22, 0),
+            onStartAtChange = {},
+            onEndAtChange = {},
+            isDirty = true,
+            isSaving = false,
+            errorMessage = null,
             onNavigateBack = {},
             onSave = {},
             onDelete = {},
@@ -475,7 +588,7 @@ private fun SessionEditScreenPreview() {
 private fun TimePickerSheetContentPreview() {
     GominittaTheme {
         TimePickerSheetContent(
-            initial = EditableDateTime(month = 4, day = 13, hour = 9, minute = 0, amPm = "PM"),
+            initial = EditableDateTime(year = 2026, month = 4, day = 13, hour = 9, minute = 0, amPm = "PM"),
             onConfirm = {},
         )
     }

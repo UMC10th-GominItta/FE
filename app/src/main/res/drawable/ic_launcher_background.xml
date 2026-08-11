@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Placeholder launcher icon background — replace with brand asset. -->
+<!-- logo.png(고민이따 브랜드 일러스트)의 종이 톤과 맞춘 배경 — 앱 캔버스 색(White800, #FEFEFB)과 동일. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid android:color="#6200EE" />
+    <solid android:color="#FEFEFB" />
 </shape>

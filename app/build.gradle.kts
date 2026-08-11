@@ -89,6 +89,11 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
     implementation(libs.hilt.navigation.compose)
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
+
+    // Background scheduling — 로컬 알림(걱정/세션 리마인드) 예약
+    implementation(libs.androidx.work.runtime.ktx)
 
     // Lifecycle ViewModel/Runtime (required for @HiltViewModel + collectAsStateWithLifecycle in Compose)
     implementation(libs.lifecycle.viewmodel.compose)

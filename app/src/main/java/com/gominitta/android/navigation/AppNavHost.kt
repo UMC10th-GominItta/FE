@@ -6,9 +6,11 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -26,6 +28,7 @@ import com.gominitta.android.presentation.session.SessionCompleteScreen
 import com.gominitta.android.presentation.session.SessionDetailScreen
 import com.gominitta.android.presentation.session.SessionEditScreen
 import com.gominitta.android.presentation.session.SessionRatingScreen
+import com.gominitta.android.presentation.session.SessionResultScreen
 import com.gominitta.android.presentation.worry.WorryInputScreen
 import com.gominitta.android.presentation.worry.WorryIntensityScreen
 import com.gominitta.android.presentation.worry.WorryMemoScreen
@@ -39,7 +42,8 @@ import com.gominitta.android.presentation.mypage.ProfileEditRoute
 import com.gominitta.android.presentation.mypage.WithdrawScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gominitta.android.presentation.mypage.model.FavoriteTimeViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.gominitta.android.presentation.worry.WorryReservationViewModel
+import java.time.LocalDateTime
 
 /**
  * Root navigation graph — the ONLY place holding the top-level [NavHostController].
@@ -111,9 +115,10 @@ fun AppNavHost(
                 startTab = startTab ?: Routes.HOME,
                 onNavigateBackToSession = { navController.popBackStack() },
                 onNavigateToWorryInput = { navController.navigate(Routes.WORRY_INPUT) },
-                onNavigateToSessionDetail = { navController.navigate(Routes.SESSION_ACTIVE) },
-                onNavigateToSessionEdit = { sessionId -> navController.navigate(Routes.sessionEditRoute(sessionId)) },
-                onNavigateToWorryMemo = { navController.navigate(Routes.WORRY_MEMO) },
+                onNavigateToSessionDetail = { sessionId -> navController.navigate(Routes.sessionActiveRoute(sessionId)) },
+                onNavigateToSessionEdit = { worryId -> navController.navigate(Routes.sessionEditRoute(worryId)) },
+                onNavigateToSessionResult = { sessionId -> navController.navigate(Routes.sessionResultRoute(sessionId)) },
+                onNavigateToWorryMemo = { sessionId -> navController.navigate(Routes.worryMemoRoute(sessionId)) },
                 onNavigateToMyPage = { navController.navigate(Routes.MY_PAGE) },
             )
         }
@@ -142,8 +147,10 @@ fun AppNavHost(
                         Routes.MY_PAGE_WITHDRAW,
                     )
                 },
-                onLogoutConfirmed = {
-                    // TODO 실제 로그아웃 처리 후 로그인 화면 이동
+                onLoggedOut = {
+                    navController.navigate(Routes.ONBOARDING) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 },
             )
         }
@@ -201,38 +208,77 @@ fun AppNavHost(
         }
 
         // ── 걱정 예약 플로우 (전체화면, 바텀바 없음) ──
+        // WORRY_INPUT ~ WORRY_SAVED 4개 화면이 WorryReservationViewModel 하나를 공유한다.
         composable(Routes.WORRY_INPUT) {
+            val vm: WorryReservationViewModel = hiltViewModel()
+            val uiState by vm.uiState.collectAsStateWithLifecycle()
             WorryInputScreen(
-                onNavigateNext = { navController.navigate(Routes.WORRY_INTENSITY) },
+                title = uiState.title,
+                content = uiState.content,
+                onTitleChange = vm::onTitleChange,
+                onContentChange = vm::onContentChange,
+                onNext = { navController.navigate(Routes.WORRY_INTENSITY) },
                 onNavigateBack = { navController.popBackStack() },
             )
         }
-        composable(Routes.WORRY_INTENSITY) {
+        composable(Routes.WORRY_INTENSITY) { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(Routes.WORRY_INPUT)
+            }
+            val vm: WorryReservationViewModel = hiltViewModel(parentEntry)
+            val uiState by vm.uiState.collectAsStateWithLifecycle()
             WorryIntensityScreen(
-                onNavigateNext = { navController.navigate(Routes.WORRY_SCHEDULE) },
+                intensity = uiState.intensity,
+                onIntensityChange = vm::onIntensityChange,
+                onNext = { navController.navigate(Routes.WORRY_SCHEDULE) },
                 onNavigateBack = { navController.popBackStack() },
             )
         }
-        composable(Routes.WORRY_SCHEDULE) {
+        composable(Routes.WORRY_SCHEDULE) { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(Routes.WORRY_INPUT)
+            }
+            val vm: WorryReservationViewModel = hiltViewModel(parentEntry)
+            val uiState by vm.uiState.collectAsStateWithLifecycle()
             WorryScheduleScreen(
-                onNavigateNext = { navController.navigate(Routes.WORRY_SAVED) },
+                startTime = uiState.startTime,
+                endTime = uiState.endTime,
+                saveState = uiState.saveState,
+                favoriteTimes = uiState.favoriteTimes,
+                onScheduleChange = vm::onScheduleChange,
+                onSubmit = { vm.save() },
+                onSaved = { navController.navigate(Routes.WORRY_SAVED) },
                 onNavigateBack = { navController.popBackStack() },
             )
         }
-        composable(Routes.WORRY_MEMO) {
+        composable(
+            route = Routes.WORRY_MEMO,
+            arguments = listOf(navArgument("sessionId") { type = NavType.LongType }),
+        ) {
             WorryMemoScreen(
+                viewModel = hiltViewModel(),
                 onNavigateNext = { navController.popBackStack(Routes.MAIN, inclusive = false) },
                 onNavigateBack = { navController.popBackStack() },
             )
         }
-        composable(Routes.WORRY_SAVED) {
+        composable(Routes.WORRY_SAVED) { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry(Routes.WORRY_INPUT)
+            }
+            val vm: WorryReservationViewModel = hiltViewModel(parentEntry)
+            val uiState by vm.uiState.collectAsStateWithLifecycle()
             WorrySavedScreen(
+                startTime = uiState.startTime ?: LocalDateTime.now(),
+                endTime = uiState.endTime ?: LocalDateTime.now(),
                 onNavigateToHome = { navController.popBackStack(Routes.MAIN, inclusive = false) },
             )
         }
 
         // ── 마음 세션 플로우 (전체화면, 바텀바 없음) ──
-        composable(Routes.SESSION_ACTIVE) {
+        composable(
+            route = Routes.SESSION_ACTIVE,
+            arguments = listOf(navArgument("sessionId") { type = NavType.LongType }),
+        ) {
             SessionActiveScreen(
                 onNavigateNext = { navController.navigate(Routes.SESSION_DETAIL) },
                 onNavigateBack = { navController.popBackStack() },
@@ -262,14 +308,20 @@ fun AppNavHost(
         }
         composable(
             route = Routes.SESSION_EDIT,
-            arguments = listOf(navArgument("sessionId") { type = NavType.LongType }),
-        ) { backStackEntry ->
-            val sessionId = backStackEntry.arguments?.getLong("sessionId") ?: 0L
+            arguments = listOf(navArgument("worryId") { type = NavType.LongType }),
+        ) {
             SessionEditScreen(
-                sessionId = sessionId,
                 onNavigateBack = { navController.popBackStack() },
                 onSave = { navController.popBackStack() },
                 onDelete = { navController.popBackStack(Routes.MAIN, inclusive = false) },
+            )
+        }
+        composable(
+            route = Routes.SESSION_RESULT,
+            arguments = listOf(navArgument("sessionId") { type = NavType.LongType }),
+        ) {
+            SessionResultScreen(
+                onNavigateBack = { navController.popBackStack() },
             )
         }
     }

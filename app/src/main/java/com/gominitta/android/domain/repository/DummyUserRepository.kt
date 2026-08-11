@@ -1,5 +1,6 @@
 package com.gominitta.android.data.repository
 
+import com.gominitta.android.domain.model.HomeData
 import com.gominitta.android.domain.model.UserProfile
 import com.gominitta.android.domain.repository.UserRepository
 import javax.inject.Inject
@@ -25,4 +26,11 @@ class DummyUserRepository @Inject constructor() : UserRepository {
     override suspend fun updateProfileImage(profileImageUrl: String) {
         this.profileImageUrl = profileImageUrl
     }
+
+    override suspend fun getHome(): HomeData = HomeData(
+        nickname = nickname,
+        dailyMessage = "",
+        nextSession = null,
+        profileImageUrl = "",
+    )
 }

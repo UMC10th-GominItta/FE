@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gominitta.android.domain.usecase.GetUserProfileUseCase
+import com.gominitta.android.domain.usecase.LogoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -13,6 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MyPageViewModel @Inject constructor(
     private val getUserProfileUseCase: GetUserProfileUseCase,
+    private val logoutUseCase: LogoutUseCase,
 ) : ViewModel() {
 
     var nickname by mutableStateOf("")
@@ -24,13 +26,11 @@ class MyPageViewModel @Inject constructor(
     var profileImageUrl by mutableStateOf("")
         private set
 
+    var isLoggedOut by mutableStateOf(false)
+        private set
+
     init {
-        viewModelScope.launch {
-            val user = getUserProfileUseCase()
-            nickname = user.nickname
-            email = user.email
-            profileImageUrl = user.profileImageUrl
-        }
+        refresh()
     }
 
     fun refresh() {
@@ -39,6 +39,13 @@ class MyPageViewModel @Inject constructor(
             nickname = user.nickname
             email = user.email
             profileImageUrl = user.profileImageUrl
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            logoutUseCase()
+            isLoggedOut = true
         }
     }
 }

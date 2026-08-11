@@ -32,16 +32,21 @@ object Routes {
     const val WORRY_INPUT     = "worry_input"
     const val WORRY_INTENSITY = "worry_intensity"
     const val WORRY_SCHEDULE  = "worry_schedule"
-    const val WORRY_MEMO      = "worry_memo"
+    const val WORRY_MEMO      = "worry_memo/{sessionId}"
+    fun worryMemoRoute(sessionId: Long) = "worry_memo/$sessionId"
     const val WORRY_SAVED     = "worry_saved"
 
     // 마음 세션 플로우
     const val SESSION_DETAIL   = "session_detail"
-    const val SESSION_ACTIVE   = "session_active"
+    const val SESSION_ACTIVE   = "session_active/{sessionId}"
+    fun sessionActiveRoute(sessionId: Long) = "session_active/$sessionId"
     const val SESSION_COMPLETE = "session_complete"
     const val SESSION_RATING   = "session_rating"
-    const val SESSION_EDIT     = "session_edit/{sessionId}"
-    fun sessionEditRoute(sessionId: Long) = "session_edit/$sessionId"
+    /** 세션이 아니라 그 세션을 만든 걱정(worry)을 수정한다 — arg는 worryId. */
+    const val SESSION_EDIT     = "session_edit/{worryId}"
+    fun sessionEditRoute(worryId: Long) = "session_edit/$worryId"
+    const val SESSION_RESULT   = "session_result/{sessionId}"
+    fun sessionResultRoute(sessionId: Long) = "session_result/$sessionId"
 
 
     //recipe 상세 루트

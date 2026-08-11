@@ -19,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,11 +30,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gominitta.android.presentation.worry.components.WorryExitDialog
 import com.gominitta.android.presentation.worry.components.WorryMemoField
 import com.gominitta.android.presentation.worry.components.WorryPrimaryButton
 import com.gominitta.android.presentation.worry.components.WorryTopBar
 import com.gominitta.android.ui.components.GominittaBackground
+import com.gominitta.android.ui.theme.Body3_14r
 import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.Heading4_18m
@@ -47,11 +51,15 @@ fun WorryMemoScreen(
     onNavigateNext: () -> Unit,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: WorryMemoViewModel = hiltViewModel(),
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var content by remember { mutableStateOf("") }
     var showExitDialog by remember { mutableStateOf(false) }
 
     BackHandler(enabled = true) { showExitDialog = true }
+
+    LaunchedEffect(uiState.isDone) { if (uiState.isDone) onNavigateNext() }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -96,17 +104,31 @@ fun WorryMemoScreen(
                 }
             }
 
-            WorryPrimaryButton(
-                text = "완료",
-                onClick = onNavigateNext,
+            Column(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.ime.exclude(WindowInsets.navigationBars))
                     .padding(horizontal = 20.dp)
                     .padding(top = 16.dp, bottom = 28.dp),
-                enabled = content.isNotBlank(),
-            )
+            ) {
+                if (uiState.errorMessage != null) {
+                    Text(
+                        text = uiState.errorMessage.orEmpty(),
+                        style = Body3_14r,
+                        color = Gray800,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Spacer(Modifier.height(8.dp))
+                }
+                WorryPrimaryButton(
+                    text = "완료",
+                    onClick = { viewModel.save(content) },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = content.isNotBlank() && !uiState.isSaving,
+                )
+            }
         }
     }
 

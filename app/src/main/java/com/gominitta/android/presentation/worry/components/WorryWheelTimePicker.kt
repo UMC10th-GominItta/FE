@@ -123,8 +123,8 @@ private fun WorryWheelColumn(
     onSettle: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // 상단 contentPadding 1행 때문에, item N을 뷰포트 가운데에 두려면 firstVisible이 N-1이어야 한다.
-    val listState = rememberLazyListState(initialFirstVisibleItemIndex = (initialIndex - 1).coerceAtLeast(0))
+    // 상단 contentPadding 1행이 첫 아이템을 가운데 행으로 밀어주므로, item N을 가운데 두려면 firstVisible이 N이어야 한다.
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = initialIndex.coerceAtLeast(0))
     val flingBehavior = rememberSnapFlingBehavior(listState)
 
     val centerIndex by remember(listState) {
