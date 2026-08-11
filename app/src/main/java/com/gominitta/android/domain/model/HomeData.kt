@@ -6,6 +6,7 @@ data class HomeData(
     val nickname: String,
     val dailyMessage: String,
     val nextSession: NextSession?,
+    val profileImageUrl: String,
 )
 
 data class NextSession(

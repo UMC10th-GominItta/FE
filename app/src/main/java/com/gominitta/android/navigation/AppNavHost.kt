@@ -244,6 +244,7 @@ fun AppNavHost(
                 startTime = uiState.startTime,
                 endTime = uiState.endTime,
                 saveState = uiState.saveState,
+                favoriteTimes = uiState.favoriteTimes,
                 onScheduleChange = vm::onScheduleChange,
                 onSubmit = { vm.save() },
                 onSaved = { navController.navigate(Routes.WORRY_SAVED) },

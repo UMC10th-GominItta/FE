@@ -49,28 +49,25 @@ import kotlinx.coroutines.launch
 
 private data class OnboardingPage(val title: String, val subtitle: String, @DrawableRes val illustration: Int)
 
-private const val ONBOARDING_SUBTITLE =
-    "약속했던 시간이 되면, 바쁜 일상에서 한 걸음 벗어나\n충분한 시간과 여유 속에서 내 마음을 차분히 마주해보세요."
-
 private val onboardingPages = listOf(
     OnboardingPage(
         "걱정은 잠시 접어두고, 이따가 마주해요",
-        ONBOARDING_SUBTITLE,
+        "바쁜 일상 속 문득 떠오르는 고민,\n꺼내볼 시간을 정한 뒤 온전히 현재의 일상에 집중해 보세요.",
         R.drawable.onboarding_1,
     ),
     OnboardingPage(
         "여유가 생긴 지금, 깊이 마주하기",
-        ONBOARDING_SUBTITLE,
+        "약속했던 시간이 되면, 바쁜 일상에서 한 걸음 벗어나\n충분한 여유 속에서 내 마음을 차분히 마주해보세요.",
         R.drawable.onboarding_2,
     ),
     OnboardingPage(
         "언제든 꺼내보는 나만의 리프레시 비법",
-        ONBOARDING_SUBTITLE,
+        "좋아하는 것들을 모아 나만의 레시피를 만들어 보세요.\n틈틈이 챙기는 여유들이 모여 나를 돌보는 힘이 돼요.",
         R.drawable.onboarding_3,
     ),
     OnboardingPage(
         "데이터로 보는 지나온 마음의 지도",
-        ONBOARDING_SUBTITLE,
+        "쌓여가는 고민 속에서 나만의 마음 패턴을 들여다보면,\n어느새 나를 더 깊이 이해하게 될 거예요.",
         R.drawable.onboarding_4,
     ),
 )

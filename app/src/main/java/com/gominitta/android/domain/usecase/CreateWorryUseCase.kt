@@ -9,9 +9,10 @@ class CreateWorryUseCase @Inject constructor(
     private val repository: WorryRepository,
 ) {
     suspend operator fun invoke(
+        title: String,
         content: String,
         emotionScoreBefore: Int,
         scheduledStartAt: String,
         scheduledEndAt: String,
-    ): ApiResult<Long> = repository.createWorry(content, emotionScoreBefore, scheduledStartAt, scheduledEndAt)
+    ): ApiResult<Long> = repository.createWorry(title, content, emotionScoreBefore, scheduledStartAt, scheduledEndAt)
 }

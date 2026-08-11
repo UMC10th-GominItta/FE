@@ -31,5 +31,6 @@ class DummyUserRepository @Inject constructor() : UserRepository {
         nickname = nickname,
         dailyMessage = "",
         nextSession = null,
+        profileImageUrl = "",
     )
 }

@@ -16,6 +16,7 @@ class WorryRepositoryImpl @Inject constructor(
 ) : WorryRepository {
 
     override suspend fun createWorry(
+        title: String,
         content: String,
         emotionScoreBefore: Int,
         scheduledStartAt: String,
@@ -24,6 +25,7 @@ class WorryRepositoryImpl @Inject constructor(
         val result = safeApiCall {
             api.createWorry(
                 WorryCreateRequest(
+                    title = title,
                     content = content,
                     emotionScoreBefore = emotionScoreBefore,
                     scheduledStartAt = scheduledStartAt,

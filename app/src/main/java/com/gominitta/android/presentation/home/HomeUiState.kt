@@ -6,4 +6,5 @@ data class HomeUiState(
     val nickname: String = "",
     val dailyMessage: String = "",
     val nextSession: NextSession? = null,
+    val profileImageUrl: String = "",
 )
