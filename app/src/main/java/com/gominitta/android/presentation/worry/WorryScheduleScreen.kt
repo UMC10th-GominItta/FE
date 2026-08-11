@@ -41,7 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gominitta.android.R
-import com.gominitta.android.presentation.worry.components.WorryFavoriteTime
+import com.gominitta.android.domain.model.mypage.FavoriteTime
 import com.gominitta.android.presentation.worry.components.WorryFavoriteTimeCard
 import com.gominitta.android.presentation.worry.components.WorryPrimaryButton
 import com.gominitta.android.presentation.worry.components.WorryTimeCard
@@ -67,13 +67,6 @@ import kotlinx.coroutines.launch
 private val ScrimColor = Color(0xFFFEFDF8)
 private val SheetHandleColor = Color(0xFF121211)
 
-private val SampleFavoriteTimes = listOf(
-    WorryFavoriteTime("자기 전 생각 타임", 23 * 60, 24 * 60),
-    WorryFavoriteTime("저녁 먹고 고민하기", 20 * 60, 21 * 60),
-    WorryFavoriteTime("쉬는 시간에 잠깐", 11 * 60 + 30, 12 * 60),
-    WorryFavoriteTime("쉬는 시간에 잠깐", 11 * 60 + 30, 12 * 60),
-)
-
 /** 시간을 편집 중인 카드 — 시작/종료. */
 private enum class WorryTimeSlot { START, END }
 
@@ -86,6 +79,7 @@ fun WorryScheduleScreen(
     startTime: LocalDateTime?,
     endTime: LocalDateTime?,
     saveState: WorrySaveState,
+    favoriteTimes: List<FavoriteTime>,
     onScheduleChange: (startTime: LocalDateTime?, endTime: LocalDateTime?) -> Unit,
     onSubmit: () -> Unit,
     onSaved: () -> Unit,
@@ -190,7 +184,7 @@ fun WorryScheduleScreen(
                         Text(text = "즐겨찾는 시간", style = Body1_16m, color = Gray800)
                     }
 
-                    if (SampleFavoriteTimes.isEmpty()) {
+                    if (favoriteTimes.isEmpty()) {
                         Spacer(Modifier.height(28.dp))
 
                         Text(
@@ -204,16 +198,16 @@ fun WorryScheduleScreen(
                         Spacer(Modifier.height(16.dp))
 
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            SampleFavoriteTimes.forEachIndexed { index, favorite ->
+                            favoriteTimes.forEachIndexed { index, favorite ->
                                 WorryFavoriteTimeCard(
                                     favorite = favorite,
                                     selected = selectedFavoriteIndex == index,
                                     onClick = {
                                         selectedFavoriteIndex = index
-                                        val base = LocalDate.now().atStartOfDay()
+                                        val today = LocalDate.now()
                                         onScheduleChange(
-                                            base.plusMinutes(favorite.startMinutes.toLong()),
-                                            base.plusMinutes(favorite.endMinutes.toLong()),
+                                            today.atTime(favorite.startTime),
+                                            today.atTime(favorite.endTime),
                                         )
                                     },
                                 )
@@ -368,6 +362,7 @@ private fun WorryScheduleScreenPreview() {
                 startTime = null,
                 endTime = null,
                 saveState = WorrySaveState.Idle,
+                favoriteTimes = emptyList(),
                 onScheduleChange = { _, _ -> },
                 onSubmit = {},
                 onSaved = {},
