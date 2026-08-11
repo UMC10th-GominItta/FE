@@ -9,6 +9,7 @@ import com.gominitta.android.domain.model.worry.Worry
 import com.gominitta.android.domain.usecase.GetSessionListUseCase
 import com.gominitta.android.domain.usecase.GetWorriesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.LocalDateTime
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -80,11 +81,18 @@ class SessionListViewModel @Inject constructor(
                 } catch (e: Exception) {
                     emptyMap()
                 }
+                // 백엔드가 SCHEDULED → INCOMPLETE 자동 전환을 아직 구현 안 해서(배치 작업 없음),
+                // 예약 종료 시각이 지났는데도 SCHEDULED로 남아있는 세션은 화면에서만 미완료로 취급한다.
+                val now = LocalDateTime.now()
+                val (overdueScheduled, stillScheduled) = sessions
+                    .filter { it.status == SessionStatus.SCHEDULED }
+                    .partition { it.scheduledEndAt.isBefore(now) }
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     hasLoadedOnce = true,
-                    scheduled = sessions.filter { it.status == SessionStatus.SCHEDULED }.withLiveWorryContent(worryById),
-                    incomplete = sessions.filter { it.status == SessionStatus.INCOMPLETE }.withLiveWorryContent(worryById),
+                    scheduled = stillScheduled.withLiveWorryContent(worryById),
+                    incomplete = (sessions.filter { it.status == SessionStatus.INCOMPLETE } + overdueScheduled)
+                        .withLiveWorryContent(worryById),
                     completed = completedSessions,
                 )
             } catch (e: CancellationException) {
