@@ -45,6 +45,7 @@ class WorryRepositoryImpl @Inject constructor(
 
     override suspend fun updateWorry(
         worryId: Long,
+        title: String,
         content: String,
         scheduledStartAt: String,
         scheduledEndAt: String,
@@ -53,6 +54,7 @@ class WorryRepositoryImpl @Inject constructor(
             api.updateWorry(
                 worryId,
                 WorryUpdateRequest(
+                    title = title,
                     content = content,
                     scheduledStartAt = scheduledStartAt,
                     scheduledEndAt = scheduledEndAt,

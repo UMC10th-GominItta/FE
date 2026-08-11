@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class WorryDetailResponse(
     val id: Long,
+    val title: String,
     val content: String,
     val emotionScoreBefore: Int,
     @SerialName("scheduled_start_at") val scheduledStartAt: String,

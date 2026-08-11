@@ -119,6 +119,8 @@ fun SessionEditScreen(
             }
             else -> SessionEditContent(
                 innerPadding = innerPadding,
+                title = uiState.title,
+                onTitleChange = viewModel::updateTitle,
                 content = uiState.content,
                 onContentChange = viewModel::updateContent,
                 startAt = uiState.startAt ?: LocalDateTime.now(),
@@ -140,6 +142,8 @@ fun SessionEditScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun SessionEditContent(
     innerPadding: PaddingValues,
+    title: String,
+    onTitleChange: (String) -> Unit,
     content: String,
     onContentChange: (String) -> Unit,
     startAt: LocalDateTime,
@@ -220,12 +224,30 @@ private fun SessionEditContent(
 
             Box(modifier = Modifier.fillMaxWidth()) {
                 GominittaElevatedCard(modifier = Modifier.height(170.dp)) {
-                    BasicTextField(
-                        value = content,
-                        onValueChange = onContentChange,
-                        textStyle = Body3_14r.copy(color = Gray600),
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                    Column {
+                        BasicTextField(
+                            value = title,
+                            onValueChange = { if (it.length <= TitleMax) onTitleChange(it) },
+                            singleLine = true,
+                            textStyle = Heading5_15m.copy(color = Gray800),
+                            modifier = Modifier.fillMaxWidth(),
+                            decorationBox = { inner ->
+                                Box {
+                                    if (title.isEmpty()) {
+                                        Text(text = "제목", style = Heading5_15m, color = Gray400)
+                                    }
+                                    inner()
+                                }
+                            },
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        BasicTextField(
+                            value = content,
+                            onValueChange = onContentChange,
+                            textStyle = Body3_14r.copy(color = Gray600),
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
                 // 테이프 세로 중심을 카드 위쪽 가장자리에 맞춰 절반만 겹치게 offset.
                 WashiTapeDecoration(
@@ -280,6 +302,8 @@ private fun SessionEditContent(
         }
     }
 }
+
+private const val TitleMax = 50
 
 private enum class TimeSlot { Start, End }
 
@@ -540,6 +564,8 @@ private fun SessionEditContentPreview() {
     GominittaTheme {
         SessionEditContent(
             innerPadding = PaddingValues(0.dp),
+            title = "UMC 프론트가 안 구해지면 어쩌지",
+            onTitleChange = {},
             content = "걱정걱정걱정",
             onContentChange = {},
             startAt = LocalDateTime.of(2026, 4, 13, 21, 0),

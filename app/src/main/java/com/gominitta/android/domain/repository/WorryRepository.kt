@@ -21,6 +21,7 @@ interface WorryRepository {
     /** 불안도 게이지(emotionScoreBefore)는 수정 대상이 아니다. */
     suspend fun updateWorry(
         worryId: Long,
+        title: String,
         content: String,
         scheduledStartAt: String,
         scheduledEndAt: String,

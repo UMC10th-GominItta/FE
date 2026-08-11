@@ -5,6 +5,7 @@ import com.gominitta.android.domain.model.worry.Worry
 
 fun WorryDetailResponse.toDomain() = Worry(
     id = id,
+    title = title,
     content = content,
     emotionScoreBefore = emotionScoreBefore,
     scheduledStartAt = scheduledStartAt.toLocalDateTime(),

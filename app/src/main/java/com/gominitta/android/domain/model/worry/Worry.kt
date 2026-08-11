@@ -4,6 +4,7 @@ import java.time.LocalDateTime
 
 data class Worry(
     val id: Long,
+    val title: String,
     val content: String,
     val emotionScoreBefore: Int,
     val scheduledStartAt: LocalDateTime,

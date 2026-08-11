@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 data class SessionEditUiState(
     val isLoading: Boolean = true,
     val loadErrorMessage: String? = null,
+    val title: String = "",
     val content: String = "",
     val startAt: LocalDateTime? = null,
     val endAt: LocalDateTime? = null,
@@ -55,6 +56,7 @@ class SessionEditViewModel @Inject constructor(
                 is ApiResult.Success -> _uiState.update {
                     it.copy(
                         isLoading = false,
+                        title = result.data.title,
                         content = result.data.content,
                         startAt = result.data.scheduledStartAt,
                         endAt = result.data.scheduledEndAt,
@@ -65,6 +67,10 @@ class SessionEditViewModel @Inject constructor(
                     _uiState.update { it.copy(isLoading = false, loadErrorMessage = "네트워크 연결을 확인해 주세요.") }
             }
         }
+    }
+
+    fun updateTitle(text: String) {
+        _uiState.update { it.copy(title = text, isDirty = true) }
     }
 
     fun updateContent(text: String) {
@@ -88,6 +94,7 @@ class SessionEditViewModel @Inject constructor(
             when (
                 val result = updateWorry(
                     worryId = worryId,
+                    title = state.title,
                     content = state.content,
                     scheduledStartAt = start.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                     scheduledEndAt = end.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),

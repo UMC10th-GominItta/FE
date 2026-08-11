@@ -10,8 +10,9 @@ class UpdateWorryUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         worryId: Long,
+        title: String,
         content: String,
         scheduledStartAt: String,
         scheduledEndAt: String,
-    ): ApiResult<Long> = repository.updateWorry(worryId, content, scheduledStartAt, scheduledEndAt)
+    ): ApiResult<Long> = repository.updateWorry(worryId, title, content, scheduledStartAt, scheduledEndAt)
 }

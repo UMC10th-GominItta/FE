@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class WorryUpdateRequest(
+    val title: String,
     val content: String,
     @SerialName("scheduled_start_at") val scheduledStartAt: String,
     @SerialName("scheduled_end_at") val scheduledEndAt: String,
