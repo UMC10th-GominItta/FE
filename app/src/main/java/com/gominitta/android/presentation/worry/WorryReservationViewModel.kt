@@ -6,6 +6,7 @@ import com.gominitta.android.data.remote.ApiResult
 import com.gominitta.android.domain.usecase.CreateWorryUseCase
 import com.gominitta.android.domain.usecase.GetFavoriteTimesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -34,7 +35,7 @@ class WorryReservationViewModel @Inject constructor(
     private val getFavoriteTimes: GetFavoriteTimesUseCase,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(WorryReservationUiState())
+    private val _uiState = MutableStateFlow(defaultReservationState())
     val uiState: StateFlow<WorryReservationUiState> = _uiState.asStateFlow()
 
     init {
@@ -86,5 +87,20 @@ class WorryReservationViewModel @Inject constructor(
                     _uiState.update { it.copy(saveState = WorrySaveState.Error("네트워크 연결을 확인해주세요.")) }
             }
         }
+    }
+}
+
+/**
+ * 예약 시간 기본값 = 오늘 9~10PM. 단, 기본 시작 시각이 이미 과거면 선택을 비워두어
+ * (startTime/endTime = null) 사용자가 피커로 유효한 시각을 고르게 한다. 과거가 아니면
+ * 기본값이 그대로 선택된 상태라 '다음'이 바로 활성화된다.
+ */
+private fun defaultReservationState(): WorryReservationUiState {
+    val start = LocalDate.now().atTime(21, 0)
+    val end = LocalDate.now().atTime(22, 0)
+    return if (start.isBefore(LocalDateTime.now())) {
+        WorryReservationUiState()
+    } else {
+        WorryReservationUiState(startTime = start, endTime = end)
     }
 }
