@@ -43,6 +43,13 @@ class WorryRepositoryImpl @Inject constructor(
             is ApiResult.NetworkError -> result
         }
 
+    override suspend fun getWorries(): ApiResult<List<Worry>> =
+        when (val result = safeApiCall { api.getWorries() }) {
+            is ApiResult.Success -> ApiResult.Success(result.data.map { it.toDomain() })
+            is ApiResult.Error -> result
+            is ApiResult.NetworkError -> result
+        }
+
     override suspend fun updateWorry(
         worryId: Long,
         title: String,

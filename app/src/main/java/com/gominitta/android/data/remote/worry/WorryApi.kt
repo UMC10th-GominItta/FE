@@ -16,6 +16,9 @@ interface WorryApi {
     @POST("api/v1/worries")
     suspend fun createWorry(@Body req: WorryCreateRequest): ApiResponse<WorryCreateResponse>
 
+    @GET("api/v1/worries")
+    suspend fun getWorries(): ApiResponse<List<WorryDetailResponse>>
+
     @GET("api/v1/worries/{worryId}")
     suspend fun getWorry(@Path("worryId") worryId: Long): ApiResponse<WorryDetailResponse>
 
