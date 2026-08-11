@@ -18,6 +18,9 @@ interface WorryRepository {
 
     suspend fun getWorry(worryId: Long): ApiResult<Worry>
 
+    /** 걱정 수정이 세션의 title/content 스냅샷에 반영되지 않는 백엔드 한계를 우회하기 위한 목록 조회. */
+    suspend fun getWorries(): ApiResult<List<Worry>>
+
     /** 불안도 게이지(emotionScoreBefore)는 수정 대상이 아니다. */
     suspend fun updateWorry(
         worryId: Long,

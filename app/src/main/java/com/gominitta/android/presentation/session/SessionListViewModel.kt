@@ -2,10 +2,14 @@ package com.gominitta.android.presentation.session
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gominitta.android.data.remote.ApiResult
 import com.gominitta.android.domain.model.session.Session
 import com.gominitta.android.domain.model.session.SessionStatus
+import com.gominitta.android.domain.model.worry.Worry
 import com.gominitta.android.domain.usecase.GetSessionListUseCase
+import com.gominitta.android.domain.usecase.GetWorriesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.LocalDateTime
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,6 +38,7 @@ data class SessionListUiState(
 @HiltViewModel
 class SessionListViewModel @Inject constructor(
     private val getSessionList: GetSessionListUseCase,
+    private val getWorries: GetWorriesUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SessionListUiState())
@@ -64,11 +69,30 @@ class SessionListViewModel @Inject constructor(
                 } catch (e: Exception) {
                     emptyList()
                 }
+                // 세션의 worryTitle/worryContent는 생성 시점 스냅샷이라 걱정 수정이 반영 안 된다(백엔드 한계).
+                // 완료 세션은 더 이상 수정할 일이 없어 스냅샷 그대로 두고, 예정/미완료만 최신 걱정 내용으로 덮어쓴다.
+                val worryById = try {
+                    when (val result = getWorries()) {
+                        is ApiResult.Success -> result.data.associateBy(Worry::id)
+                        else -> emptyMap()
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    emptyMap()
+                }
+                // 백엔드가 SCHEDULED → INCOMPLETE 자동 전환을 아직 구현 안 해서(배치 작업 없음),
+                // 예약 종료 시각이 지났는데도 SCHEDULED로 남아있는 세션은 화면에서만 미완료로 취급한다.
+                val now = LocalDateTime.now()
+                val (overdueScheduled, stillScheduled) = sessions
+                    .filter { it.status == SessionStatus.SCHEDULED }
+                    .partition { it.scheduledEndAt.isBefore(now) }
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     hasLoadedOnce = true,
-                    scheduled = sessions.filter { it.status == SessionStatus.SCHEDULED },
-                    incomplete = sessions.filter { it.status == SessionStatus.INCOMPLETE },
+                    scheduled = stillScheduled.withLiveWorryContent(worryById),
+                    incomplete = (sessions.filter { it.status == SessionStatus.INCOMPLETE } + overdueScheduled)
+                        .withLiveWorryContent(worryById),
                     completed = completedSessions,
                 )
             } catch (e: CancellationException) {
@@ -83,5 +107,10 @@ class SessionListViewModel @Inject constructor(
 
     fun selectTab(tab: SessionListTab) {
         _uiState.value = _uiState.value.copy(selectedTab = tab)
+    }
+
+    private fun List<Session>.withLiveWorryContent(worryById: Map<Long, Worry>): List<Session> = map { session ->
+        val worry = worryById[session.worryId] ?: return@map session
+        session.copy(worryTitle = worry.title, worryContent = worry.content)
     }
 }

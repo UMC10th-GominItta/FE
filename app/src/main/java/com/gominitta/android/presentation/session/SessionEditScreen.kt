@@ -175,7 +175,7 @@ private fun SessionEditContent(
                     tint = Primary800,
                     modifier = Modifier
                         .align(Alignment.CenterStart)
-                        .size(24.dp)
+                        .size(32.dp)
                         .clickable(onClick = onNavigateBack),
                 )
                 Text(
@@ -289,6 +289,7 @@ private fun SessionEditContent(
             containerColor = Primary200,
             contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
             scrimColor = Color.Transparent,
+            shape = RoundedCornerShape(0.dp),
             dragHandle = { BottomSheetDefaults.DragHandle(width = 50.dp) },
         ) {
             TimePickerSheetContent(

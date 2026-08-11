@@ -4,10 +4,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gominitta.android.R
+import com.gominitta.android.data.remote.ApiResult
+import com.gominitta.android.domain.model.session.SessionStatus
 import com.gominitta.android.domain.usecase.AddHandwritingRecordUseCase
 import com.gominitta.android.domain.usecase.AddTextRecordUseCase
 import com.gominitta.android.domain.usecase.AddVoiceRecordUseCase
 import com.gominitta.android.domain.usecase.GetSessionDetailUseCase
+import com.gominitta.android.domain.usecase.GetWorryUseCase
 import com.gominitta.android.domain.usecase.StartSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.io.File
@@ -48,6 +51,7 @@ data class SessionActiveUiState(
 class SessionActiveViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getSessionDetail: GetSessionDetailUseCase,
+    private val getWorry: GetWorryUseCase,
     private val startSession: StartSessionUseCase,
     private val addTextRecord: AddTextRecordUseCase,
     private val addVoiceRecord: AddVoiceRecordUseCase,
@@ -56,6 +60,14 @@ class SessionActiveViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val sessionId: Long = checkNotNull(savedStateHandle["sessionId"])
+
+    /**
+     * 화면 진입 시점엔 세션 상태를 SCHEDULED/INCOMPLETE 그대로 둔다(=IN_PROGRESS로 전이 안 함).
+     * "세션 완료하기"를 눌러야 비로소 [commitAndProceed]에서 한 번 시작 처리한다 — 그래야
+     * 기록만 남기고 완료 안 한 채 나가도 세션이 예정/미완료 목록에 계속 보인다(진행 중 상태는
+     * 목록 조회 API가 지원을 안 해서 그 상태가 되는 순간 목록에서 사라짐).
+     */
+    private var isStarted = false
 
     private val _uiState = MutableStateFlow(SessionActiveUiState())
     val uiState: StateFlow<SessionActiveUiState> = _uiState.asStateFlow()
@@ -68,14 +80,20 @@ class SessionActiveViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, loadErrorMessage = null) }
             try {
-                startSession(sessionId)
                 val session = getSessionDetail(sessionId)
+                isStarted = session.status == SessionStatus.IN_PROGRESS
                 flowState.start(sessionId)
+                // worryTitle/worryContent는 세션 생성 시점 스냅샷이라 걱정 수정이 반영 안 된다(백엔드 한계).
+                // 최신 걱정 내용으로 덮어쓰고, 조회 실패 시엔 스냅샷을 그대로 보여준다.
+                val liveWorry = when (val result = getWorry(session.worryId)) {
+                    is ApiResult.Success -> result.data
+                    is ApiResult.Error, is ApiResult.NetworkError -> null
+                }
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        worryTitle = session.worryTitle,
-                        worryContent = session.worryContent,
+                        worryTitle = liveWorry?.title ?: session.worryTitle,
+                        worryContent = liveWorry?.content ?: session.worryContent,
                         themeCategory = session.themeCategory.orEmpty(),
                     )
                 }
@@ -113,15 +131,19 @@ class SessionActiveViewModel @Inject constructor(
     fun commitAndProceed() {
         val state = _uiState.value
         val text = state.noteText.trim()
-        if (text.isEmpty()) {
-            _uiState.update { it.copy(isDone = true) }
-            return
-        }
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true, recordErrorMessage = null) }
             try {
-                val record = addTextRecord(sessionId, text)
-                flowState.setRecord(record.id, record.contentText)
+                // 평가 저장(completeSession)은 서버가 IN_PROGRESS 상태만 완료 처리를 허용해서,
+                // 여태 미뤄둔 시작 처리를 여기서 딱 한 번 한다.
+                if (!isStarted) {
+                    startSession(sessionId)
+                    isStarted = true
+                }
+                if (text.isNotEmpty()) {
+                    val record = addTextRecord(sessionId, text)
+                    flowState.setRecord(record.id, record.contentText)
+                }
                 _uiState.update { it.copy(isSaving = false, isDone = true) }
             } catch (e: CancellationException) {
                 throw e
