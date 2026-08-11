@@ -50,7 +50,7 @@ private const val HOME_NEXT_SESSION_PLACEHOLDER_ID = 1L
 @Composable
 fun MainScreen(
     onNavigateToWorryInput: () -> Unit,
-    onNavigateToWorryMemo: () -> Unit,
+    onNavigateToWorryMemo: (Long) -> Unit,
     onNavigateToSessionDetail: (Long) -> Unit,
     onNavigateToSessionEdit: (Long) -> Unit,
     onNavigateToSessionResult: (Long) -> Unit,
