@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".GominittaApplication"
@@ -29,6 +30,18 @@
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove"
+            tools:ignore="MissingClass" />
+
+        <!--
+            WorkManager는 위 androidx.startup 제거로 App Startup 기반 자동 초기화가 이미
+            안 되지만(같은 ContentProvider를 씀), 구버전 호환용 자체 provider도 명시적으로
+            꺼둔다. GominittaApplication이 Configuration.Provider로 HiltWorkerFactory를
+            물려서 수동 초기화한다.
+        -->
+        <provider
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:authorities="${applicationId}.workmanager-init"
             tools:node="remove"
             tools:ignore="MissingClass" />
 

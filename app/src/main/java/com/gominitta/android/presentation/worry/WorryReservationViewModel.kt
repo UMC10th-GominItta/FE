@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.gominitta.android.data.remote.ApiResult
 import com.gominitta.android.domain.usecase.CreateWorryUseCase
 import com.gominitta.android.domain.usecase.GetFavoriteTimesUseCase
+import com.gominitta.android.presentation.notification.ReminderScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -33,6 +34,7 @@ sealed interface WorrySaveState {
 class WorryReservationViewModel @Inject constructor(
     private val createWorry: CreateWorryUseCase,
     private val getFavoriteTimes: GetFavoriteTimesUseCase,
+    private val reminderScheduler: ReminderScheduler,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(defaultReservationState())
@@ -81,7 +83,11 @@ class WorryReservationViewModel @Inject constructor(
                     scheduledEndAt = end.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                 )
             ) {
-                is ApiResult.Success -> _uiState.update { it.copy(saveState = WorrySaveState.Success(result.data)) }
+                is ApiResult.Success -> {
+                    reminderScheduler.scheduleWorryReminder(result.data, start)
+                    reminderScheduler.scheduleSessionStartAlarm(result.data, start)
+                    _uiState.update { it.copy(saveState = WorrySaveState.Success(result.data)) }
+                }
                 is ApiResult.Error -> _uiState.update { it.copy(saveState = WorrySaveState.Error(result.message)) }
                 is ApiResult.NetworkError ->
                     _uiState.update { it.copy(saveState = WorrySaveState.Error("네트워크 연결을 확인해주세요.")) }
