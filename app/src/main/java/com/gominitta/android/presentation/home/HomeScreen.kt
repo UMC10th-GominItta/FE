@@ -129,16 +129,16 @@ fun HomeScreen(
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .offset(x = 0.dp, y = 6.dp)
-                        .requiredSize(width = 84.dp, height = 79.dp),
+                        .offset(x = 0.dp, y = 8.dp)
+                        .requiredSize(width = 62.dp, height = 58.dp),
                 )
                 Image(
                     painter = painterResource(R.drawable.home_hero_acorn),
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .offset(x = (-6).dp, y = 72.dp)
-                        .requiredSize(width = 96.dp, height = 70.dp),
+                        .offset(x = (-4).dp, y = 68.dp)
+                        .requiredSize(width = 88.dp, height = 64.dp),
                 )
             },
         ) {
@@ -180,8 +180,8 @@ fun HomeScreen(
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
-                        .offset(x = (-4).dp, y = 0.dp)
-                        .requiredSize(width = 48.dp, height = 43.dp),
+                        .offset(x = (-8).dp, y = 0.dp)
+                        .requiredSize(width = 34.dp, height = 30.dp),
                 )
             },
         ) {
@@ -214,8 +214,8 @@ fun HomeScreen(
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .offset(x = (-4).dp, y = (-4).dp)
-                        .requiredSize(width = 76.dp, height = 74.dp),
+                        .offset(x = (-2).dp, y = (-2).dp)
+                        .requiredSize(width = 64.dp, height = 62.dp),
                 )
             },
         ) {
