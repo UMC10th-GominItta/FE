@@ -8,6 +8,7 @@ import com.gominitta.android.data.remote.ApiResult
  */
 interface WorryRepository {
     suspend fun createWorry(
+        title: String,
         content: String,
         emotionScoreBefore: Int,
         scheduledStartAt: String,
