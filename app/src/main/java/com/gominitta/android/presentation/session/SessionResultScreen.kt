@@ -41,7 +41,7 @@ import com.gominitta.android.ui.theme.Gray800
 import com.gominitta.android.ui.theme.GominittaTheme
 import com.gominitta.android.ui.theme.Heading5_15m
 import com.gominitta.android.ui.theme.Primary800
-import com.gominitta.android.ui.theme.Title1_20sb
+import com.gominitta.android.ui.theme.Heading3_20m
 import java.time.LocalDateTime
 
 /**
@@ -98,12 +98,12 @@ private fun SessionResultContent(
                 tint = Primary800,
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .size(24.dp)
+                    .size(32.dp)
                     .clickable(onClick = onNavigateBack),
             )
             Text(
                 text = "마음 세션",
-                style = Title1_20sb,
+                style = Heading3_20m,
                 color = Gray800,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.align(Alignment.Center),

@@ -1,7 +1,5 @@
 package com.gominitta.android.presentation.worry
 
-import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,12 +14,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.gominitta.android.R
+import com.gominitta.android.presentation.common.CurrentUserMoodCharacterIllustration
 import com.gominitta.android.presentation.worry.components.WorryIntensitySlider
 import com.gominitta.android.presentation.worry.components.WorryPrimaryButton
 import com.gominitta.android.presentation.worry.components.WorryTopBar
@@ -74,11 +70,10 @@ fun WorryIntensityScreen(
 
                 Spacer(Modifier.height(100.dp))
 
-                Image(
-                    painter = painterResource(worryCatImage(intensity)),
-                    contentDescription = "불안도 고양이",
+                CurrentUserMoodCharacterIllustration(
+                    score = intensity,
+                    contentDescription = "불안도 캐릭터",
                     modifier = Modifier.size(220.dp),
-                    contentScale = ContentScale.Fit,
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -111,16 +106,6 @@ fun WorryIntensityScreen(
             )
         }
     }
-}
-
-@DrawableRes
-private fun worryCatImage(intensity: Int): Int = when (intensity) {
-    0 -> R.drawable.worry_cat_0
-    1, 2 -> R.drawable.worry_cat_1_2
-    3, 4 -> R.drawable.worry_cat_3_4
-    5, 6 -> R.drawable.worry_cat_5_6
-    7, 8 -> R.drawable.worry_cat_7_8
-    else -> R.drawable.worry_cat_9_10
 }
 
 private fun worryCatCaption(intensity: Int): String = when (intensity) {

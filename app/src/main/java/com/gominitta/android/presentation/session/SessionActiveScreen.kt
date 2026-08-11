@@ -31,8 +31,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
@@ -180,6 +180,7 @@ fun SessionActiveScreen(
             containerColor = Primary200,
             contentWindowInsets = { WindowInsets(0, 0, 0, 0) },
             scrimColor = Color.Transparent,
+            shape = RoundedCornerShape(0.dp),
             dragHandle = { BottomSheetDefaults.DragHandle(width = 50.dp) },
         ) {
             SessionIntroSheetContent(
@@ -218,7 +219,7 @@ private fun SessionActiveContent(
             .consumeWindowInsets(innerPadding)
             .imePadding()
             .padding(horizontal = 20.dp)
-            .padding(top = 12.dp, bottom = 24.dp),
+            .padding(top = 12.dp, bottom = 28.dp),
     ) {
         Box(Modifier.fillMaxWidth()) {
             Icon(
@@ -227,7 +228,7 @@ private fun SessionActiveContent(
                 tint = Primary800,
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .size(24.dp)
+                    .size(32.dp)
                     .clickable(onClick = onNavigateBack),
             )
             Text(
@@ -534,7 +535,7 @@ private fun HandwritingRecordArea(
 
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
-            text = "노트나 일기장에 적어둔 내용이 있다면 카메라로 스캔해보세요.",
+            text = "노트나 일기장에 적어둔 내용이 있다면 카메라로 스캔해 보세요.",
             style = Body2_15r,
             color = Gray400,
         )
@@ -576,12 +577,12 @@ private fun SessionIntroSheetContent(onSkip: () -> Unit, onStartRecipe: () -> Un
         )
 
         Image(
-            painter = painterResource(R.drawable.session_left_leaf),
+            painter = painterResource(R.drawable.home_session_leaf),
             contentDescription = null,
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .offset(y = 76.79.dp)
-                .size(width = 47.dp, height = 61.dp),
+                .size(width = 79.35.dp, height = 76.72.dp),
         )
 
         Column(

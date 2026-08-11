@@ -104,10 +104,7 @@ fun ReportScreen(
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // 시스템 바 인셋은 MainScreen의 Scaffold가 적용하므로,
-        // 여기서는 상태바 아래의 콘텐츠 여백만 확보합니다.
-        Spacer(Modifier.height(32.dp))
-
+        // 시스템 바 인셋은 MainScreen의 Scaffold가 적용한다 (마음세션/마음레시피 탭과 동일).
         Box(
             modifier = Modifier
                 .fillMaxWidth()
