@@ -344,7 +344,7 @@ private fun SessionCard(
             }
         }
         Spacer(Modifier.height(8.dp))
-        Text(text = session.worryContent, style = Body1_16m, color = Gray800)
+        Text(text = session.worryTitle, style = Body1_16m, color = Gray800)
         if (!isCompleted) {
             Spacer(Modifier.height(16.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -393,6 +393,7 @@ private val previewScheduled = listOf(
     Session(
         id = 1,
         worryId = 10,
+        worryTitle = "취업 걱정",
         worryContent = "UMC 프론트가 안 구해지면 어떡하지",
         scheduledStartAt = LocalDateTime.of(2026, 5, 27, 22, 0),
         scheduledEndAt = LocalDateTime.of(2026, 5, 27, 23, 0),
@@ -402,6 +403,7 @@ private val previewScheduled = listOf(
     Session(
         id = 2,
         worryId = 11,
+        worryTitle = "취업 걱정",
         worryContent = "UMC 디자이너가 안 구해지면 어떡하지",
         scheduledStartAt = LocalDateTime.of(2026, 5, 28, 23, 0),
         scheduledEndAt = LocalDateTime.of(2026, 5, 29, 0, 0),
@@ -414,6 +416,7 @@ private val previewIncomplete = listOf(
     Session(
         id = 3,
         worryId = 12,
+        worryTitle = "취업 걱정",
         worryContent = "UMC 프론트가 안 구해지면 어떡하지",
         scheduledStartAt = LocalDateTime.of(2026, 5, 19, 23, 0),
         scheduledEndAt = LocalDateTime.of(2026, 5, 20, 0, 0),
@@ -426,6 +429,7 @@ private val previewCompleted = listOf(
     Session(
         id = 4,
         worryId = 13,
+        worryTitle = "취업 걱정",
         worryContent = "UMC 프론트가 안 구해지면 어떡하지",
         scheduledStartAt = LocalDateTime.of(2026, 5, 27, 22, 0),
         scheduledEndAt = LocalDateTime.of(2026, 5, 27, 23, 0),

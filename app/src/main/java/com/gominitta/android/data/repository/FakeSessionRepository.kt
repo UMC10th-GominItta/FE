@@ -21,6 +21,7 @@ class FakeSessionRepository @Inject constructor() : SessionRepository {
         1L to Session(
             id = 1,
             worryId = 10,
+            worryTitle = "취업 걱정",
             worryContent = "UMC 프론트가 안 구해지면 어떡하지",
             scheduledStartAt = LocalDateTime.of(2026, 5, 27, 22, 0),
             scheduledEndAt = LocalDateTime.of(2026, 5, 27, 23, 0),
@@ -40,6 +41,7 @@ class FakeSessionRepository @Inject constructor() : SessionRepository {
         3L to Session(
             id = 3,
             worryId = 12,
+            worryTitle = "취업 걱정",
             worryContent = "UMC 프론트가 안 구해지면 어떡하지",
             scheduledStartAt = LocalDateTime.of(2026, 5, 28, 23, 0),
             scheduledEndAt = LocalDateTime.of(2026, 5, 29, 0, 0),
@@ -50,6 +52,7 @@ class FakeSessionRepository @Inject constructor() : SessionRepository {
         2L to Session(
             id = 2,
             worryId = 11,
+            worryTitle = "취업 걱정",
             worryContent = "UMC 디자이너가 안 구해지면 어떡하지",
             scheduledStartAt = LocalDateTime.of(2026, 5, 19, 23, 0),
             scheduledEndAt = LocalDateTime.of(2026, 5, 20, 0, 0),

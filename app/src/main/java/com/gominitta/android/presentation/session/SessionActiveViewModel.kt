@@ -29,6 +29,7 @@ enum class RecordTab(val raw: String, val label: String, val icon: Int) {
 
 data class SessionActiveUiState(
     val isLoading: Boolean = true,
+    val worryTitle: String = "",
     val worryContent: String = "",
     val themeCategory: String = "",
     val selectedTab: RecordTab = RecordTab.Text,
@@ -73,6 +74,7 @@ class SessionActiveViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
+                        worryTitle = session.worryTitle,
                         worryContent = session.worryContent,
                         themeCategory = session.themeCategory.orEmpty(),
                     )
