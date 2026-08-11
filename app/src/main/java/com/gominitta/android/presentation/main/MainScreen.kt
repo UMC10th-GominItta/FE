@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -96,6 +97,13 @@ fun MainScreen(
                     // (하드코딩된 표시값) sessionId 도 임시로 고정값을 쓴다. 홈 카드가
                     // 실데이터를 받으면 그 세션 id를 그대로 넘기면 된다.
                     onNavigateToSessionDetail = { onNavigateToSessionDetail(HOME_NEXT_SESSION_PLACEHOLDER_ID) },
+                    onNavigateToSessionList = {
+                        tabNavController.navigate(Routes.SESSION_LIST) {
+                            popUpTo(tabNavController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
                     onNavigateToMyPage = onNavigateToMyPage,
                 )
             }
