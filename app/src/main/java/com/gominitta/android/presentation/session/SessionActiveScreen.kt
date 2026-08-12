@@ -1,13 +1,18 @@
 package com.gominitta.android.presentation.session
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.media.MediaRecorder
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
+import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
+import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
+import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -529,6 +534,14 @@ private fun MicListeningPulse(modifier: Modifier = Modifier) {
     )
 }
 
+/** 가장자리 검출·기울기 보정·그림자 제거를 거친 한 장을 JPEG로 받는다. */
+private val DocumentScannerOptions = GmsDocumentScannerOptions.Builder()
+    .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
+    .setGalleryImportAllowed(false)
+    .setPageLimit(1)
+    .setResultFormats(GmsDocumentScannerOptions.RESULT_FORMAT_JPEG)
+    .build()
+
 @Composable
 private fun HandwritingRecordArea(
     isUploading: Boolean,
@@ -536,7 +549,12 @@ private fun HandwritingRecordArea(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val activity = LocalActivity.current
     var pendingFile by remember { mutableStateOf<File?>(null) }
+    var isScannerStarting by remember { mutableStateOf(false) }
+    // 스캐너 모듈 다운로드는 수 초 걸릴 수 있어, 그 사이 화면을 벗어났는지 알아야 한다.
+    var isAreaActive by remember { mutableStateOf(true) }
+    DisposableEffect(Unit) { onDispose { isAreaActive = false } }
 
     val cameraLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture(),
@@ -544,6 +562,50 @@ private fun HandwritingRecordArea(
         val file = pendingFile
         pendingFile = null
         if (success && file != null) onCaptured(file)
+    }
+
+    fun launchCamera() {
+        val file = sessionCaptureFile(context, "handwriting_${System.currentTimeMillis()}.jpg")
+        pendingFile = file
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+        cameraLauncher.launch(uri)
+    }
+
+    val scannerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult(),
+    ) { result ->
+        val page = GmsDocumentScanningResult.fromActivityResultIntent(result.data)
+            ?.pages?.firstOrNull()
+        if (result.resultCode == Activity.RESULT_OK && page != null) {
+            val file = sessionCaptureFile(context, "handwriting_${System.currentTimeMillis()}.jpg")
+            val copied = runCatching {
+                context.contentResolver.openInputStream(page.imageUri)?.use { input ->
+                    file.outputStream().use(input::copyTo)
+                } ?: error("스캔 결과를 읽지 못했습니다.")
+            }
+            if (copied.isSuccess) onCaptured(file) else file.delete()
+        }
+    }
+
+    // Play 서비스가 없는 기기에선 스캐너를 못 띄우므로 기본 카메라로 떨어진다.
+    fun launchScanner() {
+        if (isScannerStarting) return
+        if (activity == null) {
+            launchCamera()
+            return
+        }
+        isScannerStarting = true
+        GmsDocumentScanning.getClient(DocumentScannerOptions)
+            .getStartScanIntent(activity)
+            .addOnSuccessListener { sender ->
+                isScannerStarting = false
+                // 화면을 벗어났으면 launcher 가 이미 해제돼 있어 launch 하면 크래시한다.
+                if (isAreaActive) scannerLauncher.launch(IntentSenderRequest.Builder(sender).build())
+            }
+            .addOnFailureListener {
+                isScannerStarting = false
+                if (isAreaActive) launchCamera()
+            }
     }
 
     Column(modifier = modifier.fillMaxWidth()) {
@@ -558,19 +620,15 @@ private fun HandwritingRecordArea(
             contentAlignment = Alignment.Center,
         ) {
             when {
-                isUploading -> CircularProgressIndicator(color = Primary800)
+                // 스캐너 첫 실행은 모듈을 받느라 느려서, 그동안 아무 반응 없어 보이면 안 된다.
+                isUploading || isScannerStarting -> CircularProgressIndicator(color = Primary800)
                 else -> Icon(
                     painter = painterResource(R.drawable.ic_camera),
                     contentDescription = "카메라로 촬영",
                     tint = Primary400,
                     modifier = Modifier
                         .size(100.dp)
-                        .clickable {
-                            val file = sessionCaptureFile(context, "handwriting_${System.currentTimeMillis()}.jpg")
-                            pendingFile = file
-                            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
-                            cameraLauncher.launch(uri)
-                        },
+                        .clickable { launchScanner() },
                 )
             }
         }

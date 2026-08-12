@@ -99,6 +99,9 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.compose)
     implementation(libs.lifecycle.runtime.compose)
 
+    // 손글씨 촬영 — 크롭·기울기·그림자 보정된 이미지를 서버 OCR에 넘긴다
+    implementation(libs.mlkit.document.scanner)
+
     // Kakao 로그인 SDK
     implementation(libs.kakao.user)
     // Networking
