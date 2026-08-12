@@ -259,13 +259,14 @@ private fun LogoutBottomSheet(
                     .padding(horizontal = 20.dp)
                     .padding(top = 24.dp, bottom = 24.dp),
             ) {
+                // 오른쪽 위 잎 1개
                 Image(
-                    painter = painterResource(R.drawable.ic_mypage_rightleaf),
+                    painter = painterResource(R.drawable.ic_profile_rightleaf),
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .offset(x = 22.dp, y = (-70).dp)
-                        .requiredSize(width = 82.dp, height = 116.dp),
+                        .offset(x = 40.dp, y = (-75).dp)
+                        .requiredSize(width = 110.dp, height = 145.dp),
                 )
 
                 Column(
@@ -302,13 +303,24 @@ private fun LogoutBottomSheet(
                     }
                 }
 
+                // 왼쪽 잎 스프레이 (중간 높이)
                 Image(
-                    painter = painterResource(R.drawable.ic_mypage_leftleaf),
+                    painter = painterResource(R.drawable.ic_profile_leftleaf1),
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.BottomStart)
-                        .offset(x = (-12).dp, y = (-20).dp)
-                        .requiredSize(width = 82.dp, height = 116.dp),
+                        .offset(x = (-14).dp, y = (-40).dp)
+                        .requiredSize(width = 65.dp, height = 90.dp),
+                )
+
+                // 왼쪽 아래 꽃 다발 (카드 밖으로 살짝 삐져나오게)
+                Image(
+                    painter = painterResource(R.drawable.ic_profile_leftleaf2),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .offset(x = (5).dp, y = (-60).dp)
+                        .requiredSize(width = 84.dp, height = 84.dp),
                 )
             }
         }
