@@ -29,6 +29,7 @@ class ReminderScheduler @Inject constructor(
             title = "곧 마주할 시간이에요",
             body = "예약한 걱정을 마주할 시간이 다가오고 있어요.",
             notificationId = worryReminderNotificationId(worryId),
+            worryId = worryId,
         )
     }
 
@@ -40,6 +41,7 @@ class ReminderScheduler @Inject constructor(
             title = "마음 세션 시작 시간이에요",
             body = "지금 예약한 마음 세션을 시작해보세요.",
             notificationId = sessionStartNotificationId(worryId),
+            worryId = worryId,
         )
     }
 
@@ -55,6 +57,15 @@ class ReminderScheduler @Inject constructor(
         workManager.cancelUniqueWork(sessionStartWorkName(worryId))
     }
 
+    /**
+     * 로그아웃 — 이전 계정의 예약이 남아 울리지 않도록 전부 취소한다.
+     * WorkManager가 자동으로 붙이는 클래스명 태그를 쓴다 — 우리 태그를 달기 전 버전이
+     * 예약해둔 작업까지 걷어내야 하기 때문이다.
+     */
+    fun cancelAll() {
+        workManager.cancelAllWorkByTag(ReminderWorker::class.java.name)
+    }
+
     private fun schedule(
         uniqueName: String,
         fireAt: LocalDateTime,
@@ -62,6 +73,7 @@ class ReminderScheduler @Inject constructor(
         title: String,
         body: String,
         notificationId: Int,
+        worryId: Long,
     ) {
         val delay = Duration.between(LocalDateTime.now(), fireAt)
         if (delay.isNegative) {
@@ -77,6 +89,7 @@ class ReminderScheduler @Inject constructor(
                     .putString(ReminderWorker.KEY_TITLE, title)
                     .putString(ReminderWorker.KEY_BODY, body)
                     .putInt(ReminderWorker.KEY_NOTIFICATION_ID, notificationId)
+                    .putLong(ReminderWorker.KEY_WORRY_ID, worryId)
                     .build(),
             )
             .build()

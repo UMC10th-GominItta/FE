@@ -3,6 +3,7 @@ package com.gominitta.android.presentation.session
 import android.Manifest
 import android.content.Context
 import android.media.MediaRecorder
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
@@ -57,6 +58,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -96,7 +98,7 @@ import java.io.File
 
 /**
  * 마음 세션 진행 (C102 인트로 바텀시트 + C103 세션 기록 3종). 세션 상세 → 시작.
- * 진입 시 "더 나은 기분으로 시작해볼까요?" 바텀시트가 한 번 뜨고, 아래엔 걱정 기록용
+ * 첫 진입 시 "더 나은 기분으로 시작해볼까요?" 바텀시트가 한 번 뜨고, 아래엔 걱정 기록용
  * 텍스트/음성/사진 3탭이 있다.
  *
  * 텍스트는 "세션 완료하기" 시점에 한 번에 저장하고, 음성/사진은 녹음 정지·촬영 즉시
@@ -115,7 +117,8 @@ fun SessionActiveScreen(
     viewModel: SessionActiveViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var showIntroSheet by remember { mutableStateOf(true) }
+    // 새로 진입할 때만 띄운다 — 뒤로 돌아왔을 땐 유지되도록 rememberSaveable.
+    var showIntroSheet by rememberSaveable { mutableStateOf(true) }
 
     LaunchedEffect(uiState.isDone) {
         if (uiState.isDone) {
@@ -123,6 +126,13 @@ fun SessionActiveScreen(
             viewModel.onDoneHandled()
         }
     }
+    LaunchedEffect(uiState.isExited) {
+        if (uiState.isExited) {
+            onNavigateBack()
+            viewModel.onExitHandled()
+        }
+    }
+    BackHandler { viewModel.saveNoteAndExit() }
 
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(
@@ -157,7 +167,7 @@ fun SessionActiveScreen(
                     recordErrorMessage = uiState.recordErrorMessage,
                     onVoiceRecorded = viewModel::uploadVoiceRecord,
                     onHandwritingCaptured = viewModel::uploadHandwritingRecord,
-                    onNavigateBack = onNavigateBack,
+                    onNavigateBack = viewModel::saveNoteAndExit,
                     onCompleteSession = viewModel::commitAndProceed,
                 )
             }
@@ -313,6 +323,8 @@ private fun SessionActiveContent(
         GominittaButton(
             text = "세션 완료하기",
             onClick = onCompleteSession,
+            // 업로드/저장 중엔 탭이 조용히 삼켜지므로 눌리지 않게 막는다.
+            enabled = !isSaving,
             modifier = Modifier.fillMaxWidth(),
         )
     }

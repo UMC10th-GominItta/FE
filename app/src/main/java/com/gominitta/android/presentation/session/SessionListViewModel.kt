@@ -71,15 +71,17 @@ class SessionListViewModel @Inject constructor(
                 }
                 // 세션의 worryTitle/worryContent는 생성 시점 스냅샷이라 걱정 수정이 반영 안 된다(백엔드 한계).
                 // 완료 세션은 더 이상 수정할 일이 없어 스냅샷 그대로 두고, 예정/미완료만 최신 걱정 내용으로 덮어쓴다.
+                // null이면 걱정 목록 조회 자체가 실패한 것 — 이땐 필터링하지 않고 스냅샷 그대로 보여준다
+                // (실패를 "걱정이 삭제됨"으로 착각해서 목록을 통째로 비우면 안 되므로).
                 val worryById = try {
                     when (val result = getWorries()) {
                         is ApiResult.Success -> result.data.associateBy(Worry::id)
-                        else -> emptyMap()
+                        else -> null
                     }
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    emptyMap()
+                    null
                 }
                 // 백엔드가 SCHEDULED → INCOMPLETE 자동 전환을 아직 구현 안 해서(배치 작업 없음),
                 // 예약 종료 시각이 지났는데도 SCHEDULED로 남아있는 세션은 화면에서만 미완료로 취급한다.
@@ -109,8 +111,15 @@ class SessionListViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(selectedTab = tab)
     }
 
-    private fun List<Session>.withLiveWorryContent(worryById: Map<Long, Worry>): List<Session> = map { session ->
-        val worry = worryById[session.worryId] ?: return@map session
-        session.copy(worryTitle = worry.title, worryContent = worry.content)
+    /**
+     * 걱정이 삭제되면 백엔드가 연결된 세션을 안 지워서(백엔드 한계) 그대로 목록에 남는데,
+     * 삭제된 걱정은 [getWorries] 결과에 안 잡히므로 그 세션을 여기서 걸러낸다.
+     */
+    private fun List<Session>.withLiveWorryContent(worryById: Map<Long, Worry>?): List<Session> {
+        if (worryById == null) return this
+        return mapNotNull { session ->
+            val worry = worryById[session.worryId] ?: return@mapNotNull null
+            session.copy(worryTitle = worry.title, worryContent = worry.content)
+        }
     }
 }
