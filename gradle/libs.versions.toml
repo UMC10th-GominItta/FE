@@ -40,9 +40,6 @@ retrofit              = "3.0.0"
 retrofitKotlinxSerializationConverter = "1.0.0"
 okhttp                = "5.1.0"
 
-# 문서 스캐너 — 손글씨 촬영 시 크롭·기울기·그림자 보정으로 OCR 입력 품질을 올린다
-mlkitDocumentScanner = "16.0.0"
-
 # Local storage
 datastore        = "1.1.1"
 
@@ -99,9 +96,6 @@ retrofit                           = { group = "com.squareup.retrofit2",   name 
 retrofit-kotlinx-serialization-converter = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version.ref = "retrofitKotlinxSerializationConverter" }
 okhttp                             = { group = "com.squareup.okhttp3",     name = "okhttp",                  version.ref = "okhttp" }
 okhttp-logging-interceptor         = { group = "com.squareup.okhttp3",     name = "logging-interceptor",     version.ref = "okhttp" }
-
-# 문서 스캐너
-mlkit-document-scanner             = { group = "com.google.android.gms",   name = "play-services-mlkit-document-scanner", version.ref = "mlkitDocumentScanner" }
 
 # Local storage
 androidx-datastore-preferences     = { group = "androidx.datastore",       name = "datastore-preferences",   version.ref = "datastore" }
