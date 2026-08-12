@@ -11,9 +11,11 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import java.util.concurrent.TimeUnit
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 
@@ -26,6 +28,13 @@ import retrofit2.Retrofit
 object NetworkModule {
 
     private const val BASE_URL = "https://www.gominitta.cloud/"
+
+    /** 서버 STT/OCR 추론까지 기다려야 해서 OkHttp 기본값(10초)으론 모자란다. */
+    private const val MEDIA_UPLOAD_TIMEOUT_SECONDS = 60
+
+    private val Request.isMediaUpload: Boolean
+        get() = url.encodedPath.endsWith("/records/voice") ||
+            url.encodedPath.endsWith("/records/handwriting")
 
     @Provides
     @Singleton
@@ -48,6 +57,18 @@ object NetworkModule {
             }
         }
         return OkHttpClient.Builder()
+            // 음성/필기 업로드만 여유를 준다 — 전체를 늘리면 평범한 요청 실패도 그만큼 매달린다.
+            .addInterceptor { chain ->
+                val request = chain.request()
+                if (request.isMediaUpload) {
+                    chain
+                        .withReadTimeout(MEDIA_UPLOAD_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                        .withWriteTimeout(MEDIA_UPLOAD_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                        .proceed(request)
+                } else {
+                    chain.proceed(request)
+                }
+            }
             .addInterceptor(authInterceptor)
             .addInterceptor(logging)
             .authenticator(tokenAuthenticator)
