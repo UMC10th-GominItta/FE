@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gominitta.android.domain.usecase.GetUserProfileUseCase
 import com.gominitta.android.domain.usecase.LogoutUseCase
+import com.gominitta.android.presentation.notification.ReminderScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -15,6 +16,7 @@ import javax.inject.Inject
 class MyPageViewModel @Inject constructor(
     private val getUserProfileUseCase: GetUserProfileUseCase,
     private val logoutUseCase: LogoutUseCase,
+    private val reminderScheduler: ReminderScheduler,
 ) : ViewModel() {
 
     var nickname by mutableStateOf("")
@@ -45,6 +47,7 @@ class MyPageViewModel @Inject constructor(
     fun logout() {
         viewModelScope.launch {
             logoutUseCase()
+            reminderScheduler.cancelAll()
             isLoggedOut = true
         }
     }
