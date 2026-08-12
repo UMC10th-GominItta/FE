@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.media.MediaRecorder
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
