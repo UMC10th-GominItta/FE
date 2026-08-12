@@ -193,14 +193,15 @@ private fun anxietyGapReport(period: String) = AnxietyGapReport(
 
 private fun worryTimelineReport(period: String) = WorryTimelineReport(
     period = period,
+    hasEnoughData = true,
     cells = listOf(
         WorryTimelineCell(ReportDayOfWeek.MON, ReportTimeSlot.MORNING, 1),
         WorryTimelineCell(ReportDayOfWeek.THU, ReportTimeSlot.EVENING, 6),
         WorryTimelineCell(ReportDayOfWeek.SUN, ReportTimeSlot.DAWN, 13),
     ),
-    peaks = listOf(
-        WorryTimelinePeak(ReportDayOfWeek.THU, ReportTimeSlot.EVENING),
-        WorryTimelinePeak(ReportDayOfWeek.SUN, ReportTimeSlot.DAWN),
+    topCells = listOf(
+        WorryTimelineCell(ReportDayOfWeek.THU, ReportTimeSlot.EVENING, 6),
+        WorryTimelineCell(ReportDayOfWeek.SUN, ReportTimeSlot.DAWN, 13),
     ),
     feedback = "목요일 저녁 시간대와 일요일 밤 시간대에 걱정 기록이 많았어요.",
 )

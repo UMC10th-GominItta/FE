@@ -249,7 +249,8 @@ private fun WorryTimelineReport.toUiModel(): WorryTimelineReportData {
                 cellCounts[day to timeSlot].orEmptyCount().coerceIn(0L, 4L).toInt()
             }
         },
-        feedback = feedback,
+        feedback = "걱정이 자주 찾아오는 시간대를 확인해 보세요.",
+        hasEnoughData = hasEnoughData,
     )
 }
 

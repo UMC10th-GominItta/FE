@@ -15,11 +15,12 @@ class WorryTimelineResponseTest {
         val response = json.decodeFromString<ApiResponse<WorryTimelineResponse>>(SUCCESS_RESPONSE)
 
         assertTrue(response.success)
-        assertEquals("30d", response.data?.period)
+        assertTrue(response.data?.hasEnoughData == true)
         assertEquals(3, response.data?.cells?.size)
         assertEquals(6L, response.data?.cells?.get(1)?.count)
-        assertEquals(ReportDayOfWeekResponse.THU, response.data?.peaks?.first()?.dayOfWeek)
-        assertEquals(ReportTimeSlotResponse.EVENING, response.data?.peaks?.first()?.timeSlot)
+        assertEquals("THURSDAY", response.data?.topCells?.first()?.dayOfWeek)
+        assertEquals("저녁", response.data?.topCells?.first()?.timeSlot)
+        assertEquals(6L, response.data?.topCells?.first()?.count)
     }
 
     @Test
@@ -39,17 +40,16 @@ class WorryTimelineResponseTest {
               "code": "200",
               "message": "요청이 성공했습니다.",
               "data": {
-                "period": "30d",
+                "hasEnoughData": true,
                 "cells": [
-                  { "dayOfWeek": "MON", "timeSlot": "MORNING", "count": 1 },
-                  { "dayOfWeek": "THU", "timeSlot": "EVENING", "count": 6 },
-                  { "dayOfWeek": "SUN", "timeSlot": "DAWN", "count": 5 }
+                  { "dayOfWeek": "MONDAY", "timeSlot": "아침", "count": 1 },
+                  { "dayOfWeek": "THURSDAY", "timeSlot": "저녁", "count": 6 },
+                  { "dayOfWeek": "SUNDAY", "timeSlot": "밤", "count": 5 }
                 ],
-                "peaks": [
-                  { "dayOfWeek": "THU", "timeSlot": "EVENING" },
-                  { "dayOfWeek": "SUN", "timeSlot": "DAWN" }
-                ],
-                "feedback": "목요일 저녁 시간대와 일요일 밤 시간대에 걱정 기록이 많았어요."
+                "topCells": [
+                  { "dayOfWeek": "THURSDAY", "timeSlot": "저녁", "count": 6 },
+                  { "dayOfWeek": "SUNDAY", "timeSlot": "밤", "count": 5 }
+                ]
               }
             }
         """.trimIndent()

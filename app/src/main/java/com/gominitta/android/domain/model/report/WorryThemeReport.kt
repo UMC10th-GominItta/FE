@@ -25,9 +25,10 @@ data class AnxietyGapReport(
 
 data class WorryTimelineReport(
     val period: String,
+    val hasEnoughData: Boolean,
     val cells: List<WorryTimelineCell>,
-    val peaks: List<WorryTimelinePeak>,
-    val feedback: String,
+    val topCells: List<WorryTimelineCell>,
+    val feedback: String = "",
 )
 
 data class WorryTimelineCell(
