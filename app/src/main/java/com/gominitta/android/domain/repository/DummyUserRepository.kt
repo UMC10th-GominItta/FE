@@ -33,4 +33,6 @@ class DummyUserRepository @Inject constructor() : UserRepository {
         nextSession = null,
         profileImageUrl = "",
     )
+
+    override suspend fun withdraw() {}
 }

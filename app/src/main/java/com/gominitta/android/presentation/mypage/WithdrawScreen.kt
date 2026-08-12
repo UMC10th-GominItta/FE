@@ -13,12 +13,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.gominitta.android.R
 import com.gominitta.android.presentation.mypage.components.MyPageOutlinedButton
 import com.gominitta.android.presentation.mypage.components.MyPagePrimaryButton
@@ -29,8 +31,13 @@ import androidx.compose.ui.graphics.Color
 fun WithdrawScreen(
     onBackClick: () -> Unit,
     onCancelClick: () -> Unit,
-    onWithdrawClick: () -> Unit,
+    onWithdrawn: () -> Unit,
+    viewModel: WithdrawViewModel = hiltViewModel(),
 ) {
+    LaunchedEffect(viewModel.isWithdrawn) {
+        if (viewModel.isWithdrawn) onWithdrawn()
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.Transparent,
@@ -79,6 +86,18 @@ fun WithdrawScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
+            if (viewModel.errorMessage != null) {
+                Text(
+                    text = viewModel.errorMessage!!,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                )
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -91,8 +110,9 @@ fun WithdrawScreen(
 
                 MyPagePrimaryButton(
                     text = "탈퇴하기",
-                    onClick = onWithdrawClick,
+                    onClick = { viewModel.withdraw() },
                     modifier = Modifier.weight(2f),
+                    enabled = !viewModel.isProcessing,
                 )
             }
         }

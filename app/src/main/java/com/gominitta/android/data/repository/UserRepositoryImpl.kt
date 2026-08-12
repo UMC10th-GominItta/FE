@@ -1,9 +1,11 @@
 package com.gominitta.android.data.repository
 
+import com.gominitta.android.data.auth.TokenStore
 import com.gominitta.android.data.remote.ApiResult
 import com.gominitta.android.data.remote.api.UsersApi
 import com.gominitta.android.data.remote.dto.UserUpdateRequest
 import com.gominitta.android.data.remote.safeApiCall
+import com.gominitta.android.data.remote.safeApiCallUnit
 import com.gominitta.android.domain.model.HomeData
 import com.gominitta.android.domain.model.NextSession
 import com.gominitta.android.domain.model.UserProfile
@@ -16,6 +18,7 @@ import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
     private val usersApi: UsersApi,
+    private val tokenStore: TokenStore,
 ) : UserRepository {
 
     override suspend fun getMyProfile(): UserProfile {
@@ -56,6 +59,14 @@ class UserRepositoryImpl @Inject constructor(
             } else null,
             profileImageUrl = data.user?.profileIcon?.toAppProfileImageUrl().orEmpty(),
         )
+    }
+
+    override suspend fun withdraw() {
+        when (val result = safeApiCallUnit { usersApi.deleteMe() }) {
+            is ApiResult.Success -> tokenStore.clear()
+            is ApiResult.Error -> throw IllegalStateException("[${result.code}] ${result.message}")
+            is ApiResult.NetworkError -> throw result.cause
+        }
     }
 
     private fun parseDateTime(raw: String?): LocalDateTime? {
