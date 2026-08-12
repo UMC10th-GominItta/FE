@@ -2,6 +2,8 @@ package com.gominitta.android.presentation.session
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gominitta.android.domain.usecase.AddTextRecordUseCase
+import com.gominitta.android.domain.usecase.DeleteRecordUseCase
 import com.gominitta.android.domain.usecase.UpdateRecordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -22,6 +24,8 @@ data class SessionDetailUiState(
 @HiltViewModel
 class SessionDetailViewModel @Inject constructor(
     private val updateRecord: UpdateRecordUseCase,
+    private val addTextRecord: AddTextRecordUseCase,
+    private val deleteRecord: DeleteRecordUseCase,
     private val flowState: SessionFlowState,
 ) : ViewModel() {
 
@@ -43,18 +47,33 @@ class SessionDetailViewModel @Inject constructor(
         _uiState.update { it.copy(isDone = false) }
     }
 
-    /** "저장하기" 클릭. 기록이 없으면(음성/필기 탭이었거나 빈 텍스트) 서버 호출 없이 바로 넘어간다. */
+    /** "저장하기" 클릭. 기록이 없으면 생성, 내용을 다 지웠으면 삭제(서버가 빈 내용을 거부함), 그 외엔 수정. */
     fun save() {
         val sessionId = flowState.sessionId
         val recordId = flowState.recordId
-        if (sessionId == null || recordId == null) {
+        val text = _uiState.value.recordText
+        if (sessionId == null || (recordId == null && text.isBlank())) {
             _uiState.update { it.copy(isDone = true) }
             return
         }
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true, errorMessage = null) }
             try {
-                updateRecord(sessionId, recordId, _uiState.value.recordText)
+                // flowState도 같이 갱신해 재저장 시 중복 생성·재삭제를 막는다.
+                when {
+                    recordId == null -> {
+                        val record = addTextRecord(sessionId, text)
+                        flowState.setRecord(record.id, record.contentText)
+                    }
+                    text.isBlank() -> {
+                        deleteRecord(sessionId, recordId)
+                        flowState.clearRecord()
+                    }
+                    else -> {
+                        val record = updateRecord(sessionId, recordId, text)
+                        flowState.setRecord(record.id, record.contentText)
+                    }
+                }
                 _uiState.update { it.copy(isSaving = false, isDone = true) }
             } catch (e: CancellationException) {
                 throw e

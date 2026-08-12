@@ -28,6 +28,12 @@ class SessionFlowState @Inject constructor() {
         this.recordText = recordText
     }
 
+    /** 세션은 두고 기록만 비운다. */
+    fun clearRecord() {
+        recordId = null
+        recordText = null
+    }
+
     fun clear() {
         sessionId = null
         recordId = null
