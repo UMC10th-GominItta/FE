@@ -209,9 +209,9 @@ private fun WorryThemeReport.toUiModel(): WorryThemeReportData = WorryThemeRepor
 // 서버의 불안 온도차 모델을 화면 표시용 모델로 변환합니다.
 private fun AnxietyGapReport.toUiModel(): AnxietyReportData = AnxietyReportData(
     period = period,
-    beforeScore = beforeScore.toDouble(),
-    afterScore = afterScore.toDouble(),
-    gap = gap.toDouble(),
+    beforeScore = beforeScore,
+    afterScore = afterScore,
+    gap = gap,
     sampleCount = sampleCount,
     feedback = feedback,
 )

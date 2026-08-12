@@ -14,9 +14,9 @@ data class WorryThemeCount(
 
 data class AnxietyGapReport(
     val period: String,
-    val beforeScore: Long,
-    val afterScore: Long,
-    val gap: Long,
+    val beforeScore: Double,
+    val afterScore: Double,
+    val gap: Double,
     val sampleCount: Long,
     val feedback: String,
 )

@@ -17,9 +17,9 @@ class AnxietyGapResponseTest {
         assertTrue(response.success)
         assertEquals("200", response.code)
         assertEquals("30d", response.data?.period)
-        assertEquals(8L, response.data?.beforeScore)
-        assertEquals(4L, response.data?.afterScore)
-        assertEquals(-4L, response.data?.gap)
+        assertEquals(7.5, response.data?.beforeScore)
+        assertEquals(4.25, response.data?.afterScore)
+        assertEquals(-3.25, response.data?.gap)
         assertEquals(12L, response.data?.sampleCount)
         assertEquals("걱정을 마주하고 마음이 한결 가벼워졌어요.", response.data?.feedback)
     }
@@ -42,9 +42,9 @@ class AnxietyGapResponseTest {
               "message": "요청이 성공했습니다.",
               "data": {
                 "period": "30d",
-                "beforeScore": 8,
-                "afterScore": 4,
-                "gap": -4,
+                "beforeScore": 7.5,
+                "afterScore": 4.25,
+                "gap": -3.25,
                 "sampleCount": 12,
                 "feedback": "걱정을 마주하고 마음이 한결 가벼워졌어요."
               }

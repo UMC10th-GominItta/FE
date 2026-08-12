@@ -123,9 +123,9 @@ class ReportViewModelTest {
             ApiResult.Success(
                 AnxietyGapReport(
                     period = period,
-                    beforeScore = 8,
-                    afterScore = 4,
-                    gap = -4,
+                    beforeScore = 8.0,
+                    afterScore = 4.0,
+                    gap = -4.0,
                     sampleCount = 12,
                     feedback = "걱정을 마주하고 마음이 한결 가벼워졌어요.",
                 ),
@@ -180,9 +180,9 @@ private fun worryThemeReport(period: String) = WorryThemeReport(
 
 private fun anxietyGapReport(period: String) = AnxietyGapReport(
     period = period,
-    beforeScore = 8,
-    afterScore = 4,
-    gap = -4,
+    beforeScore = 8.0,
+    afterScore = 4.0,
+    gap = -4.0,
     sampleCount = 12,
     feedback = "걱정을 마주하고 마음이 한결 가벼워졌어요.",
 )
