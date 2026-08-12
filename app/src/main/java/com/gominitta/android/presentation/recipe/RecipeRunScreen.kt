@@ -56,14 +56,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gominitta.android.R
 import com.gominitta.android.presentation.recipe.components.RecipeScreenScaffold
+import com.gominitta.android.ui.theme.Body2_15r
 import com.gominitta.android.ui.theme.Body3_14r
 import com.gominitta.android.ui.theme.Button1_15m
+import com.gominitta.android.ui.theme.Heading2_22m
 import com.gominitta.android.ui.theme.Heading4_18m
 import kotlinx.coroutines.delay
-import androidx.compose.ui.text.style.LineHeightStyle
-import androidx.compose.ui.text.TextStyle
-import com.gominitta.android.ui.theme.Body2_15r
-import com.gominitta.android.ui.theme.Heading2_22m
 
 @Composable
 fun RecipeRunScreen(
@@ -263,9 +261,10 @@ fun RecipeRunScreen(
                             Spacer(modifier = Modifier.width(8.dp))
                             RecipeRunPrimaryButton(
                                 text = "완료하기",
-                                // 타이머가 다 돌아가기 전까지는 완료 불가
-                                enabled = false,
-                                onClick = {},
+                                // 타이머 진행 상태(실행/일시정지)와 무관하게 상시 활성화.
+                                // 클릭 시 D102-2(완료) 화면 이동 + 완료 카운트 누적.
+                                enabled = true,
+                                onClick = viewModel::onFinishClick,
                                 modifier = Modifier.width(254.dp),
                             )
                         }
@@ -340,9 +339,8 @@ private fun RecipeRunInfoCard(recipe: RecipeItem, modifier: Modifier = Modifier)
             )
             DenseDashedDivider(modifier = Modifier.widthIn(max = 202.dp))
 
-            // 이 297dp 고정 높이는 "오감 그라운딩" 예시(제목1줄+설명4줄) 기준이라
-            // 평소엔 스크롤이 필요 없음. 혹시 더 긴 설명이 들어와도 잘리지 않도록
-            // 안전장치로만 스크롤을 남겨둠.
+            // 297dp 고정 높이는 "오감 그라운딩" 예시 기준이라 평소엔 스크롤이 필요 없음.
+            // 혹시 더 긴 설명이 들어와도 잘리지 않도록 안전장치로만 스크롤을 남겨둠.
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -553,7 +551,7 @@ private fun RecipeQuitConfirmDialog(
                     )
                 }
 
-                // 버튼 영역 상단 구분선 — 세로선(0.33dp)과 동일한 두께로 통일
+                // 버튼 영역 상단 구분선 — 세로선(0.33dp)과 동일한 두께
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
