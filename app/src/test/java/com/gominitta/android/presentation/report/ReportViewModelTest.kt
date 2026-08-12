@@ -73,7 +73,7 @@ class ReportViewModelTest {
         assertEquals(DateRangeOption.LAST_30_DAYS, state.worryThemeRange)
         assertEquals(DateRangeOption.LAST_2_WEEKS, state.anxietyRange)
         assertEquals(DateRangeOption.LAST_30_DAYS, state.timelineRange)
-        assertEquals("2w", state.anxietyData?.period)
+        assertEquals("14d", state.anxietyData?.period)
     }
 
     @Test
@@ -88,7 +88,7 @@ class ReportViewModelTest {
         advanceUntilIdle()
 
         assertEquals(listOf("30d", "30d"), repository.worryThemePeriods)
-        assertEquals(listOf("30d", "2w", "2w"), repository.anxietyPeriods)
+        assertEquals(listOf("30d", "14d", "14d"), repository.anxietyPeriods)
         assertEquals(listOf("30d", "30d"), repository.timelinePeriods)
     }
 
