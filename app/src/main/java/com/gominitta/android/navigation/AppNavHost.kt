@@ -201,8 +201,10 @@ fun AppNavHost(
                 onCancelClick = {
                     navController.popBackStack()
                 },
-                onWithdrawClick = {
-                    // TODO 회원 탈퇴 API 성공 후 로그인 화면 이동
+                onWithdrawn = {
+                    navController.navigate(Routes.ONBOARDING) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 },
             )
         }
