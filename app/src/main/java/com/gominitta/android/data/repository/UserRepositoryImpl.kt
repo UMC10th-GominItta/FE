@@ -1,5 +1,6 @@
 package com.gominitta.android.data.repository
 
+import com.gominitta.android.data.auth.KakaoLoginClient
 import com.gominitta.android.data.auth.TokenStore
 import com.gominitta.android.data.remote.ApiResult
 import com.gominitta.android.data.remote.api.UsersApi
@@ -19,6 +20,7 @@ import javax.inject.Inject
 class UserRepositoryImpl @Inject constructor(
     private val usersApi: UsersApi,
     private val tokenStore: TokenStore,
+    private val kakaoLoginClient: KakaoLoginClient,
 ) : UserRepository {
 
     override suspend fun getMyProfile(): UserProfile {
@@ -63,7 +65,12 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun withdraw() {
         when (val result = safeApiCallUnit { usersApi.deleteMe() }) {
-            is ApiResult.Success -> tokenStore.clear()
+            is ApiResult.Success -> {
+                // 카카오 연결 끊기는 best-effort — 실패해도(카카오 토큰 만료 등) 서버 탈퇴는 이미 성공했으므로 계속 진행.
+                runCatching { kakaoLoginClient.unlink() }
+                    .onFailure { android.util.Log.w("Withdraw", "카카오 unlink 실패 — 탈퇴는 계속 진행", it) }
+                tokenStore.clear()
+            }
             is ApiResult.Error -> throw IllegalStateException("[${result.code}] ${result.message}")
             is ApiResult.NetworkError -> throw result.cause
         }

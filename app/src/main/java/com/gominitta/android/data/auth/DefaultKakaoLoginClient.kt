@@ -55,4 +55,15 @@ class DefaultKakaoLoginClient @Inject constructor() : KakaoLoginClient {
                 }
             }
         }
+
+    override suspend fun unlink() =
+        suspendCancellableCoroutine { continuation ->
+            UserApiClient.instance.unlink { error ->
+                if (error != null) {
+                    continuation.resumeWithException(error)
+                } else {
+                    continuation.resume(Unit)
+                }
+            }
+        }
 }
