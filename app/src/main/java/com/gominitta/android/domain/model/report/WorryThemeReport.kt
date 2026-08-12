@@ -2,13 +2,15 @@ package com.gominitta.android.domain.model.report
 
 data class WorryThemeReport(
     val period: String,
-    val topCategory: String?,
+    val hasEnoughData: Boolean,
+    val topTheme: String,
+    val totalCount: Long,
     val themes: List<WorryThemeCount>,
-    val feedback: String,
+    val feedback: String = "",
 )
 
 data class WorryThemeCount(
-    val category: String,
+    val theme: String,
     val count: Long,
 )
 

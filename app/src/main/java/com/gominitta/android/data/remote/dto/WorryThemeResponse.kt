@@ -4,14 +4,14 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class WorryThemeResponse(
-    val period: String,
-    val topCategory: String? = null,
+    val hasEnoughData: Boolean,
+    val topTheme: String,
+    val totalCount: Long,
     val themes: List<WorryThemeCountResponse> = emptyList(),
-    val feedback: String,
 )
 
 @Serializable
 data class WorryThemeCountResponse(
-    val category: String,
+    val theme: String,
     val count: Long,
 )

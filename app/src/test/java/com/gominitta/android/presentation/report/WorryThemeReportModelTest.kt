@@ -14,6 +14,22 @@ class WorryThemeReportModelTest {
     }
 
     @Test
+    fun `서버의 데이터 충분 여부와 합계를 사용한다`() {
+        val hidden = report(WorryThemeItem(WorryTheme.CAREER, 10)).copy(
+            hasEnoughData = false,
+            reportedTotalCount = 10,
+        )
+        val visible = report().copy(
+            hasEnoughData = true,
+            reportedTotalCount = 3,
+        )
+
+        assertFalse(hidden.canRender)
+        assertTrue(visible.canRender)
+        assertEquals(3L, visible.totalCount)
+    }
+
+    @Test
     fun `모든 비율이 30퍼센트 미만이면 첫 최상위 테마만 승격한다`() {
         val data = report(
                 WorryThemeItem(WorryTheme.CAREER, 25),
@@ -21,7 +37,7 @@ class WorryThemeReportModelTest {
                 WorryThemeItem(WorryTheme.HEALTH, 20),
                 WorryThemeItem(WorryTheme.MONEY, 15),
                 WorryThemeItem(WorryTheme.FAMILY, 10),
-                WorryThemeItem(WorryTheme.PRESENTATION, 5),
+                WorryThemeItem(WorryTheme.OTHER, 5),
         )
 
         val ranked = data.rankedThemes()

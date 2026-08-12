@@ -52,7 +52,7 @@ class ReportViewModelTest {
         assertEquals(DateRangeOption.LAST_30_DAYS, state.timelineRange)
         assertEquals(5L, state.worryThemeData?.totalCount)
         assertEquals("30d", state.worryThemeData?.period)
-        assertEquals(WorryTheme.PRESENTATION, state.worryThemeData?.themes?.last()?.theme)
+        assertEquals(WorryTheme.OTHER, state.worryThemeData?.themes?.last()?.theme)
         assertTrue(state.anxietyData?.canRender == true)
         assertEquals(-4.0, state.anxietyData?.gap)
         assertEquals(20L, state.timelineData?.totalCount)
@@ -110,10 +110,12 @@ class ReportViewModelTest {
             ApiResult.Success(
                 WorryThemeReport(
                     period = period,
-                    topCategory = "진로",
+                    hasEnoughData = true,
+                    topTheme = "진로",
+                    totalCount = 5,
                     themes = listOf(
-                        WorryThemeCount(category = "진로", count = 1),
-                        WorryThemeCount(category = "발표", count = 4),
+                        WorryThemeCount(theme = "진로", count = 1),
+                        WorryThemeCount(theme = "기타", count = 4),
                     ),
                     feedback = "최근에는 진로와 관련된 걱정이 가장 많았어요.",
                 ),
@@ -173,8 +175,10 @@ class ReportViewModelTest {
 
 private fun worryThemeReport(period: String) = WorryThemeReport(
     period = period,
-    topCategory = "진로",
-    themes = listOf(WorryThemeCount(category = "진로", count = 1)),
+    hasEnoughData = false,
+    topTheme = "진로",
+    totalCount = 1,
+    themes = listOf(WorryThemeCount(theme = "진로", count = 1)),
     feedback = "최근에는 진로와 관련된 걱정이 가장 많았어요.",
 )
 

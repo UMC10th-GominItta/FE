@@ -197,13 +197,15 @@ private inline fun <T> ApiResult<T>.handle(
 // 서버의 고민 테마 모델을 화면 표시용 모델로 변환합니다.
 private fun WorryThemeReport.toUiModel(): WorryThemeReportData = WorryThemeReportData(
     period = period,
-    topCategory = topCategory?.toWorryTheme(),
+    topCategory = topTheme.toWorryTheme(),
     themes = themes.mapNotNull { item ->
-        item.category.toWorryTheme()?.let { theme ->
+        item.theme.toWorryTheme()?.let { theme ->
             WorryThemeItem(theme = theme, count = item.count)
         }
     },
-    feedback = feedback,
+    feedback = "최근에는 ${topTheme}와 관련된 걱정을 가장 많이 하셨어요.",
+    hasEnoughData = hasEnoughData,
+    reportedTotalCount = totalCount,
 )
 
 // 서버의 불안 온도차 모델을 화면 표시용 모델로 변환합니다.
