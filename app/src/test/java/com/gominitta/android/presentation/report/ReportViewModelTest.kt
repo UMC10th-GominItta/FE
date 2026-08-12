@@ -77,6 +77,22 @@ class ReportViewModelTest {
     }
 
     @Test
+    fun `refresh reloads every report using its currently selected range`() = runTest(dispatcher) {
+        val repository = CountingReportRepository()
+        val viewModel = ReportViewModel(repository)
+        advanceUntilIdle()
+
+        viewModel.selectAnxietyRange(DateRangeOption.LAST_2_WEEKS)
+        advanceUntilIdle()
+        viewModel.refresh()
+        advanceUntilIdle()
+
+        assertEquals(listOf("30d", "30d"), repository.worryThemePeriods)
+        assertEquals(listOf("30d", "2w", "2w"), repository.anxietyPeriods)
+        assertEquals(listOf("30d", "30d"), repository.timelinePeriods)
+    }
+
+    @Test
     fun `각 카드의 로딩 상태를 독립적으로 관리한다`() = runTest(dispatcher) {
         val viewModel = ReportViewModel(SlowWorryThemeRepository())
 
@@ -130,6 +146,27 @@ class ReportViewModelTest {
 
         override suspend fun getWorryTimeline(period: String): ApiResult<WorryTimelineReport> =
             ApiResult.Success(worryTimelineReport(period))
+    }
+
+    private class CountingReportRepository : ReportRepository {
+        val worryThemePeriods = mutableListOf<String>()
+        val anxietyPeriods = mutableListOf<String>()
+        val timelinePeriods = mutableListOf<String>()
+
+        override suspend fun getWorryThemes(period: String): ApiResult<WorryThemeReport> {
+            worryThemePeriods += period
+            return ApiResult.Success(worryThemeReport(period))
+        }
+
+        override suspend fun getAnxietyGap(period: String): ApiResult<AnxietyGapReport> {
+            anxietyPeriods += period
+            return ApiResult.Success(anxietyGapReport(period))
+        }
+
+        override suspend fun getWorryTimeline(period: String): ApiResult<WorryTimelineReport> {
+            timelinePeriods += period
+            return ApiResult.Success(worryTimelineReport(period))
+        }
     }
 
 }

@@ -49,9 +49,15 @@ class ReportViewModel @Inject constructor(
     private var timelineJob: Job? = null
 
     init {
-        loadWorryThemeReport(initialRange)
-        loadAnxietyGapReport(initialRange)
-        loadWorryTimelineReport(initialRange)
+        refresh()
+    }
+
+    /** 현재 선택된 기간을 유지한 채 세 리포트를 서버에서 다시 조회합니다. */
+    fun refresh() {
+        val state = _uiState.value
+        loadWorryThemeReport(state.worryThemeRange)
+        loadAnxietyGapReport(state.anxietyRange)
+        loadWorryTimelineReport(state.timelineRange)
     }
 
     fun selectWorryThemeRange(range: DateRangeOption) {
