@@ -18,9 +18,10 @@ data class AnxietyReportData(
     val gap: Double,
     val sampleCount: Long,
     val feedback: String,
+    val hasEnoughData: Boolean? = null,
 ) {
-    /** 집계된 세션이 하나라도 있으면 불안 온도차 리포트를 표시합니다. */
-    val canRender: Boolean get() = sampleCount > 0
+    /** 서버가 집계 데이터가 충분하다고 판단한 경우에만 리포트를 표시합니다. */
+    val canRender: Boolean get() = hasEnoughData ?: (sampleCount > 0)
 
     /** [change]의 부호를 기준으로 분류한 불안 점수 변화 상태 */
     val state: AnxietyChangeState

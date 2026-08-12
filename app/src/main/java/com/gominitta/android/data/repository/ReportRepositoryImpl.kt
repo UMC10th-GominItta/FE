@@ -33,7 +33,7 @@ class ReportRepositoryImpl @Inject constructor(
 
     override suspend fun getAnxietyGap(period: String): ApiResult<AnxietyGapReport> =
         when (val result = safeApiCall { reportApi.getAnxietyGap(period) }) {
-            is ApiResult.Success -> ApiResult.Success(result.data.toDomain())
+            is ApiResult.Success -> ApiResult.Success(result.data.toDomain(period))
             is ApiResult.Error -> result
             is ApiResult.NetworkError -> result
         }
@@ -53,13 +53,13 @@ private fun WorryThemeResponse.toDomain(): WorryThemeReport = WorryThemeReport(
     feedback = feedback,
 )
 
-private fun AnxietyGapResponse.toDomain(): AnxietyGapReport = AnxietyGapReport(
+private fun AnxietyGapResponse.toDomain(period: String): AnxietyGapReport = AnxietyGapReport(
     period = period,
-    beforeScore = beforeScore,
-    afterScore = afterScore,
+    hasEnoughData = hasEnoughData,
+    avgBefore = avgBefore,
+    avgAfter = avgAfter,
     gap = gap,
-    sampleCount = sampleCount,
-    feedback = feedback,
+    improved = improved,
 )
 
 private fun WorryTimelineResponse.toDomain(): WorryTimelineReport = WorryTimelineReport(

@@ -16,12 +16,11 @@ class AnxietyGapResponseTest {
 
         assertTrue(response.success)
         assertEquals("200", response.code)
-        assertEquals("30d", response.data?.period)
-        assertEquals(7.5, response.data?.beforeScore)
-        assertEquals(4.25, response.data?.afterScore)
-        assertEquals(-3.25, response.data?.gap)
-        assertEquals(12L, response.data?.sampleCount)
-        assertEquals("걱정을 마주하고 마음이 한결 가벼워졌어요.", response.data?.feedback)
+        assertTrue(response.data?.hasEnoughData == true)
+        assertEquals(8, response.data?.avgBefore)
+        assertEquals(4, response.data?.avgAfter)
+        assertEquals(-4, response.data?.gap)
+        assertTrue(response.data?.improved == true)
     }
 
     @Test
@@ -41,12 +40,11 @@ class AnxietyGapResponseTest {
               "code": "200",
               "message": "요청이 성공했습니다.",
               "data": {
-                "period": "30d",
-                "beforeScore": 7.5,
-                "afterScore": 4.25,
-                "gap": -3.25,
-                "sampleCount": 12,
-                "feedback": "걱정을 마주하고 마음이 한결 가벼워졌어요."
+                "hasEnoughData": true,
+                "avgBefore": 8,
+                "avgAfter": 4,
+                "gap": -4,
+                "improved": true
               }
             }
         """.trimIndent()

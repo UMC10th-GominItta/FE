@@ -14,11 +14,11 @@ data class WorryThemeCount(
 
 data class AnxietyGapReport(
     val period: String,
-    val beforeScore: Double,
-    val afterScore: Double,
-    val gap: Double,
-    val sampleCount: Long,
-    val feedback: String,
+    val hasEnoughData: Boolean,
+    val avgBefore: Int,
+    val avgAfter: Int,
+    val gap: Int,
+    val improved: Boolean,
 )
 
 data class WorryTimelineReport(

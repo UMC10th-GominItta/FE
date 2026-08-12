@@ -53,7 +53,7 @@ class ReportViewModelTest {
         assertEquals(5L, state.worryThemeData?.totalCount)
         assertEquals("30d", state.worryThemeData?.period)
         assertEquals(WorryTheme.PRESENTATION, state.worryThemeData?.themes?.last()?.theme)
-        assertEquals(12L, state.anxietyData?.sampleCount)
+        assertTrue(state.anxietyData?.canRender == true)
         assertEquals(-4.0, state.anxietyData?.gap)
         assertEquals(20L, state.timelineData?.totalCount)
         assertEquals(1, state.timelineData?.levels?.get(0)?.get(0))
@@ -123,11 +123,11 @@ class ReportViewModelTest {
             ApiResult.Success(
                 AnxietyGapReport(
                     period = period,
-                    beforeScore = 8.0,
-                    afterScore = 4.0,
-                    gap = -4.0,
-                    sampleCount = 12,
-                    feedback = "걱정을 마주하고 마음이 한결 가벼워졌어요.",
+                    hasEnoughData = true,
+                    avgBefore = 8,
+                    avgAfter = 4,
+                    gap = -4,
+                    improved = true,
                 ),
             )
 
@@ -180,11 +180,11 @@ private fun worryThemeReport(period: String) = WorryThemeReport(
 
 private fun anxietyGapReport(period: String) = AnxietyGapReport(
     period = period,
-    beforeScore = 8.0,
-    afterScore = 4.0,
-    gap = -4.0,
-    sampleCount = 12,
-    feedback = "걱정을 마주하고 마음이 한결 가벼워졌어요.",
+    hasEnoughData = true,
+    avgBefore = 8,
+    avgAfter = 4,
+    gap = -4,
+    improved = true,
 )
 
 private fun worryTimelineReport(period: String) = WorryTimelineReport(

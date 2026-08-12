@@ -14,6 +14,12 @@ class AnxietyReportModelTest {
     }
 
     @Test
+    fun `서버의 데이터 충분 여부를 노출 기준으로 사용한다`() {
+        assertFalse(report(sampleCount = 10, hasEnoughData = false).canRender)
+        assertTrue(report(sampleCount = 0, hasEnoughData = true).canRender)
+    }
+
+    @Test
     fun `세션 후 점수가 낮으면 감소 상태로 분류한다`() {
         val data = report(beforeScore = 8.0, afterScore = 4.0, gap = -4.0)
         assertEquals(AnxietyChangeState.DECREASED, data.state)
@@ -48,6 +54,7 @@ class AnxietyReportModelTest {
         afterScore: Double = 4.0,
         gap: Double = afterScore - beforeScore,
         sampleCount: Long = 2,
+        hasEnoughData: Boolean? = null,
     ) = AnxietyReportData(
         period = "30d",
         beforeScore = beforeScore,
@@ -55,5 +62,6 @@ class AnxietyReportModelTest {
         gap = gap,
         sampleCount = sampleCount,
         feedback = "걱정을 마주하고 마음이 한결 가벼워졌어요.",
+        hasEnoughData = hasEnoughData,
     )
 }
