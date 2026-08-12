@@ -8,4 +8,5 @@ interface UserRepository {
     suspend fun updateNickname(nickname: String)
     suspend fun updateProfileImage(profileImageUrl: String)
     suspend fun getHome(): HomeData
+    suspend fun withdraw()
 }
