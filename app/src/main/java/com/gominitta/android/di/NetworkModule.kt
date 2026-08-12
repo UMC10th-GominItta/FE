@@ -30,7 +30,7 @@ object NetworkModule {
     private const val BASE_URL = "https://www.gominitta.cloud/"
 
     /** 서버 STT/OCR 추론까지 기다려야 해서 OkHttp 기본값(10초)으론 모자란다. */
-    private const val MEDIA_UPLOAD_TIMEOUT_SECONDS = 60
+    private const val MEDIA_UPLOAD_TIMEOUT_SECONDS = 20
 
     private val Request.isMediaUpload: Boolean
         get() = url.encodedPath.endsWith("/records/voice") ||
