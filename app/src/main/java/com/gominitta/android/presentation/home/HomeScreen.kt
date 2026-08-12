@@ -90,7 +90,7 @@ private fun formatNextSession(dateTime: LocalDateTime): String {
 fun HomeScreen(
     onNavigateToWorryInput: () -> Unit = {},
     onNavigateToWorryMemo: (Long) -> Unit = {},
-    onNavigateToSessionDetail: () -> Unit = {},
+    onNavigateToSessionDetail: (Long) -> Unit = {},
     onNavigateToSessionList: () -> Unit = {},
     onNavigateToMyPage: () -> Unit = {},
     modifier: Modifier = Modifier,
@@ -320,7 +320,7 @@ fun HomeScreen(
                     )
                     GominittaButton(
                         text = "세션 시작",
-                        onClick = onNavigateToSessionDetail,
+                        onClick = { onNavigateToSessionDetail(nextSession.sessionId) },
                         modifier = Modifier.weight(1f).height(44.dp),
                         leadingIcon = {
                             Icon(painterResource(R.drawable.ic_play), null, Modifier.size(18.dp))

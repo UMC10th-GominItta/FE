@@ -38,8 +38,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 
-private const val HOME_NEXT_SESSION_PLACEHOLDER_ID = 1L
-
 /**
  * 하단 탭 바를 가진 메인 컨테이너.
  *
@@ -93,10 +91,7 @@ fun MainScreen(
                 HomeScreen(
                     onNavigateToWorryInput = onNavigateToWorryInput,
                     onNavigateToWorryMemo = onNavigateToWorryMemo,
-                    // 홈 화면의 "다음 세션" 카드가 아직 실제 세션 데이터에 연결되지 않아
-                    // (하드코딩된 표시값) sessionId 도 임시로 고정값을 쓴다. 홈 카드가
-                    // 실데이터를 받으면 그 세션 id를 그대로 넘기면 된다.
-                    onNavigateToSessionDetail = { onNavigateToSessionDetail(HOME_NEXT_SESSION_PLACEHOLDER_ID) },
+                    onNavigateToSessionDetail = onNavigateToSessionDetail,
                     onNavigateToSessionList = {
                         tabNavController.navigate(Routes.SESSION_LIST) {
                             popUpTo(tabNavController.graph.findStartDestination().id) { saveState = true }
