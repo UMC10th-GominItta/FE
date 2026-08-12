@@ -17,10 +17,19 @@ class SessionFlowState @Inject constructor() {
     var recordText: String? = null
         private set
 
-    fun start(sessionId: Long) {
+    /** 서버에서 이미 in_progress 인지. 시작 처리를 두 번 하지 않으려고 들고 있는다. */
+    var isSessionStarted: Boolean = false
+        private set
+
+    fun start(sessionId: Long, isSessionStarted: Boolean) {
         this.sessionId = sessionId
+        this.isSessionStarted = isSessionStarted
         recordId = null
         recordText = null
+    }
+
+    fun markSessionStarted() {
+        isSessionStarted = true
     }
 
     fun setRecord(recordId: Long, recordText: String) {
@@ -38,5 +47,6 @@ class SessionFlowState @Inject constructor() {
         sessionId = null
         recordId = null
         recordText = null
+        isSessionStarted = false
     }
 }

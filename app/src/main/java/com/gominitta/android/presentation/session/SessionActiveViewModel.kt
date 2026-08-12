@@ -5,13 +5,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gominitta.android.R
 import com.gominitta.android.data.remote.ApiResult
+import com.gominitta.android.domain.model.session.RecordType
 import com.gominitta.android.domain.model.session.SessionStatus
 import com.gominitta.android.domain.usecase.AddHandwritingRecordUseCase
 import com.gominitta.android.domain.usecase.AddTextRecordUseCase
 import com.gominitta.android.domain.usecase.AddVoiceRecordUseCase
+import com.gominitta.android.domain.usecase.DeleteRecordUseCase
 import com.gominitta.android.domain.usecase.GetSessionDetailUseCase
 import com.gominitta.android.domain.usecase.GetWorryUseCase
-import com.gominitta.android.domain.usecase.StartSessionUseCase
+import com.gominitta.android.domain.usecase.UpdateRecordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.io.File
 import javax.inject.Inject
@@ -43,6 +45,8 @@ data class SessionActiveUiState(
     /** 기록 저장/업로드 실패 — 화면은 그대로 두고 인라인으로만 보여준다. */
     val recordErrorMessage: String? = null,
     val isDone: Boolean = false,
+    /** 뒤로가기로 적어둔 내용까지 저장을 끝낸 상태. 화면을 벗어나야 한다는 신호. */
+    val isExited: Boolean = false,
     /** 음성/필기 탭에서 이미 업로드까지 끝난 기록의 탭. 잠깐 뱃지로 보여준 뒤 자동으로 null로 돌아간다. */
     val capturedTab: RecordTab? = null,
 )
@@ -52,8 +56,9 @@ class SessionActiveViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getSessionDetail: GetSessionDetailUseCase,
     private val getWorry: GetWorryUseCase,
-    private val startSession: StartSessionUseCase,
     private val addTextRecord: AddTextRecordUseCase,
+    private val updateRecord: UpdateRecordUseCase,
+    private val deleteRecord: DeleteRecordUseCase,
     private val addVoiceRecord: AddVoiceRecordUseCase,
     private val addHandwritingRecord: AddHandwritingRecordUseCase,
     private val flowState: SessionFlowState,
@@ -61,13 +66,8 @@ class SessionActiveViewModel @Inject constructor(
 
     private val sessionId: Long = checkNotNull(savedStateHandle["sessionId"])
 
-    /**
-     * 화면 진입 시점엔 세션 상태를 SCHEDULED/INCOMPLETE 그대로 둔다(=IN_PROGRESS로 전이 안 함).
-     * "세션 완료하기"를 눌러야 비로소 [commitAndProceed]에서 한 번 시작 처리한다 — 그래야
-     * 기록만 남기고 완료 안 한 채 나가도 세션이 예정/미완료 목록에 계속 보인다(진행 중 상태는
-     * 목록 조회 API가 지원을 안 해서 그 상태가 되는 순간 목록에서 사라짐).
-     */
-    private var isStarted = false
+    /** 이미 저장해둔 텍스트 기록. 재진입·재저장 때 새로 만들지 않고 이걸 고친다. */
+    private var textRecordId: Long? = null
 
     private val _uiState = MutableStateFlow(SessionActiveUiState())
     val uiState: StateFlow<SessionActiveUiState> = _uiState.asStateFlow()
@@ -81,20 +81,24 @@ class SessionActiveViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, loadErrorMessage = null) }
             try {
                 val session = getSessionDetail(sessionId)
-                isStarted = session.status == SessionStatus.IN_PROGRESS
-                flowState.start(sessionId)
+                flowState.start(sessionId, session.status == SessionStatus.IN_PROGRESS)
                 // worryTitle/worryContent는 세션 생성 시점 스냅샷이라 걱정 수정이 반영 안 된다(백엔드 한계).
                 // 최신 걱정 내용으로 덮어쓰고, 조회 실패 시엔 스냅샷을 그대로 보여준다.
                 val liveWorry = when (val result = getWorry(session.worryId)) {
                     is ApiResult.Success -> result.data
                     is ApiResult.Error, is ApiResult.NetworkError -> null
                 }
+                // 지난번에 적어둔 텍스트를 그대로 이어서 쓰게 되살린다.
+                val savedNote = session.records.lastOrNull { it.recordType == RecordType.TEXT }
+                textRecordId = savedNote?.id
+                savedNote?.let { flowState.setRecord(it.id, it.contentText) }
                 _uiState.update {
                     it.copy(
                         isLoading = false,
                         worryTitle = liveWorry?.title ?: session.worryTitle,
                         worryContent = liveWorry?.content ?: session.worryContent,
                         themeCategory = session.themeCategory.orEmpty(),
+                        noteText = savedNote?.contentText.orEmpty(),
                     )
                 }
             } catch (e: CancellationException) {
@@ -123,32 +127,76 @@ class SessionActiveViewModel @Inject constructor(
     }
 
     /**
-     * "세션 완료하기" 클릭. 음성/필기 탭은 녹음·촬영 시점에 이미 업로드가 끝나 있으므로([capturedTab])
-     * 손댈 게 없지만, 텍스트 탭의 [SessionActiveUiState.noteText]는 현재 선택된 탭이나 [capturedTab]
-     * 여부와 무관하게 내용이 있으면 항상 저장한다 — 그렇지 않으면 음성/사진을 같이 기록했을 때
-     * 텍스트만 조용히 유실된다.
+     * "세션 완료하기" 클릭. 음성/필기는 이미 업로드가 끝나 있고, 텍스트만 여기서 저장한다
+     * (선택된 탭과 무관하게 — 안 그러면 음성/사진과 같이 적은 텍스트가 유실된다).
+     *
+     * 세션 시작(in_progress) 처리는 여기서 하지 않는다. 평가 저장 직전까지 미뤄야
+     * 중간에 나가도 세션이 예정/미완료 목록에 남는다 — [SessionRatingViewModel.save] 참고.
      */
     fun commitAndProceed() {
-        val state = _uiState.value
-        val text = state.noteText.trim()
+        saveNoteThen(leaveOnFailure = false) { it.copy(isSaving = false, isDone = true) }
+    }
+
+    /**
+     * 뒤로가기. 적어둔 내용을 먼저 저장해서 다시 들어왔을 때 이어 쓸 수 있게 한다.
+     *
+     * 저장이 실패하거나 이미 다른 저장이 돌고 있어도 화면은 반드시 벗어난다 — 뒤로가기가
+     * 막히면 앱을 강제 종료하는 것 말곤 빠져나갈 방법이 없다.
+     */
+    fun saveNoteAndExit() {
+        if (_uiState.value.isSaving) {
+            _uiState.update { it.copy(isExited = true) }
+            return
+        }
+        saveNoteThen(leaveOnFailure = true) { it.copy(isSaving = false, isExited = true) }
+    }
+
+    /** [SessionActiveUiState.isExited] 소비 완료 신호. */
+    fun onExitHandled() {
+        _uiState.update { it.copy(isExited = false) }
+    }
+
+    private fun saveNoteThen(
+        leaveOnFailure: Boolean,
+        onSaved: (SessionActiveUiState) -> SessionActiveUiState,
+    ) {
+        // 연타로 저장이 겹치면 같은 내용이 여러 기록으로 생긴다.
+        if (_uiState.value.isSaving) return
+        // 확인 화면에서 기록이 삭제되면 flowState 가 비므로, 캐시해둔 id 도 함께 버린다.
+        if (flowState.recordId == null) textRecordId = null
+        val text = _uiState.value.noteText.trim()
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true, recordErrorMessage = null) }
             try {
-                // 평가 저장(completeSession)은 서버가 IN_PROGRESS 상태만 완료 처리를 허용해서,
-                // 여태 미뤄둔 시작 처리를 여기서 딱 한 번 한다.
-                if (!isStarted) {
-                    startSession(sessionId)
-                    isStarted = true
+                val existingId = textRecordId
+                when {
+                    text.isNotEmpty() -> {
+                        val record = if (existingId == null) {
+                            addTextRecord(sessionId, text)
+                        } else {
+                            updateRecord(sessionId, existingId, text)
+                        }
+                        textRecordId = record.id
+                        flowState.setRecord(record.id, record.contentText)
+                    }
+                    // 적어둔 걸 다 지웠으면 기록도 없앤다(서버가 빈 내용을 거부하기도 한다).
+                    existingId != null -> {
+                        deleteRecord(sessionId, existingId)
+                        textRecordId = null
+                        flowState.clearRecord()
+                    }
                 }
-                if (text.isNotEmpty()) {
-                    val record = addTextRecord(sessionId, text)
-                    flowState.setRecord(record.id, record.contentText)
-                }
-                _uiState.update { it.copy(isSaving = false, isDone = true) }
+                _uiState.update(onSaved)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _uiState.update { it.copy(isSaving = false, recordErrorMessage = e.message) }
+                _uiState.update {
+                    if (leaveOnFailure) {
+                        it.copy(isSaving = false, isExited = true)
+                    } else {
+                        it.copy(isSaving = false, recordErrorMessage = e.message)
+                    }
+                }
             }
         }
     }
