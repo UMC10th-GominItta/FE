@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +31,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gominitta.android.R
 import com.gominitta.android.ui.components.DateRangeOption
@@ -58,6 +62,17 @@ fun ReportRoute(
 ) {
     // ViewModel 상태를 수명주기에 맞춰 구독하고 화면 이벤트를 다시 ViewModel에 전달합니다.
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    // 탭의 NavBackStackEntry와 ViewModel이 유지되더라도 화면에 다시 진입하면 최신 세션의
+    // 인증 토큰과 리포트 데이터를 사용해 재조회합니다.
+    DisposableEffect(lifecycleOwner, viewModel) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) viewModel.refresh()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     ReportScreen(
         uiState = uiState,
@@ -104,7 +119,9 @@ fun ReportScreen(
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // 시스템 바 인셋은 MainScreen의 Scaffold가 적용한다 (마음세션/마음레시피 탭과 동일).
+        // 시스템 바 인셋은 MainScreen의 Scaffold가 적용하므로,
+        // 여기서는 상태바 아래의 콘텐츠 여백만 확보합니다.
+        Spacer(Modifier.height(32.dp))
         Box(
             modifier = Modifier
                 .fillMaxWidth()
