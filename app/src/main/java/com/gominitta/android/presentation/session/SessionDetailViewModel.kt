@@ -19,6 +19,8 @@ data class SessionDetailUiState(
     val isSaving: Boolean = false,
     val errorMessage: String? = null,
     val isDone: Boolean = false,
+    /** 뒤로가기로 고친 내용까지 저장을 끝낸 상태. 화면을 벗어나야 한다는 신호. */
+    val isExited: Boolean = false,
 )
 
 @HiltViewModel
@@ -49,11 +51,37 @@ class SessionDetailViewModel @Inject constructor(
 
     /** "저장하기" 클릭. 기록이 없으면 생성, 내용을 다 지웠으면 삭제(서버가 빈 내용을 거부함), 그 외엔 수정. */
     fun save() {
+        persistThen(leaveOnFailure = false) { it.copy(isSaving = false, isDone = true) }
+    }
+
+    /**
+     * 뒤로가기. 고친 내용을 먼저 저장해서 이전 화면([SessionActiveScreen])에도 그대로 반영되게 한다.
+     *
+     * 저장이 실패하거나 이미 다른 저장이 돌고 있어도 화면은 반드시 벗어난다 — 뒤로가기가
+     * 막히면 앱을 강제 종료하는 것 말곤 빠져나갈 방법이 없다.
+     */
+    fun saveAndExit() {
+        if (_uiState.value.isSaving) {
+            _uiState.update { it.copy(isExited = true) }
+            return
+        }
+        persistThen(leaveOnFailure = true) { it.copy(isSaving = false, isExited = true) }
+    }
+
+    /** [SessionDetailUiState.isExited] 소비 완료 신호. */
+    fun onExitHandled() {
+        _uiState.update { it.copy(isExited = false) }
+    }
+
+    private fun persistThen(
+        leaveOnFailure: Boolean,
+        onSaved: (SessionDetailUiState) -> SessionDetailUiState,
+    ) {
         val sessionId = flowState.sessionId
         val recordId = flowState.recordId
         val text = _uiState.value.recordText
         if (sessionId == null || (recordId == null && text.isBlank())) {
-            _uiState.update { it.copy(isDone = true) }
+            _uiState.update(onSaved)
             return
         }
         viewModelScope.launch {
@@ -74,11 +102,17 @@ class SessionDetailViewModel @Inject constructor(
                         flowState.setRecord(record.id, record.contentText)
                     }
                 }
-                _uiState.update { it.copy(isSaving = false, isDone = true) }
+                _uiState.update(onSaved)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _uiState.update { it.copy(isSaving = false, errorMessage = e.message) }
+                _uiState.update {
+                    if (leaveOnFailure) {
+                        it.copy(isSaving = false, isExited = true)
+                    } else {
+                        it.copy(isSaving = false, errorMessage = e.message)
+                    }
+                }
             }
         }
     }
