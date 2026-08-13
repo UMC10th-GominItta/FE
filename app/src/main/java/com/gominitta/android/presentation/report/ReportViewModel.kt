@@ -197,13 +197,13 @@ private inline fun <T> ApiResult<T>.handle(
 // 서버의 고민 테마 모델을 화면 표시용 모델로 변환합니다.
 private fun WorryThemeReport.toUiModel(): WorryThemeReportData = WorryThemeReportData(
     period = period,
-    topCategory = topTheme.toWorryTheme(),
+    topCategory = topTheme?.toWorryTheme(),
     themes = themes.mapNotNull { item ->
         item.theme.toWorryTheme()?.let { theme ->
             WorryThemeItem(theme = theme, count = item.count)
         }
     },
-    feedback = "최근에는 ${topTheme}와 관련된 걱정을 가장 많이 하셨어요.",
+    feedback = topTheme?.let { "최근에는 ${it}와 관련된 걱정을 가장 많이 하셨어요." }.orEmpty(),
     hasEnoughData = hasEnoughData,
     reportedTotalCount = totalCount,
 )
@@ -215,10 +215,10 @@ private fun AnxietyGapReport.toUiModel(): AnxietyReportData = AnxietyReportData(
     afterScore = avgAfter.toDouble(),
     gap = gap.toDouble(),
     sampleCount = 0,
-    feedback = when {
-        gap < 0 -> "걱정을 마주하고 마음이 한결 가벼워졌어요."
-        gap > 0 -> "아직은 마음을 복잡하게 하는 생각들이 남아있네요."
-        else -> "불안 점수가 비슷하게 유지되었어요."
+    feedback = if (improved) {
+        "걱정을 마주하고 마음이 한결 가벼워졌어요."
+    } else {
+        "아직은 마음을 복잡하게 하는 생각들이 남아있네요."
     },
     hasEnoughData = hasEnoughData,
 )

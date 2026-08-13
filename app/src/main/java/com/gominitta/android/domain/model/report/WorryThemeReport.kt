@@ -3,7 +3,7 @@ package com.gominitta.android.domain.model.report
 data class WorryThemeReport(
     val period: String,
     val hasEnoughData: Boolean,
-    val topTheme: String,
+    val topTheme: String?,
     val totalCount: Long,
     val themes: List<WorryThemeCount>,
     val feedback: String = "",

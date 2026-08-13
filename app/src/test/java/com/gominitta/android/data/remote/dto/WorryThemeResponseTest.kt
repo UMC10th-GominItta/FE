@@ -34,6 +34,17 @@ class WorryThemeResponseTest {
         assertNull(response.data)
     }
 
+    @Test
+    fun `데이터 부족 응답의 null 최상위 테마를 역직렬화한다`() {
+        val response = json.decodeFromString<ApiResponse<WorryThemeResponse>>(NOT_ENOUGH_DATA_RESPONSE)
+
+        assertTrue(response.success)
+        assertFalse(response.data?.hasEnoughData ?: true)
+        assertNull(response.data?.topTheme)
+        assertEquals(0L, response.data?.totalCount)
+        assertTrue(response.data?.themes?.isEmpty() == true)
+    }
+
     private companion object {
         val SUCCESS_RESPONSE = """
             {
@@ -64,6 +75,20 @@ class WorryThemeResponseTest {
               "code": "REPORT_400",
               "message": "지원하지 않는 조회 기간입니다.",
               "data": null
+            }
+        """.trimIndent()
+
+        val NOT_ENOUGH_DATA_RESPONSE = """
+            {
+              "success": true,
+              "code": "200",
+              "message": "요청이 성공했습니다.",
+              "data": {
+                "hasEnoughData": false,
+                "topTheme": null,
+                "totalCount": 0,
+                "themes": []
+              }
             }
         """.trimIndent()
     }

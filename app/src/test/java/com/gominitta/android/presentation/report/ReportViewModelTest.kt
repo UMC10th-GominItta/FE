@@ -77,6 +77,17 @@ class ReportViewModelTest {
     }
 
     @Test
+    fun `불안 온도 피드백은 서버의 improved 값으로 분기한다`() = runTest(dispatcher) {
+        val viewModel = ReportViewModel(ImprovedFlagReportRepository())
+        advanceUntilIdle()
+
+        assertEquals(
+            "아직은 마음을 복잡하게 하는 생각들이 남아있네요.",
+            viewModel.uiState.value.anxietyData?.feedback,
+        )
+    }
+
+    @Test
     fun `refresh reloads every report using its currently selected range`() = runTest(dispatcher) {
         val repository = CountingReportRepository()
         val viewModel = ReportViewModel(repository)
@@ -105,7 +116,7 @@ class ReportViewModelTest {
         assertFalse(viewModel.uiState.value.isWorryThemeLoading)
     }
 
-    private class FakeReportRepository : ReportRepository {
+    private open class FakeReportRepository : ReportRepository {
         override suspend fun getWorryThemes(period: String): ApiResult<WorryThemeReport> =
             ApiResult.Success(
                 WorryThemeReport(
@@ -148,6 +159,13 @@ class ReportViewModelTest {
 
         override suspend fun getWorryTimeline(period: String): ApiResult<WorryTimelineReport> =
             ApiResult.Success(worryTimelineReport(period))
+    }
+
+    private class ImprovedFlagReportRepository : FakeReportRepository() {
+        open override suspend fun getAnxietyGap(period: String): ApiResult<AnxietyGapReport> =
+            ApiResult.Success(
+                anxietyGapReport(period).copy(gap = -4, improved = false),
+            )
     }
 
     private class CountingReportRepository : ReportRepository {

@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class WorryThemeResponse(
     val hasEnoughData: Boolean,
-    val topTheme: String,
+    val topTheme: String?,
     val totalCount: Long,
     val themes: List<WorryThemeCountResponse> = emptyList(),
 )
