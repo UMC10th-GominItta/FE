@@ -8,6 +8,7 @@ import com.gominitta.android.domain.model.report.WorryThemeReport
 import com.gominitta.android.domain.model.report.ReportDayOfWeek
 import com.gominitta.android.domain.model.report.ReportTimeSlot
 import com.gominitta.android.domain.model.report.WorryTimelineReport
+import com.gominitta.android.domain.model.report.WorryTimelineCell
 import com.gominitta.android.domain.repository.ReportRepository
 import com.gominitta.android.ui.components.DateRangeOption
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -249,12 +250,56 @@ private fun WorryTimelineReport.toUiModel(): WorryTimelineReportData {
                 cellCounts[day to timeSlot].orEmptyCount().coerceIn(0L, 4L).toInt()
             }
         },
-        feedback = "걱정이 자주 찾아오는 시간대를 확인해 보세요.",
+        feedback = topCells.toTimelineFeedback(),
         hasEnoughData = hasEnoughData,
     )
 }
 
+private fun List<WorryTimelineCell>.toTimelineFeedback(): String {
+    val descriptions = filter { it.count > 0 }
+        .sortedByDescending { it.count }
+        .take(MAX_TIMELINE_FEEDBACK_CELLS)
+        .map { cell ->
+            "${cell.dayOfWeek.koreanLabel} ${cell.timeSlot.koreanLabel} 시간대(${cell.timeSlot.hourRange})"
+        }
+
+    return when (descriptions.size) {
+        0 -> "걱정이 자주 찾아오는 시간대를 확인해 보세요."
+        1 -> "${descriptions.first()}에\n걱정 기록이 가장 많았어요."
+        else -> "${descriptions.joinToString("와\n")}에\n걱정 기록이 많았어요."
+    }
+}
+
+private val ReportDayOfWeek.koreanLabel: String
+    get() = when (this) {
+        ReportDayOfWeek.MON -> "월요일"
+        ReportDayOfWeek.TUE -> "화요일"
+        ReportDayOfWeek.WED -> "수요일"
+        ReportDayOfWeek.THU -> "목요일"
+        ReportDayOfWeek.FRI -> "금요일"
+        ReportDayOfWeek.SAT -> "토요일"
+        ReportDayOfWeek.SUN -> "일요일"
+    }
+
+private val ReportTimeSlot.koreanLabel: String
+    get() = when (this) {
+        ReportTimeSlot.DAWN -> "밤"
+        ReportTimeSlot.MORNING -> "아침"
+        ReportTimeSlot.AFTERNOON -> "오후"
+        ReportTimeSlot.EVENING -> "저녁"
+    }
+
+private val ReportTimeSlot.hourRange: String
+    get() = when (this) {
+        ReportTimeSlot.DAWN -> "00-06시"
+        ReportTimeSlot.MORNING -> "06-12시"
+        ReportTimeSlot.AFTERNOON -> "12-18시"
+        ReportTimeSlot.EVENING -> "18-24시"
+    }
+
 private fun Long?.orEmptyCount(): Long = this ?: 0L
+
+private const val MAX_TIMELINE_FEEDBACK_CELLS = 2
 
 // 서버 카테고리 문자열을 화면에서 사용하는 8개 테마로 변환합니다.
 private fun String.toWorryTheme(): WorryTheme? = WorryTheme.entries.firstOrNull { theme ->

@@ -59,6 +59,10 @@ class ReportViewModelTest {
         assertEquals(1, state.timelineData?.levels?.get(0)?.get(0))
         assertEquals(4, state.timelineData?.levels?.get(2)?.get(3))
         assertEquals(4, state.timelineData?.levels?.get(3)?.get(6))
+        assertEquals(
+            "일요일 밤 시간대(00-06시)와\n목요일 저녁 시간대(18-24시)에\n걱정 기록이 많았어요.",
+            state.timelineData?.feedback,
+        )
     }
 
     @Test
