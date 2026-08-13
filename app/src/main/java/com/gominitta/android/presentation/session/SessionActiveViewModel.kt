@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.gominitta.android.R
 import com.gominitta.android.data.remote.ApiResult
 import com.gominitta.android.domain.model.session.RecordType
+import com.gominitta.android.domain.model.session.SessionRecord
 import com.gominitta.android.domain.model.session.SessionStatus
 import com.gominitta.android.domain.usecase.AddHandwritingRecordUseCase
 import com.gominitta.android.domain.usecase.AddTextRecordUseCase
@@ -69,6 +70,12 @@ class SessionActiveViewModel @Inject constructor(
     /** 이미 저장해둔 텍스트 기록. 재진입·재저장 때 새로 만들지 않고 이걸 고친다. */
     private var textRecordId: Long? = null
 
+    /** 마지막으로 올린 필기 기록. 다시 찍으면 이걸 지워서 사진 기록을 하나만 남긴다. */
+    private var handwritingRecordId: Long? = null
+
+    /** 마지막으로 올린 음성 기록. 다시 녹음하면 이걸 지워서 녹음 기록을 하나만 남긴다. */
+    private var voiceRecordId: Long? = null
+
     private val _uiState = MutableStateFlow(SessionActiveUiState())
     val uiState: StateFlow<SessionActiveUiState> = _uiState.asStateFlow()
 
@@ -91,6 +98,11 @@ class SessionActiveViewModel @Inject constructor(
                 // 지난번에 적어둔 텍스트를 그대로 이어서 쓰게 되살린다.
                 val savedNote = session.records.lastOrNull { it.recordType == RecordType.TEXT }
                 textRecordId = savedNote?.id
+                // 재진입 후 다시 찍거나 녹음해도 이전 기록을 교체할 수 있게 id를 되살린다.
+                handwritingRecordId = session.records
+                    .lastOrNull { it.recordType == RecordType.HANDWRITING }?.id
+                voiceRecordId = session.records
+                    .lastOrNull { it.recordType == RecordType.VOICE }?.id
                 savedNote?.let { flowState.setRecord(it.id, it.contentText) }
                 _uiState.update {
                     it.copy(
@@ -221,14 +233,45 @@ class SessionActiveViewModel @Inject constructor(
         }
     }
 
-    /** 음성 탭에서 녹음이 끝나 파일이 생기면 곧바로 업로드해 STT 결과를 기록으로 저장한다. */
-    fun uploadVoiceRecord(file: File) {
+    /** 녹음이 끝나 파일이 생기면 곧바로 업로드해 STT 결과를 기록으로 저장한다. 다시 녹음하면 이전 것을 교체한다. */
+    fun uploadVoiceRecord(file: File) = uploadMediaRecord(
+        file = file,
+        tab = RecordTab.Voice,
+        previousRecordId = voiceRecordId,
+        onSaved = { voiceRecordId = it },
+        upload = { id, uploaded -> addVoiceRecord(id, uploaded) },
+    )
+
+    /** 촬영이 끝나 파일이 생기면 곧바로 업로드해 OCR 결과를 기록으로 저장한다. 다시 찍으면 이전 것을 교체한다. */
+    fun uploadHandwritingRecord(file: File) = uploadMediaRecord(
+        file = file,
+        tab = RecordTab.Handwriting,
+        previousRecordId = handwritingRecordId,
+        onSaved = { handwritingRecordId = it },
+        upload = { id, uploaded -> addHandwritingRecord(id, uploaded) },
+    )
+
+    /**
+     * 음성·필기 공통 업로드. 탭마다 기록을 하나만 남기려고 새 기록을 올린 뒤 이전 기록을 지운다 —
+     * 먼저 지우면 업로드가 실패했을 때 이전 기록까지 잃으므로 순서를 바꾸면 안 된다.
+     */
+    private fun uploadMediaRecord(
+        file: File,
+        tab: RecordTab,
+        previousRecordId: Long?,
+        onSaved: (Long) -> Unit,
+        upload: suspend (Long, File) -> SessionRecord,
+    ) {
+        // 업로드가 겹치면 같은 탭에 기록이 여러 개 생긴다.
+        if (_uiState.value.isSaving) return
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true, recordErrorMessage = null) }
             try {
-                val record = addVoiceRecord(sessionId, file)
+                val record = upload(sessionId, file)
+                onSaved(record.id)
                 flowState.setRecord(record.id, record.contentText)
-                _uiState.update { it.copy(isSaving = false, capturedTab = RecordTab.Voice) }
+                if (previousRecordId != null) deletePreviousRecord(previousRecordId)
+                _uiState.update { it.copy(isSaving = false, capturedTab = tab) }
                 clearCapturedTabAfterDelay()
             } catch (e: CancellationException) {
                 throw e
@@ -240,22 +283,13 @@ class SessionActiveViewModel @Inject constructor(
         }
     }
 
-    /** 필기 탭에서 촬영이 끝나 파일이 생기면 곧바로 업로드해 OCR 결과를 기록으로 저장한다. */
-    fun uploadHandwritingRecord(file: File) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true, recordErrorMessage = null) }
-            try {
-                val record = addHandwritingRecord(sessionId, file)
-                flowState.setRecord(record.id, record.contentText)
-                _uiState.update { it.copy(isSaving = false, capturedTab = RecordTab.Handwriting) }
-                clearCapturedTabAfterDelay()
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                _uiState.update { it.copy(isSaving = false, recordErrorMessage = e.message) }
-            } finally {
-                file.delete()
-            }
+    /** 새 기록은 이미 저장됐으므로, 이전 기록 삭제가 실패해도 촬영·녹음 흐름은 막지 않는다. */
+    private suspend fun deletePreviousRecord(recordId: Long) {
+        try {
+            deleteRecord(sessionId, recordId)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
         }
     }
 
