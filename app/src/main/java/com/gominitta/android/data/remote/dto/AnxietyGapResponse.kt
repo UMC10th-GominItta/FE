@@ -4,10 +4,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AnxietyGapResponse(
-    val period: String,
-    val beforeScore: Long,
-    val afterScore: Long,
-    val gap: Long,
-    val sampleCount: Long,
-    val feedback: String,
+    val hasEnoughData: Boolean,
+    val avgBefore: Int,
+    val avgAfter: Int,
+    val gap: Int,
+    val improved: Boolean,
 )

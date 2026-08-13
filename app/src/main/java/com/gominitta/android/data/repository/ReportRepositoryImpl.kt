@@ -4,8 +4,6 @@ import com.gominitta.android.data.remote.ApiResult
 import com.gominitta.android.data.remote.api.ReportApi
 import com.gominitta.android.data.remote.dto.WorryThemeResponse
 import com.gominitta.android.data.remote.dto.WorryTimelineResponse
-import com.gominitta.android.data.remote.dto.ReportDayOfWeekResponse
-import com.gominitta.android.data.remote.dto.ReportTimeSlotResponse
 import com.gominitta.android.data.remote.dto.AnxietyGapResponse
 import com.gominitta.android.data.remote.safeApiCall
 import com.gominitta.android.domain.model.report.WorryThemeCount
@@ -26,73 +24,67 @@ class ReportRepositoryImpl @Inject constructor(
 ) : ReportRepository {
     override suspend fun getWorryThemes(period: String): ApiResult<WorryThemeReport> =
         when (val result = safeApiCall { reportApi.getWorryThemes(period) }) {
-            is ApiResult.Success -> ApiResult.Success(result.data.toDomain())
+            is ApiResult.Success -> ApiResult.Success(result.data.toDomain(period))
             is ApiResult.Error -> result
             is ApiResult.NetworkError -> result
         }
 
     override suspend fun getAnxietyGap(period: String): ApiResult<AnxietyGapReport> =
         when (val result = safeApiCall { reportApi.getAnxietyGap(period) }) {
-            is ApiResult.Success -> ApiResult.Success(result.data.toDomain())
+            is ApiResult.Success -> ApiResult.Success(result.data.toDomain(period))
             is ApiResult.Error -> result
             is ApiResult.NetworkError -> result
         }
 
     override suspend fun getWorryTimeline(period: String): ApiResult<WorryTimelineReport> =
         when (val result = safeApiCall { reportApi.getWorryTimeline(period) }) {
-            is ApiResult.Success -> ApiResult.Success(result.data.toDomain())
+            is ApiResult.Success -> ApiResult.Success(result.data.toDomain(period))
             is ApiResult.Error -> result
             is ApiResult.NetworkError -> result
         }
 }
 
-private fun WorryThemeResponse.toDomain(): WorryThemeReport = WorryThemeReport(
+private fun WorryThemeResponse.toDomain(period: String): WorryThemeReport = WorryThemeReport(
     period = period,
-    topCategory = topCategory,
-    themes = themes.map { WorryThemeCount(category = it.category, count = it.count) },
-    feedback = feedback,
+    hasEnoughData = hasEnoughData,
+    topTheme = topTheme,
+    totalCount = totalCount,
+    themes = themes.map { WorryThemeCount(theme = it.theme, count = it.count) },
 )
 
-private fun AnxietyGapResponse.toDomain(): AnxietyGapReport = AnxietyGapReport(
+private fun AnxietyGapResponse.toDomain(period: String): AnxietyGapReport = AnxietyGapReport(
     period = period,
-    beforeScore = beforeScore,
-    afterScore = afterScore,
+    hasEnoughData = hasEnoughData,
+    avgBefore = avgBefore,
+    avgAfter = avgAfter,
     gap = gap,
-    sampleCount = sampleCount,
-    feedback = feedback,
+    improved = improved,
 )
 
-private fun WorryTimelineResponse.toDomain(): WorryTimelineReport = WorryTimelineReport(
+private fun WorryTimelineResponse.toDomain(period: String): WorryTimelineReport = WorryTimelineReport(
     period = period,
-    cells = cells.map { cell ->
-        WorryTimelineCell(
-            dayOfWeek = cell.dayOfWeek.toDomain(),
-            timeSlot = cell.timeSlot.toDomain(),
-            count = cell.count,
-        )
-    },
-    peaks = peaks.map { peak ->
-        WorryTimelinePeak(
-            dayOfWeek = peak.dayOfWeek.toDomain(),
-            timeSlot = peak.timeSlot.toDomain(),
-        )
-    },
-    feedback = feedback,
+    hasEnoughData = hasEnoughData,
+    cells = cells.mapNotNull { it.toDomain() },
+    topCells = topCells.mapNotNull { it.toDomain() },
 )
 
-private fun ReportDayOfWeekResponse.toDomain(): ReportDayOfWeek = when (this) {
-    ReportDayOfWeekResponse.MON -> ReportDayOfWeek.MON
-    ReportDayOfWeekResponse.TUE -> ReportDayOfWeek.TUE
-    ReportDayOfWeekResponse.WED -> ReportDayOfWeek.WED
-    ReportDayOfWeekResponse.THU -> ReportDayOfWeek.THU
-    ReportDayOfWeekResponse.FRI -> ReportDayOfWeek.FRI
-    ReportDayOfWeekResponse.SAT -> ReportDayOfWeek.SAT
-    ReportDayOfWeekResponse.SUN -> ReportDayOfWeek.SUN
-}
-
-private fun ReportTimeSlotResponse.toDomain(): ReportTimeSlot = when (this) {
-    ReportTimeSlotResponse.DAWN -> ReportTimeSlot.DAWN
-    ReportTimeSlotResponse.MORNING -> ReportTimeSlot.MORNING
-    ReportTimeSlotResponse.AFTERNOON -> ReportTimeSlot.AFTERNOON
-    ReportTimeSlotResponse.EVENING -> ReportTimeSlot.EVENING
+private fun com.gominitta.android.data.remote.dto.WorryTimelineCellResponse.toDomain(): WorryTimelineCell? {
+    val day = when (dayOfWeek) {
+        "MONDAY" -> ReportDayOfWeek.MON
+        "TUESDAY" -> ReportDayOfWeek.TUE
+        "WEDNESDAY" -> ReportDayOfWeek.WED
+        "THURSDAY" -> ReportDayOfWeek.THU
+        "FRIDAY" -> ReportDayOfWeek.FRI
+        "SATURDAY" -> ReportDayOfWeek.SAT
+        "SUNDAY" -> ReportDayOfWeek.SUN
+        else -> null
+    }
+    val slot = when (timeSlot) {
+        "밤" -> ReportTimeSlot.DAWN
+        "아침" -> ReportTimeSlot.MORNING
+        "오후" -> ReportTimeSlot.AFTERNOON
+        "저녁" -> ReportTimeSlot.EVENING
+        else -> null
+    }
+    return if (day != null && slot != null) WorryTimelineCell(day, slot, count) else null
 }

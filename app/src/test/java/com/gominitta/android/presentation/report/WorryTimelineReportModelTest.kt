@@ -13,6 +13,12 @@ class WorryTimelineReportModelTest {
     }
 
     @Test
+    fun `서버의 데이터 충분 여부를 노출 기준으로 사용한다`() {
+        assertFalse(WorryTimelineReportData(10, emptyList(), "", false).canRender)
+        assertTrue(WorryTimelineReportData(0, emptyList(), "", true).canRender)
+    }
+
+    @Test
     fun `서버 피드백을 그대로 보관한다`() {
         val data = WorryTimelineReportData(
             totalCount = 5,

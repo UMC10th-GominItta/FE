@@ -2,30 +2,33 @@ package com.gominitta.android.domain.model.report
 
 data class WorryThemeReport(
     val period: String,
-    val topCategory: String?,
+    val hasEnoughData: Boolean,
+    val topTheme: String?,
+    val totalCount: Long,
     val themes: List<WorryThemeCount>,
-    val feedback: String,
+    val feedback: String = "",
 )
 
 data class WorryThemeCount(
-    val category: String,
+    val theme: String,
     val count: Long,
 )
 
 data class AnxietyGapReport(
     val period: String,
-    val beforeScore: Long,
-    val afterScore: Long,
-    val gap: Long,
-    val sampleCount: Long,
-    val feedback: String,
+    val hasEnoughData: Boolean,
+    val avgBefore: Int,
+    val avgAfter: Int,
+    val gap: Int,
+    val improved: Boolean,
 )
 
 data class WorryTimelineReport(
     val period: String,
+    val hasEnoughData: Boolean,
     val cells: List<WorryTimelineCell>,
-    val peaks: List<WorryTimelinePeak>,
-    val feedback: String,
+    val topCells: List<WorryTimelineCell>,
+    val feedback: String = "",
 )
 
 data class WorryTimelineCell(

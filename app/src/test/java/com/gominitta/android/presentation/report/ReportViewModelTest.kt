@@ -52,13 +52,17 @@ class ReportViewModelTest {
         assertEquals(DateRangeOption.LAST_30_DAYS, state.timelineRange)
         assertEquals(5L, state.worryThemeData?.totalCount)
         assertEquals("30d", state.worryThemeData?.period)
-        assertEquals(WorryTheme.PRESENTATION, state.worryThemeData?.themes?.last()?.theme)
-        assertEquals(12L, state.anxietyData?.sampleCount)
+        assertEquals(WorryTheme.OTHER, state.worryThemeData?.themes?.last()?.theme)
+        assertTrue(state.anxietyData?.canRender == true)
         assertEquals(-4.0, state.anxietyData?.gap)
         assertEquals(20L, state.timelineData?.totalCount)
         assertEquals(1, state.timelineData?.levels?.get(0)?.get(0))
         assertEquals(4, state.timelineData?.levels?.get(2)?.get(3))
         assertEquals(4, state.timelineData?.levels?.get(3)?.get(6))
+        assertEquals(
+            "일요일 밤 시간대(00-06시)와\n목요일 저녁 시간대(18-24시)에\n걱정 기록이 많았어요.",
+            state.timelineData?.feedback,
+        )
     }
 
     @Test
@@ -73,7 +77,18 @@ class ReportViewModelTest {
         assertEquals(DateRangeOption.LAST_30_DAYS, state.worryThemeRange)
         assertEquals(DateRangeOption.LAST_2_WEEKS, state.anxietyRange)
         assertEquals(DateRangeOption.LAST_30_DAYS, state.timelineRange)
-        assertEquals("2w", state.anxietyData?.period)
+        assertEquals("14d", state.anxietyData?.period)
+    }
+
+    @Test
+    fun `불안 온도 피드백은 서버의 improved 값으로 분기한다`() = runTest(dispatcher) {
+        val viewModel = ReportViewModel(ImprovedFlagReportRepository())
+        advanceUntilIdle()
+
+        assertEquals(
+            "아직은 마음을 복잡하게 하는 생각들이 남아있네요.",
+            viewModel.uiState.value.anxietyData?.feedback,
+        )
     }
 
     @Test
@@ -88,7 +103,7 @@ class ReportViewModelTest {
         advanceUntilIdle()
 
         assertEquals(listOf("30d", "30d"), repository.worryThemePeriods)
-        assertEquals(listOf("30d", "2w", "2w"), repository.anxietyPeriods)
+        assertEquals(listOf("30d", "14d", "14d"), repository.anxietyPeriods)
         assertEquals(listOf("30d", "30d"), repository.timelinePeriods)
     }
 
@@ -105,15 +120,17 @@ class ReportViewModelTest {
         assertFalse(viewModel.uiState.value.isWorryThemeLoading)
     }
 
-    private class FakeReportRepository : ReportRepository {
+    private open class FakeReportRepository : ReportRepository {
         override suspend fun getWorryThemes(period: String): ApiResult<WorryThemeReport> =
             ApiResult.Success(
                 WorryThemeReport(
                     period = period,
-                    topCategory = "진로",
+                    hasEnoughData = true,
+                    topTheme = "진로",
+                    totalCount = 5,
                     themes = listOf(
-                        WorryThemeCount(category = "진로", count = 1),
-                        WorryThemeCount(category = "발표", count = 4),
+                        WorryThemeCount(theme = "진로", count = 1),
+                        WorryThemeCount(theme = "기타", count = 4),
                     ),
                     feedback = "최근에는 진로와 관련된 걱정이 가장 많았어요.",
                 ),
@@ -123,11 +140,11 @@ class ReportViewModelTest {
             ApiResult.Success(
                 AnxietyGapReport(
                     period = period,
-                    beforeScore = 8,
-                    afterScore = 4,
+                    hasEnoughData = true,
+                    avgBefore = 8,
+                    avgAfter = 4,
                     gap = -4,
-                    sampleCount = 12,
-                    feedback = "걱정을 마주하고 마음이 한결 가벼워졌어요.",
+                    improved = true,
                 ),
             )
 
@@ -146,6 +163,13 @@ class ReportViewModelTest {
 
         override suspend fun getWorryTimeline(period: String): ApiResult<WorryTimelineReport> =
             ApiResult.Success(worryTimelineReport(period))
+    }
+
+    private class ImprovedFlagReportRepository : FakeReportRepository() {
+        open override suspend fun getAnxietyGap(period: String): ApiResult<AnxietyGapReport> =
+            ApiResult.Success(
+                anxietyGapReport(period).copy(gap = -4, improved = false),
+            )
     }
 
     private class CountingReportRepository : ReportRepository {
@@ -173,30 +197,33 @@ class ReportViewModelTest {
 
 private fun worryThemeReport(period: String) = WorryThemeReport(
     period = period,
-    topCategory = "진로",
-    themes = listOf(WorryThemeCount(category = "진로", count = 1)),
+    hasEnoughData = false,
+    topTheme = "진로",
+    totalCount = 1,
+    themes = listOf(WorryThemeCount(theme = "진로", count = 1)),
     feedback = "최근에는 진로와 관련된 걱정이 가장 많았어요.",
 )
 
 private fun anxietyGapReport(period: String) = AnxietyGapReport(
     period = period,
-    beforeScore = 8,
-    afterScore = 4,
+    hasEnoughData = true,
+    avgBefore = 8,
+    avgAfter = 4,
     gap = -4,
-    sampleCount = 12,
-    feedback = "걱정을 마주하고 마음이 한결 가벼워졌어요.",
+    improved = true,
 )
 
 private fun worryTimelineReport(period: String) = WorryTimelineReport(
     period = period,
+    hasEnoughData = true,
     cells = listOf(
         WorryTimelineCell(ReportDayOfWeek.MON, ReportTimeSlot.MORNING, 1),
         WorryTimelineCell(ReportDayOfWeek.THU, ReportTimeSlot.EVENING, 6),
         WorryTimelineCell(ReportDayOfWeek.SUN, ReportTimeSlot.DAWN, 13),
     ),
-    peaks = listOf(
-        WorryTimelinePeak(ReportDayOfWeek.THU, ReportTimeSlot.EVENING),
-        WorryTimelinePeak(ReportDayOfWeek.SUN, ReportTimeSlot.DAWN),
+    topCells = listOf(
+        WorryTimelineCell(ReportDayOfWeek.THU, ReportTimeSlot.EVENING, 6),
+        WorryTimelineCell(ReportDayOfWeek.SUN, ReportTimeSlot.DAWN, 13),
     ),
     feedback = "목요일 저녁 시간대와 일요일 밤 시간대에 걱정 기록이 많았어요.",
 )

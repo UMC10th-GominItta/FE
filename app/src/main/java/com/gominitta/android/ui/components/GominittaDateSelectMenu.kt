@@ -43,7 +43,7 @@ enum class DateRangeOption(
     internal val textWidth: Dp,
 ) {
     LAST_30_DAYS(R.string.report_period_30_days, "30d", 56.dp),
-    LAST_2_WEEKS(R.string.report_period_14_days, "2w", 47.dp),
+    LAST_2_WEEKS(R.string.report_period_14_days, "14d", 47.dp),
     LAST_60_DAYS(R.string.report_period_60_days, "60d", 56.dp),
 }
 

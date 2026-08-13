@@ -15,11 +15,13 @@ data class WorryThemeReportData(
     val topCategory: WorryTheme?,
     val themes: List<WorryThemeItem>,
     val feedback: String,
+    val hasEnoughData: Boolean? = null,
+    val reportedTotalCount: Long? = null,
 ) {
-    val totalCount: Long get() = themes.sumOf { it.count }
+    val totalCount: Long get() = reportedTotalCount ?: themes.sumOf { it.count }
 
     /** 걱정 테마 리포트를 표시하기에 전체 걱정 기록 수가 충분한지 여부 */
-    val canRender: Boolean get() = totalCount >= MINIMUM_WORRY_THEME_COUNT
+    val canRender: Boolean get() = hasEnoughData ?: (totalCount >= MINIMUM_WORRY_THEME_COUNT)
 }
 
 /**
@@ -46,7 +48,7 @@ enum class WorryTheme(val label: String) {
     FAMILY("가족"),
     RELATIONSHIP("관계"),
     HEALTH("건강"),
-    PRESENTATION("발표"),
+    OTHER("기타"),
 }
 
 /** 테마 비율을 기준으로 정한 버블의 시각적 중요도와 크기 단계입니다. */
