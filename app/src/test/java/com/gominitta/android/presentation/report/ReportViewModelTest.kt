@@ -42,6 +42,12 @@ class ReportViewModelTest {
     }
 
     @Test
+    fun `와 과 조사는 마지막 글자의 받침 여부에 따라 선택된다`() {
+        assertEquals("과", "학업".withWaGwaParticle())
+        assertEquals("와", "관계".withWaGwaParticle())
+    }
+
+    @Test
     fun `initial state loads 30 day worry theme report`() = runTest(dispatcher) {
         val viewModel = ReportViewModel(FakeReportRepository())
         advanceUntilIdle()

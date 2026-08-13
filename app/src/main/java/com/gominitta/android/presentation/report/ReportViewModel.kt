@@ -204,10 +204,17 @@ private fun WorryThemeReport.toUiModel(): WorryThemeReportData = WorryThemeRepor
             WorryThemeItem(theme = theme, count = item.count)
         }
     },
-    feedback = topTheme?.let { "최근에는 ${it}와 관련된 걱정을 가장 많이 하셨어요." }.orEmpty(),
+    feedback = topTheme?.let { "최근에는 $it${it.withWaGwaParticle()} 관련된 걱정을 가장 많이 하셨어요." }.orEmpty(),
     hasEnoughData = hasEnoughData,
     reportedTotalCount = totalCount,
 )
+
+internal fun String.withWaGwaParticle(): String {
+    val lastCharacter = lastOrNull() ?: return "와"
+    val hangulOffset = lastCharacter.code - '가'.code
+    val hasFinalConsonant = hangulOffset in 0..('힣'.code - '가'.code) && hangulOffset % 28 != 0
+    return if (hasFinalConsonant) "과" else "와"
+}
 
 // 서버의 불안 온도차 모델을 화면 표시용 모델로 변환합니다.
 private fun AnxietyGapReport.toUiModel(): AnxietyReportData = AnxietyReportData(
