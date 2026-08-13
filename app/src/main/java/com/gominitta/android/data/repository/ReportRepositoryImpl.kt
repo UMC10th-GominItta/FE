@@ -68,22 +68,22 @@ private fun WorryTimelineResponse.toDomain(period: String): WorryTimelineReport 
     topCells = topCells.mapNotNull { it.toDomain() },
 )
 
-private fun com.gominitta.android.data.remote.dto.WorryTimelineCellResponse.toDomain(): WorryTimelineCell? {
-    val day = when (dayOfWeek) {
-        "MONDAY" -> ReportDayOfWeek.MON
-        "TUESDAY" -> ReportDayOfWeek.TUE
-        "WEDNESDAY" -> ReportDayOfWeek.WED
-        "THURSDAY" -> ReportDayOfWeek.THU
-        "FRIDAY" -> ReportDayOfWeek.FRI
-        "SATURDAY" -> ReportDayOfWeek.SAT
-        "SUNDAY" -> ReportDayOfWeek.SUN
+internal fun com.gominitta.android.data.remote.dto.WorryTimelineCellResponse.toDomain(): WorryTimelineCell? {
+    val day = when (dayOfWeek.trim().uppercase()) {
+        "MON", "MONDAY" -> ReportDayOfWeek.MON
+        "TUE", "TUESDAY" -> ReportDayOfWeek.TUE
+        "WED", "WEDNESDAY" -> ReportDayOfWeek.WED
+        "THU", "THURSDAY" -> ReportDayOfWeek.THU
+        "FRI", "FRIDAY" -> ReportDayOfWeek.FRI
+        "SAT", "SATURDAY" -> ReportDayOfWeek.SAT
+        "SUN", "SUNDAY" -> ReportDayOfWeek.SUN
         else -> null
     }
-    val slot = when (timeSlot) {
-        "밤" -> ReportTimeSlot.DAWN
-        "아침" -> ReportTimeSlot.MORNING
-        "오후" -> ReportTimeSlot.AFTERNOON
-        "저녁" -> ReportTimeSlot.EVENING
+    val slot = when (timeSlot.trim().uppercase()) {
+        "밤", "DAWN" -> ReportTimeSlot.DAWN
+        "아침", "MORNING" -> ReportTimeSlot.MORNING
+        "오후", "AFTERNOON" -> ReportTimeSlot.AFTERNOON
+        "저녁", "EVENING" -> ReportTimeSlot.EVENING
         else -> null
     }
     return if (day != null && slot != null) WorryTimelineCell(day, slot, count) else null
