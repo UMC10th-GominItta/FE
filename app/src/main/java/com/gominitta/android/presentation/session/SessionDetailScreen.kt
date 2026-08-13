@@ -1,5 +1,6 @@
 package com.gominitta.android.presentation.session
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,6 +63,13 @@ fun SessionDetailScreen(
             viewModel.onDoneHandled()
         }
     }
+    LaunchedEffect(uiState.isExited) {
+        if (uiState.isExited) {
+            onNavigateBack()
+            viewModel.onExitHandled()
+        }
+    }
+    BackHandler { viewModel.saveAndExit() }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -74,7 +82,7 @@ fun SessionDetailScreen(
             onRecordTextChange = viewModel::updateRecordText,
             isSaving = uiState.isSaving,
             errorMessage = uiState.errorMessage,
-            onNavigateBack = onNavigateBack,
+            onNavigateBack = viewModel::saveAndExit,
             onSave = viewModel::save,
         )
     }

@@ -118,6 +118,26 @@ class SessionActiveViewModel @Inject constructor(
         _uiState.update { it.copy(isDone = false) }
     }
 
+    /**
+     * 기록 확인 화면([SessionDetailScreen])에서 고친 내용을 되돌아왔을 때 텍스트 칸에 반영한다.
+     *
+     * 확인 화면이 편집한 게 이 화면의 텍스트 기록일 때만 덮어쓴다 — 텍스트를 비운 채 음성·필기만
+     * 남긴 경우 [flowState]가 들고 있는 건 STT/OCR 기록이라, 그대로 가져오면 그 내용이 텍스트
+     * 칸에 들어가 완료 시 같은 내용이 텍스트 기록으로 한 번 더 저장된다.
+     */
+    fun syncEditedNote() {
+        val editedId = flowState.recordId
+        when {
+            editedId != null && editedId == textRecordId ->
+                _uiState.update { it.copy(noteText = flowState.recordText.orEmpty()) }
+            // 확인 화면에서 내용을 다 지워 텍스트 기록이 삭제된 경우.
+            editedId == null && textRecordId != null -> {
+                textRecordId = null
+                _uiState.update { it.copy(noteText = "") }
+            }
+        }
+    }
+
     fun selectTab(tab: RecordTab) {
         _uiState.update { it.copy(selectedTab = tab) }
     }
