@@ -66,14 +66,20 @@ fun MainScreen(
         }
     }
 
-    val currentTabRoute by tabNavController.currentBackStackEntryAsState() // 추가
-    val showBottomBar = currentTabRoute?.destination?.route !in setOf( // 변경
+    val currentTabRoute by tabNavController.currentBackStackEntryAsState()
+    val showBottomBar = currentTabRoute?.destination?.route !in setOf(
         Routes.RECIPE_RUN,
+        Routes.RECIPE_CREATE,
+        Routes.RECIPE_EDIT,
         Routes.RECIPE_COMPLETE,
     )
     Scaffold(
         modifier = modifier,
-        bottomBar = { GominittaBottomBar(tabNavController) },
+        bottomBar = {
+            if (showBottomBar) {
+                GominittaBottomBar(tabNavController)
+            }
+        },
         containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onBackground,
     ) { innerPadding ->
