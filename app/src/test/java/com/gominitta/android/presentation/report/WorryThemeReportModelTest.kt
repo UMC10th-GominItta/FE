@@ -19,12 +19,17 @@ class WorryThemeReportModelTest {
             hasEnoughData = false,
             reportedTotalCount = 10,
         )
+        val insufficient = report().copy(
+            hasEnoughData = true,
+            reportedTotalCount = 2,
+        )
         val visible = report().copy(
             hasEnoughData = true,
             reportedTotalCount = 3,
         )
 
         assertFalse(hidden.canRender)
+        assertFalse(insufficient.canRender)
         assertTrue(visible.canRender)
         assertEquals(3L, visible.totalCount)
     }
