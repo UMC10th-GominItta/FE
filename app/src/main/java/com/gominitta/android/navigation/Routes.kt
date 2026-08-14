@@ -24,6 +24,8 @@ object Routes {
 
     const val MY_PAGE_FAVORITE_TIME = "my_page_favorite_time"
     const val MY_PAGE_FAVORITE_TIME_ADD = "my_page_favorite_time_add"
+    const val MY_PAGE_FAVORITE_TIME_EDIT = "my_page_favorite_time_edit/{favoriteTimeId}"
+    fun favoriteTimeEditRoute(favoriteTimeId: Long) = "my_page_favorite_time_edit/$favoriteTimeId"
     const val MY_PAGE_NOTIFICATION = "my_page_notification"
     const val MY_PAGE_PROFILE_EDIT = "my_page_profile_edit"
     const val MY_PAGE_WITHDRAW = "my_page_withdraw"

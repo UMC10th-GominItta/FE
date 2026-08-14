@@ -29,8 +29,8 @@ object NetworkModule {
 
     private const val BASE_URL = "https://www.gominitta.cloud/"
 
-    /** 서버 STT/OCR 추론까지 기다려야 해서 OkHttp 기본값(10초)으론 모자란다. */
-    private const val MEDIA_UPLOAD_TIMEOUT_SECONDS = 20
+    /** 서버 STT/OCR 추론까지 기다려야 해서 OkHttp 기본값(10초)으론 모자란다. 서버가 OpenAI 응답을 60초까지 기다리므로 같은 값으로 맞춘다. */
+    private const val MEDIA_UPLOAD_TIMEOUT_SECONDS = 60
 
     private val Request.isMediaUpload: Boolean
         get() = url.encodedPath.endsWith("/records/voice") ||

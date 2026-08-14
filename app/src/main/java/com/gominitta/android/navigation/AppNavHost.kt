@@ -35,6 +35,7 @@ import com.gominitta.android.presentation.worry.WorryMemoScreen
 import com.gominitta.android.presentation.worry.WorryScheduleScreen
 import com.gominitta.android.presentation.worry.WorrySavedScreen
 import com.gominitta.android.presentation.mypage.FavoriteTimeAddRoute
+import com.gominitta.android.presentation.mypage.FavoriteTimeEditRoute
 import com.gominitta.android.presentation.mypage.FavoriteTimeRoute
 import com.gominitta.android.presentation.mypage.MyPageRoute
 import com.gominitta.android.presentation.mypage.NotificationSettingRoute
@@ -158,6 +159,9 @@ fun AppNavHost(
             FavoriteTimeRoute(
                 onBackClick = { navController.popBackStack() },
                 onAddClick = { navController.navigate(Routes.MY_PAGE_FAVORITE_TIME_ADD) },
+                onEditClick = { target ->
+                    navController.navigate(Routes.favoriteTimeEditRoute(target.id))
+                },
             )
         }
 
@@ -172,6 +176,32 @@ fun AppNavHost(
                     navController.popBackStack()
                 },
             )
+        }
+
+        composable(
+            route = Routes.MY_PAGE_FAVORITE_TIME_EDIT,
+            arguments = listOf(navArgument("favoriteTimeId") { type = NavType.LongType }),
+        ) { backStackEntry ->
+            val viewModel: FavoriteTimeViewModel = hiltViewModel(
+                navController.getBackStackEntry(Routes.MY_PAGE_FAVORITE_TIME),
+            )
+            val favoriteTimeId = backStackEntry.arguments?.getLong("favoriteTimeId")
+            val favoriteTime = viewModel.favoriteTimes.firstOrNull { it.id == favoriteTimeId }
+
+            if (favoriteTime != null) {
+                FavoriteTimeEditRoute(
+                    favoriteTime = favoriteTime,
+                    onBackClick = { navController.popBackStack() },
+                    onSaved = { updated ->
+                        viewModel.update(updated)
+                        navController.popBackStack()
+                    },
+                    onDeleteClick = { target ->
+                        viewModel.remove(target)
+                        navController.popBackStack()
+                    },
+                )
+            }
         }
 
         composable(Routes.MY_PAGE_NOTIFICATION) {
