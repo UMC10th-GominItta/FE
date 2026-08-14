@@ -13,9 +13,10 @@ class WorryTimelineReportModelTest {
     }
 
     @Test
-    fun `서버의 데이터 충분 여부를 노출 기준으로 사용한다`() {
+    fun `서버가 충분하다고 응답해도 5건 미만이면 렌더링하지 않는다`() {
         assertFalse(WorryTimelineReportData(10, emptyList(), "", false).canRender)
-        assertTrue(WorryTimelineReportData(0, emptyList(), "", true).canRender)
+        assertFalse(WorryTimelineReportData(0, emptyList(), "", true).canRender)
+        assertTrue(WorryTimelineReportData(5, emptyList(), "", true).canRender)
     }
 
     @Test
