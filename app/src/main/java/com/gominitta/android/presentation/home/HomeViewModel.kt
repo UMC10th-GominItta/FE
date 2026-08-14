@@ -44,7 +44,7 @@ class HomeViewModel @Inject constructor(
 
     /**
      * `/home`이 주는 nextSession 하나만 믿지 않는다 — 걱정을 삭제해도 백엔드가 연결된 세션을
-     * 안 지워서(백엔드 한계) 그 삭제된 걱정의 세션이 시간상 가장 이르면 서버가 항상 그것부터
+     * 안 지워서, 그 삭제된 걱정의 세션이 시간상 가장 이르면 서버가 항상 그것부터
      * "다음 세션"으로 고른다. 그래서 세션 목록을 직접 받아 직접 고른다.
      *
      * 고르는 기준은 "예정된 세션 중 앞으로 가장 빨리 시작할 것" — 목록 API는 SCHEDULED와
@@ -59,16 +59,24 @@ class HomeViewModel @Inject constructor(
             is ApiResult.Success -> result.data.associateBy { it.id }
             is ApiResult.Error, is ApiResult.NetworkError -> null
         }
+        // 세션의 제목·예약 시각은 생성 시점 스냅샷이라 걱정 수정이 반영 안 된다 — 고르기 전에 최신 값으로 덮어쓴다.
+        val liveSessions = sessions.mapNotNull { session ->
+            if (activeWorries == null) return@mapNotNull session
+            val worry = activeWorries[session.worryId] ?: return@mapNotNull null
+            session.copy(
+                worryTitle = worry.title,
+                scheduledStartAt = worry.scheduledStartAt,
+                scheduledEndAt = worry.scheduledEndAt,
+            )
+        }
         val now = LocalDateTime.now()
-        val session = sessions
+        val session = liveSessions
             .filter { it.status == SessionStatus.SCHEDULED && it.scheduledEndAt.isAfter(now) }
-            .filter { activeWorries == null || it.worryId in activeWorries }
             .minByOrNull { it.scheduledStartAt }
             ?: return null
-        // 세션의 worryTitle은 생성 시점 스냅샷이라 걱정 수정이 반영 안 된다 — 최신 제목으로 덮어쓴다.
         return NextSession(
             sessionId = session.id,
-            title = activeWorries?.get(session.worryId)?.title ?: session.worryTitle,
+            title = session.worryTitle,
             status = session.status.raw,
             startedAt = session.scheduledStartAt,
         )

@@ -89,7 +89,7 @@ class SessionActiveViewModel @Inject constructor(
             try {
                 val session = getSessionDetail(sessionId)
                 flowState.start(sessionId, session.status == SessionStatus.IN_PROGRESS)
-                // worryTitle/worryContent는 세션 생성 시점 스냅샷이라 걱정 수정이 반영 안 된다(백엔드 한계).
+                // worryTitle/worryContent는 세션 생성 시점 스냅샷이라 걱정 수정이 반영 안 된다.
                 // 최신 걱정 내용으로 덮어쓰고, 조회 실패 시엔 스냅샷을 그대로 보여준다.
                 val liveWorry = when (val result = getWorry(session.worryId)) {
                     is ApiResult.Success -> result.data
