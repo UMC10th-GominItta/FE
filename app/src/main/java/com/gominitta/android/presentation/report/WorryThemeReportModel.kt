@@ -21,7 +21,8 @@ data class WorryThemeReportData(
     val totalCount: Long get() = reportedTotalCount ?: themes.sumOf { it.count }
 
     /** 걱정 테마 리포트를 표시하기에 전체 걱정 기록 수가 충분한지 여부 */
-    val canRender: Boolean get() = hasEnoughData ?: (totalCount >= MINIMUM_WORRY_THEME_COUNT)
+    val canRender: Boolean
+        get() = totalCount >= MINIMUM_WORRY_THEME_COUNT && hasEnoughData != false
 }
 
 /**
