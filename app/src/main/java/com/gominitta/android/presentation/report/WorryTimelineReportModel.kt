@@ -17,7 +17,8 @@ data class WorryTimelineReportData(
     val hasEnoughData: Boolean? = null,
 ) {
     /** 걱정 타임라인을 표시하기에 전체 걱정 기록 수가 충분한지 여부 */
-    val canRender: Boolean get() = hasEnoughData ?: (totalCount >= MINIMUM_TIMELINE_COUNT)
+    val canRender: Boolean
+        get() = totalCount >= MINIMUM_TIMELINE_COUNT && hasEnoughData != false
 }
 
 /**
